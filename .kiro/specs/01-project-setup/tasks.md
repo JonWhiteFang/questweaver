@@ -6,7 +6,7 @@
   - Create `gradle/wrapper` directory structure
   - _Requirements: 1.1, 2.1_
 
-- [ ] 2. Configure Gradle wrapper and properties
+- [x] 2. Configure Gradle wrapper and properties
   - [x] 2.1 Set up Gradle wrapper with version 8.5+
     - Create `gradle-wrapper.properties` with distribution URL
     - Create `gradlew` and `gradlew.bat` wrapper scripts
@@ -19,7 +19,7 @@
     - Configure Kotlin incremental compilation settings
     - _Requirements: 2.2, 2.3, 2.4, 7.1, 7.2, 7.4_
 
-- [ ] 3. Create version catalog
+- [x] 3. Create version catalog
   - [x] 3.1 Create `gradle/libs.versions.toml` file
     - Define version variables for all major dependencies
     - Add Kotlin 1.9.24, AGP 8.5.0, Compose BOM 2024.06.00
@@ -53,14 +53,14 @@
     - Add detekt plugin reference
     - _Requirements: 3.2_
 
-- [ ] 4. Create root build configuration
-  - [ ] 4.1 Create root `build.gradle.kts`
+- [x] 4. Create root build configuration
+  - [x] 4.1 Create root `build.gradle.kts`
     - Apply plugins with `apply false` for subprojects
     - Configure allprojects repositories (Google, Maven Central)
     - Add clean task to delete root build directory
     - _Requirements: 1.1, 2.1_
   
-  - [ ] 4.2 Create `settings.gradle.kts`
+  - [x] 4.2 Create `settings.gradle.kts`
     - Configure plugin management with repositories
     - Set dependency resolution mode to FAIL_ON_PROJECT_REPOS
     - Configure repositories (Google, Maven Central)
