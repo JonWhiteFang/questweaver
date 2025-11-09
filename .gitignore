@@ -1,0 +1,52 @@
+# Gradle
+.gradle/
+build/
+*/build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+captures/
+.externalNativeBuild
+.cxx
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Logs
+*.log
+
+# Intermediate files
+*.class
+*.jar
+*.war
+*.ear
+*.aar
+
+# Build outputs
+*.hprof
