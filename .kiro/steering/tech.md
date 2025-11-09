@@ -1,221 +1,162 @@
+---
+inclusion: always
+---
+
 # QuestWeaver Tech Stack
 
-## Build System
+## Core Stack
 
-- **Build Tool**: Gradle 8.5+ with Kotlin DSL
-- **Version Management**: Centralized in `gradle/libs.versions.toml`
-- **Android Gradle Plugin**: 8.5.0
-- **Kotlin**: 1.9.24 with JVM toolchain 17
+**Language**: Kotlin 100% (1.9.24, JVM 17)  
+**Build**: Gradle 8.5+ with Kotlin DSL, versions in `gradle/libs.versions.toml`  
+**UI**: Jetpack Compose (BOM 2024.06.00) + Material3  
+**Architecture**: Clean Architecture + MVI + Event Sourcing  
+**DI**: Koin 3.5.6 (pure Kotlin DSL)  
+**Async**: Coroutines 1.8.1 + Flow for reactive state  
+**Database**: Room 2.6.1 + SQLCipher 4.5.5 (encrypted)  
+**Network**: Retrofit 2.11.0 + OkHttp 4.12.0  
+**Serialization**: kotlinx-serialization 1.6.3  
+**Testing**: kotest 5.9.1 + MockK 1.13.10
 
-## Core Technologies
+## Module Structure
 
-### Language & Runtime
-- **Kotlin**: 100% Kotlin codebase
-- **Coroutines**: 1.8.1 for async operations
-- **Flow**: Reactive streams for state management
-- **kotlinx-serialization**: 1.6.3 for JSON serialization
+```
+app/                    # DI assembly, navigation, theme
+├── core/
+│   ├── domain/        # Pure Kotlin: entities, use cases, events (NO Android deps)
+│   ├── data/          # Room + SQLCipher, repository implementations
+│   └── rules/         # Deterministic rules engine (NO Android, NO AI)
+├── feature/
+│   ├── map/           # Compose Canvas, pathfinding, geometry
+│   ├── encounter/     # Turn engine, combat UI (depends on feature:map)
+│   └── character/     # Character sheets, party management
+├── ai/
+│   ├── ondevice/      # ONNX Runtime 1.16.3 for intent parsing
+│   └── gateway/       # Retrofit client for remote LLM (optional)
+└── sync/
+    └── firebase/      # Cloud backup via WorkManager 2.9.0
+```
 
-### UI Framework
-- **Jetpack Compose**: BOM 2024.06.00
-- **Material3**: Design system
-- **Compose Canvas**: For tactical map rendering
-- **Activity Compose**: 1.9.0
+## Critical Dependency Rules
 
-### Architecture
-- **Pattern**: Clean Architecture + MVI (Model-View-Intent)
-- **DI**: Koin 3.5.6 (pure Kotlin DSL)
-- **State Management**: Unidirectional data flow with StateFlow
+**ALLOWED:**
+- `app` → all modules
+- `feature/*` → `core:domain`, `core:rules`
+- `feature/encounter` → `feature:map` (ONLY exception)
+- `core:data` → `core:domain`
+- `ai/*`, `sync/*` → `core:domain`
 
-### Persistence
-- **Database**: Room 2.6.1 with SQLCipher 4.5.5
-- **Encryption**: SQLCipher for local data encryption
-- **SQLite KTX**: 2.4.0 for enhanced SQLite support
-- **Event Sourcing**: All state mutations logged as events
+**FORBIDDEN:**
+- `core:domain` → any other module (pure Kotlin only)
+- `core:rules` → Android dependencies or AI
+- `feature/*` → other `feature/*` (except encounter→map)
+- Circular dependencies
 
-### Networking
-- **HTTP Client**: Retrofit 2.11.0 + OkHttp 4.12.0
-- **Logging**: OkHttp logging interceptor
-- **Serialization**: kotlinx-serialization converter for Retrofit
+## Key Patterns
 
-### Background Work
-- **WorkManager**: 2.9.0 for cloud sync and background tasks
+### MVI State Management
+```kotlin
+// State: single immutable data class
+data class EncounterUiState(val round: Int, val activeCreatureId: Long?)
 
-### AI/ML
-- **On-Device**: ONNX Runtime 1.16.3 for intent parsing
-- **Remote**: Optional gateway via Retrofit (Firebase Functions or Ktor)
+// Intent: sealed interface for user actions
+sealed interface EncounterIntent {
+    data class MoveTo(val pos: GridPos) : EncounterIntent
+    object EndTurn : EncounterIntent
+}
 
-### Testing
-- **Unit Tests**: kotest 5.9.1 + MockK 1.13.10
-- **Screenshot Tests**: Paparazzi 1.3.3 (planned)
-- **Property-Based**: kotest property testing
+// ViewModel: unidirectional flow with StateFlow
+class EncounterViewModel : ViewModel() {
+    private val _state = MutableStateFlow(EncounterUiState())
+    val state: StateFlow<EncounterUiState> = _state.asStateFlow()
+    fun handle(intent: EncounterIntent) { /* process */ }
+}
+```
+
+### Event Sourcing
+- All state mutations produce immutable `GameEvent` instances
+- Events logged to database for full replay capability
+- Use sealed interfaces for event hierarchies
+- State derived from event replay, never mutated directly
+
+### Repository Pattern
+- Interfaces in `core:domain`, implementations in `core:data`
+- Return `Flow` for reactive queries, `suspend fun` for one-shot operations
+- Use `sealed interface` for result types (Success/Failure/RequiresChoice)
+
+## Code Style
+
+- **Immutability**: Prefer `val` over `var`, `data class` for entities
+- **Sealed Types**: Use for ADTs (actions, events, results)
+- **Exhaustive When**: Always use exhaustive `when` for sealed types
+- **Naming**: PascalCase for classes, camelCase for functions/properties
+- **Packages**: Group by feature/layer, not by type (e.g., `dev.questweaver.feature.map.ui`)
 
 ## Common Commands
 
-### Build & Run
 ```bash
-# Sync Gradle dependencies
-./gradlew --refresh-dependencies
-
-# Build debug APK
+# Build & install
 ./gradlew assembleDebug
-
-# Build release APK
-./gradlew assembleRelease
-
-# Install on connected device
 ./gradlew installDebug
 
-# Run app on device/emulator
-# Use Android Studio Run button or:
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
+# Testing
+./gradlew test                    # All tests
+./gradlew :core:rules:test        # Specific module
+./gradlew lint                    # Lint checks
 
-### Testing
-```bash
-# Run all unit tests
-./gradlew test
-
-# Run tests for specific module
-./gradlew :core:rules:test
-
-# Run tests with coverage (when configured)
-./gradlew testDebugUnitTest
-
-# Run lint checks
-./gradlew lint
-```
-
-### Code Quality
-```bash
-# Run lint on all modules
-./gradlew lintDebug
-
-# Generate lint report
-./gradlew lintDebug --continue
-
-# Check for dependency updates
-./gradlew dependencyUpdates
-```
-
-### Database
-```bash
-# Export Room schema (configured in build.gradle.kts)
-# Schemas exported to: core/data/schemas/
-
-# View database on device (requires root or debuggable app)
-adb shell
-run-as dev.questweaver
-cd databases
-sqlite3 questweaver.db
-```
-
-### Clean & Rebuild
-```bash
-# Clean build artifacts
+# Clean
 ./gradlew clean
-
-# Clean + rebuild
 ./gradlew clean build
-
-# Clean specific module
-./gradlew :app:clean
 ```
 
-## Module Dependencies
-
-### Dependency Graph
-```
-app
-├── core:domain (entities, use cases, events)
-├── core:data (repositories, Room, DAOs)
-├── core:rules (deterministic rules engine)
-├── feature:map (map UI, pathfinding, geometry)
-├── feature:encounter (combat, turn engine)
-├── feature:character (PC sheet, party management)
-├── ai:ondevice (ONNX models, wrappers)
-├── ai:gateway (Retrofit API, DTOs)
-└── sync:firebase (cloud backup, WorkManager)
-```
-
-### Module Isolation Rules
-- Feature modules do NOT depend on other feature modules
-- All features depend on `core:domain`
-- Data layer accessed via repositories in `core:data`
-- Rules engine is pure Kotlin with no Android dependencies
-
-## Key Libraries
-
-### Compose
-- `androidx.compose:compose-bom:2024.06.00`
-- `androidx.compose.ui:ui`
-- `androidx.compose.material3:material3`
-- `androidx.activity:activity-compose:1.9.0`
-
-### Dependency Injection
-- `io.insert-koin:koin-core:3.5.6`
-- `io.insert-koin:koin-android:3.5.6`
-
-### Networking
-- `com.squareup.retrofit2:retrofit:2.11.0`
-- `com.squareup.okhttp3:okhttp:4.12.0`
-- `com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0`
-
-### Database
-- `androidx.room:room-runtime:2.6.1`
-- `androidx.room:room-ktx:2.6.1`
-- `net.zetetic:android-database-sqlcipher:4.5.5`
-
-### AI/ML
-- `com.microsoft.onnxruntime:onnxruntime-android:1.16.3`
+**Note**: Use `./gradlew` on Unix/Mac, `gradlew.bat` on Windows
 
 ## Build Configuration
 
-### Compile & Target SDK
 - **compileSdk**: 34
 - **minSdk**: 26 (Android 8.0+)
 - **targetSdk**: 34
-
-### Build Types
-- **debug**: No minification, debuggable
-- **release**: ProGuard enabled, optimized
-
-### ProGuard
-- Rules in `app/proguard-rules.pro`
-- Keeps kotlinx-serialization annotations
-- Optimized for release builds
-
-## Development Setup
-
-1. **Android Studio**: Giraffe (2022.3.1) or newer
-2. **JDK**: 17 (configured via Gradle toolchain)
-3. **Android SDK**: API 34 installed
-4. **Gradle**: Wrapper included (8.5+)
-
-### First-Time Setup
-```bash
-# Clone repository
-git clone <repo-url>
-cd questweaver
-
-# Open in Android Studio
-# File > Open > select questweaver folder
-
-# Gradle sync will download dependencies automatically
-
-# Run on emulator or device
-# Click Run button or Shift+F10
-```
+- **ProGuard**: Enabled in release builds (`app/proguard-rules.pro`)
 
 ## Performance Targets
 
-- **Map Render**: ≤4ms per frame (60fps)
-- **AI Tactical Decision**: ≤300ms on-device
-- **LLM Narration**: 4s soft timeout (remote)
-- **Database Queries**: <50ms for typical operations
+- Map render: ≤4ms per frame (60fps)
+- AI tactical decision: ≤300ms on-device
+- LLM narration: 4s soft timeout (remote)
+- Database queries: <50ms typical
 
-## Security
+## Security Requirements
 
-- **Encryption**: SQLCipher with Android Keystore-wrapped keys
+- **Encryption**: SQLCipher with Android Keystore-wrapped keys for all local data
 - **Network**: TLS 1.2+ for all API calls
-- **ProGuard**: Obfuscation enabled in release builds
+- **ProGuard**: Obfuscation enabled in release
 - **Permissions**: Minimal (no location, camera, etc.)
+
+## AI Integration
+
+- **On-Device**: ONNX Runtime for intent parsing (models in `app/src/main/assets/models/`)
+- **Remote**: Optional LLM gateway via Retrofit (4s soft timeout, 8s hard timeout)
+- **Fallback**: Template-based narration when AI unavailable
+- **Rule**: AI proposes, rules engine validates before commit
+
+## Testing Strategy
+
+- **Unit Tests**: kotest with descriptive test names, MockK for mocking
+- **Property-Based**: kotest property testing for deterministic components
+- **Integration**: Room in-memory database, mock network responses
+- **Coverage Goals**: core/rules 90%+, domain 85%+, data 80%+, UI 60%+
+
+## Development Setup
+
+1. Android Studio Giraffe (2022.3.1) or newer
+2. JDK 17 (configured via Gradle toolchain)
+3. Android SDK API 34 installed
+4. Open project, Gradle sync auto-downloads dependencies
+5. Run with Android Studio Run button or `Shift+F10`
+
+## Key Constraints
+
+- `core:domain` and `core:rules` must be pure Kotlin (no Android dependencies)
+- Rules engine must be 100% deterministic (seeded RNG only, no AI calls)
+- All state mutations must produce `GameEvent` instances
+- Feature modules cannot depend on other feature modules (except encounter→map)
+- Use event sourcing for all gameplay state changes

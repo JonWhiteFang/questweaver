@@ -1,467 +1,227 @@
+---
+inclusion: always
+---
+
 # QuestWeaver Project Structure
 
-## Module Organization
+## Module Architecture
 
-QuestWeaver follows a multi-module architecture with clear separation of concerns. Each module has a specific responsibility and well-defined boundaries.
+Multi-module Clean Architecture with strict dependency rules:
 
 ```
-questweaver/
-├── app/                          # Android application module
+app/                    # DI assembly, navigation, theme
 ├── core/
-│   ├── domain/                   # Business logic & entities
-│   ├── data/                     # Data layer & repositories
-│   └── rules/                    # Deterministic rules engine
+│   ├── domain/        # Pure Kotlin: entities, use cases, events (NO dependencies)
+│   ├── data/          # Room + SQLCipher, repository implementations
+│   └── rules/         # Deterministic rules engine (NO Android, NO AI)
 ├── feature/
-│   ├── map/                      # Tactical map UI & rendering
-│   ├── encounter/                # Combat & turn management
-│   └── character/                # Character sheets & party
+│   ├── map/           # Compose Canvas rendering, pathfinding, geometry
+│   ├── encounter/     # Turn engine, initiative, combat UI
+│   └── character/     # Character sheets, party management
 ├── ai/
-│   ├── ondevice/                 # ONNX models & inference
-│   └── gateway/                  # Remote AI API client
+│   ├── ondevice/      # ONNX Runtime for intent parsing
+│   └── gateway/       # Retrofit client for remote LLM (optional)
 └── sync/
-    └── firebase/                 # Cloud sync & backup
+    └── firebase/      # Cloud backup via WorkManager
 ```
 
-## Module Details
+## Critical Dependency Rules
 
-### app/
-**Purpose**: Android application entry point and DI assembly
-
-**Contents**:
-- `MainActivity.kt` - Main Compose activity
-- `QuestWeaverApp.kt` - Application class with Koin setup
-- `build.gradle.kts` - App-level dependencies
-- `proguard-rules.pro` - ProGuard configuration
-- `src/main/AndroidManifest.xml` - App manifest
-
-**Dependencies**: All other modules
-
-**Key Responsibilities**:
-- Koin module assembly and initialization
-- Navigation setup (when implemented)
-- Theme and app-level Compose configuration
-- Application lifecycle management
-
----
-
-### core/domain/
-**Purpose**: Pure Kotlin business logic, entities, and use cases
-
-**Contents**:
-- `entities/` - Domain models (Creature, Campaign, Encounter, etc.)
-- `usecases/` - Business operations (ProcessPlayerAction, RunCombatRound, etc.)
-- `events/` - Sealed classes for event sourcing (GameEvent hierarchy)
-- `repositories/` - Repository interfaces (implementation in core:data)
-
-**Dependencies**: None (pure Kotlin)
-
-**Key Characteristics**:
-- No Android dependencies
-- Immutable data classes
-- Sealed classes for ADTs (actions, events, results)
-- Interface-driven design
-
-**Example Structure**:
-```
-core/domain/src/main/kotlin/dev/questweaver/domain/
-├── entities/
-│   ├── Creature.kt
-│   ├── Campaign.kt
-│   ├── Encounter.kt
-│   └── MapGrid.kt
-├── events/
-│   └── GameEvent.kt (sealed interface)
-├── usecases/
-│   ├── ProcessPlayerAction.kt
-│   └── RunCombatRound.kt
-└── repositories/
-    ├── EventRepository.kt
-    └── CreatureRepository.kt
-```
-
----
-
-### core/data/
-**Purpose**: Data persistence, Room database, and repository implementations
-
-**Contents**:
-- `db/` - Room database and DAOs
-- `entities/` - Room entity classes
-- `repositories/` - Repository implementations
-- `di/` - Koin data module
-
-**Dependencies**: core:domain
-
-**Key Responsibilities**:
-- Room database setup with SQLCipher encryption
-- Event-sourced persistence (Event table)
-- Repository pattern implementation
-- Database migrations
-
-**Example Structure**:
-```
-core/data/src/main/kotlin/dev/questweaver/data/
-├── db/
-│   ├── AppDatabase.kt
-│   ├── EventDao.kt
-│   └── CreatureDao.kt
-├── entities/
-│   ├── EventEntity.kt
-│   └── CreatureEntity.kt
-├── repositories/
-│   ├── EventRepositoryImpl.kt
-│   └── CreatureRepositoryImpl.kt
-└── di/
-    └── DataModule.kt
-```
-
----
-
-### core/rules/
-**Purpose**: Deterministic rules engine (no AI, no randomness leaks)
-
-**Contents**:
-- `engine/` - Core rules engine
-- `dice/` - Seeded dice roller
-- `combat/` - Attack, damage, saving throw resolution
-- `conditions/` - Status effects and conditions
-
-**Dependencies**: core:domain
-
-**Key Characteristics**:
-- Pure Kotlin (no Android dependencies)
-- Deterministic with seeded RNG
-- SRD-compatible D&D 5e mechanics
-- Exhaustive when expressions for sealed types
-
-**Example Structure**:
-```
-core/rules/src/main/kotlin/dev/questweaver/rules/
-├── engine/
-│   └── RulesEngine.kt
-├── dice/
-│   ├── DiceRoller.kt
-│   └── DiceRoll.kt
-├── combat/
-│   ├── AttackResolver.kt
-│   └── DamageCalculator.kt
-└── conditions/
-    └── ConditionManager.kt
-```
-
----
-
-### feature/map/
-**Purpose**: Tactical map UI, rendering, and geometry
-
-**Contents**:
-- `ui/` - Compose map components
-- `render/` - Canvas rendering logic
-- `pathfinding/` - A* pathfinding
-- `geometry/` - Line-of-effect, range calculations
-
-**Dependencies**: core:domain
-
-**Key Responsibilities**:
-- Grid-based map rendering with Compose Canvas
-- Token placement and movement visualization
-- Pathfinding and movement validation
-- Range overlays and AoE templates
-- Touch gesture handling
-
-**Example Structure**:
-```
-feature/map/src/main/kotlin/dev/questweaver/feature/map/
-├── ui/
-│   ├── TacticalMapScreen.kt
-│   └── MapViewModel.kt
-├── render/
-│   ├── MapRenderer.kt
-│   └── TokenRenderer.kt
-├── pathfinding/
-│   └── AStarPathfinder.kt
-└── geometry/
-    ├── LineOfEffect.kt
-    └── RangeCalculator.kt
-```
-
----
-
-### feature/encounter/
-**Purpose**: Combat encounters, turn management, initiative
-
-**Contents**:
-- `ui/` - Combat UI screens
-- `engine/` - Turn engine and initiative
-- `viewmodel/` - Encounter state management
-
-**Dependencies**: core:domain, core:rules, feature:map
-
-**Key Responsibilities**:
-- Initiative tracking and turn order
-- Combat action processing
-- Turn phase management (move/action/bonus/reaction)
-- Combat UI and action selection
-
-**Example Structure**:
-```
-feature/encounter/src/main/kotlin/dev/questweaver/feature/encounter/
-├── ui/
-│   ├── EncounterScreen.kt
-│   └── InitiativeList.kt
-├── engine/
-│   ├── TurnEngine.kt
-│   └── InitiativeTracker.kt
-└── viewmodel/
-    └── EncounterViewModel.kt
-```
-
----
-
-### feature/character/
-**Purpose**: Character sheets, party management, PC/NPC UI
-
-**Contents**:
-- `ui/` - Character sheet screens
-- `viewmodel/` - Character state management
-
-**Dependencies**: core:domain
-
-**Key Responsibilities**:
-- PC character sheet display and editing
-- AI party member overview
-- Inventory and equipment management
-- Character import/export
-
-**Example Structure**:
-```
-feature/character/src/main/kotlin/dev/questweaver/feature/character/
-├── ui/
-│   ├── CharacterSheetScreen.kt
-│   └── PartyOverview.kt
-└── viewmodel/
-    └── CharacterViewModel.kt
-```
-
----
-
-### ai/ondevice/
-**Purpose**: On-device AI inference with ONNX Runtime
-
-**Contents**:
-- `models/` - Model wrappers
-- `inference/` - ONNX session management
-- `intent/` - Intent classification
-
-**Dependencies**: core:domain
-
-**Key Responsibilities**:
-- ONNX model loading and inference
-- Intent parsing from natural language
-- Model warmup and caching
-- Fallback to keyword matching
-
-**Example Structure**:
-```
-ai/ondevice/src/main/kotlin/dev/questweaver/ai/ondevice/
-├── models/
-│   └── IntentClassifier.kt
-├── inference/
-│   └── OnnxSessionManager.kt
-└── intent/
-    └── IntentParser.kt
-```
-
-**Assets**: `app/src/main/assets/models/intent.onnx`
-
----
-
-### ai/gateway/
-**Purpose**: Remote AI API client (optional, for rich narration)
-
-**Contents**:
-- `api/` - Retrofit API interfaces
-- `dto/` - Data transfer objects
-- `cache/` - Response caching
-
-**Dependencies**: core:domain
-
-**Key Responsibilities**:
-- Retrofit API client for LLM gateway
-- Request/response serialization
-- Response caching and rate limiting
-- Timeout and fallback handling
-
-**Example Structure**:
-```
-ai/gateway/src/main/kotlin/dev/questweaver/ai/gateway/
-├── api/
-│   └── AIGatewayApi.kt
-├── dto/
-│   ├── NarrateRequest.kt
-│   └── NarrateResponse.kt
-└── cache/
-    └── NarrationCache.kt
-```
-
----
-
-### sync/firebase/
-**Purpose**: Cloud backup and synchronization (optional)
-
-**Contents**:
-- `auth/` - Firebase authentication
-- `storage/` - Cloud Storage integration
-- `workers/` - WorkManager backup jobs
-
-**Dependencies**: core:domain, core:data
-
-**Key Responsibilities**:
-- Firebase Authentication setup
-- Campaign backup to Cloud Storage
-- WorkManager periodic sync
-- Conflict resolution
-
-**Example Structure**:
-```
-sync/firebase/src/main/kotlin/dev/questweaver/sync/firebase/
-├── auth/
-│   └── FirebaseAuthManager.kt
-├── storage/
-│   └── CloudBackupManager.kt
-└── workers/
-    └── BackupWorker.kt
-```
-
----
-
-## Dependency Rules
-
-### Allowed Dependencies
+**ALLOWED:**
 - `app` → all modules
 - `feature/*` → `core:domain`, `core:rules`
-- `feature/encounter` → `feature:map` (for map integration)
+- `feature/encounter` → `feature:map` (only exception)
 - `core:data` → `core:domain`
 - `core:rules` → `core:domain`
 - `ai/*` → `core:domain`
 - `sync/*` → `core:domain`, `core:data`
 
-### Forbidden Dependencies
-- `core:domain` → any other module (pure Kotlin)
-- `core:rules` → any Android dependencies
-- `feature/*` → other `feature/*` modules (except encounter→map)
-- Circular dependencies between any modules
+**FORBIDDEN:**
+- `core:domain` → any other module (pure Kotlin only)
+- `core:rules` → Android dependencies or AI
+- `feature/*` → other `feature/*` (except encounter→map)
+- Circular dependencies
 
----
+## Module Responsibilities
+
+### core/domain/
+**Pure Kotlin business logic - NO Android dependencies**
+
+Structure:
+- `entities/` - Immutable data classes (Creature, Campaign, Encounter, MapGrid)
+- `usecases/` - Single-responsibility operations (ProcessPlayerAction, RunCombatRound)
+- `events/` - Sealed interfaces for event sourcing (GameEvent hierarchy)
+- `repositories/` - Interfaces only (implementations in core:data)
+
+Key rules:
+- All entities are immutable (`data class` with `val`)
+- Use sealed classes/interfaces for ADTs (actions, events, results)
+- No Android imports allowed
+
+### core/data/
+**Persistence layer with Room + SQLCipher**
+
+Structure:
+- `db/` - AppDatabase, DAOs
+- `entities/` - Room entity classes (separate from domain entities)
+- `repositories/` - Repository implementations
+- `di/` - Koin module for data layer
+
+Key rules:
+- All saves encrypted with SQLCipher
+- Event-sourced persistence (Event table logs all mutations)
+- Repository pattern: interface in domain, implementation here
+
+### core/rules/
+**Deterministic D&D 5e SRD rules engine**
+
+Structure:
+- `engine/` - RulesEngine (validates actions, resolves outcomes)
+- `dice/` - Seeded DiceRoller (reproducible randomness)
+- `combat/` - Attack, damage, saving throw resolution
+- `conditions/` - Status effects
+
+Key rules:
+- 100% deterministic (seeded RNG only)
+- NO AI calls in rules engine
+- NO Android dependencies
+- Exhaustive `when` for sealed types
+
+### feature/map/
+**Tactical map rendering and geometry**
+
+Structure:
+- `ui/` - Compose screens and ViewModels
+- `render/` - Canvas drawing logic
+- `pathfinding/` - A* pathfinding
+- `geometry/` - Line-of-effect, range calculations
+
+Key rules:
+- Target ≤4ms render time per frame
+- Use Compose Canvas for grid rendering
+- Keep rendering logic separate from UI state
+
+### feature/encounter/
+**Combat turn management**
+
+Structure:
+- `ui/` - Combat screens, initiative list
+- `engine/` - TurnEngine, InitiativeTracker
+- `viewmodel/` - EncounterViewModel (MVI pattern)
+
+Key rules:
+- Depends on feature:map for tactical integration
+- MVI pattern: unidirectional data flow
+- All actions validated by core:rules before commit
+
+### feature/character/
+**Character sheets and party management**
+
+Structure:
+- `ui/` - Character sheet screens, party overview
+- `viewmodel/` - CharacterViewModel
+
+Key rules:
+- Display only, no rules logic here
+- Import/export character data
+
+### ai/ondevice/
+**ONNX Runtime for on-device inference**
+
+Structure:
+- `models/` - Model wrappers (IntentClassifier)
+- `inference/` - OnnxSessionManager
+- `intent/` - Intent parsing with fallback to keywords
+
+Key rules:
+- Models in `app/src/main/assets/models/`
+- Warm up models on background thread
+- Always provide fallback (keyword matching)
+
+### ai/gateway/
+**Optional remote LLM client**
+
+Structure:
+- `api/` - Retrofit interfaces
+- `dto/` - Request/response DTOs
+- `cache/` - LRU cache for narration
+
+Key rules:
+- 4s soft timeout, 8s hard timeout
+- Cache responses (hash context + action)
+- Fallback to template narration on failure
+
+### sync/firebase/
+**Optional cloud backup**
+
+Structure:
+- `auth/` - Firebase Authentication
+- `storage/` - Cloud Storage integration
+- `workers/` - WorkManager periodic sync
+
+Key rules:
+- Opt-in only (offline-first)
+- Encrypt before upload
+- Handle conflicts with event sourcing
 
 ## File Naming Conventions
 
-### Kotlin Files
-- **Entities**: `Creature.kt`, `Campaign.kt` (singular, PascalCase)
+- **Entities**: `Creature.kt` (singular, PascalCase)
 - **Use Cases**: `ProcessPlayerAction.kt` (verb phrase)
-- **ViewModels**: `EncounterViewModel.kt` (suffix with ViewModel)
-- **Repositories**: `EventRepository.kt` (interface), `EventRepositoryImpl.kt` (implementation)
-- **Screens**: `TacticalMapScreen.kt` (suffix with Screen)
-- **DAOs**: `EventDao.kt` (suffix with Dao)
+- **ViewModels**: `EncounterViewModel.kt` (suffix)
+- **Repositories**: `EventRepository.kt` (interface), `EventRepositoryImpl.kt` (impl)
+- **Screens**: `TacticalMapScreen.kt` (suffix)
+- **DAOs**: `EventDao.kt` (suffix)
 
-### Packages
-- Use lowercase with dots: `dev.questweaver.feature.map.ui`
-- Group by feature/layer, not by type
-- Keep package depth reasonable (3-4 levels max)
+**Packages**: Lowercase with dots, group by feature/layer not type
+- Good: `dev.questweaver.feature.map.ui`
+- Bad: `dev.questweaver.ui.map`
 
----
-
-## Testing Structure
-
-Each module should have corresponding test directories:
-
-```
-module/
-├── src/
-│   ├── main/kotlin/...
-│   └── test/kotlin/...          # Unit tests
-│       └── dev/questweaver/...
-│           └── ModuleTest.kt
-```
-
-### Test Organization
-- Mirror main source structure in test directory
-- Use `Test` suffix for test classes
-- Group related tests in nested contexts (kotest)
-- Keep test fixtures in `common/testing` module (when created)
-
----
-
-## Resource Organization
-
-### app/src/main/res/
-```
-res/
-├── values/
-│   ├── strings.xml              # UI strings
-│   ├── themes.xml               # Material3 theme
-│   └── colors.xml               # Color palette
-├── drawable/                    # Vector drawables
-└── mipmap/                      # App icons
-```
-
-### Assets
-```
-app/src/main/assets/
-└── models/
-    ├── intent.onnx              # Intent classification model
-    └── tokenizer.json           # Tokenizer config
-```
-
----
-
-## Build Files
-
-### Root Level
-- `build.gradle.kts` - Root build configuration
-- `settings.gradle.kts` - Module includes and repositories
-- `gradle/libs.versions.toml` - Version catalog
-- `gradle.properties` - Gradle properties and JVM args
-
-### Module Level
-- Each module has `build.gradle.kts`
-- Library modules use `com.android.library` plugin
-- App module uses `com.android.application` plugin
-- All use `kotlin-android` plugin
-
----
-
-## Key Architectural Patterns
+## Architectural Patterns
 
 ### MVI (Model-View-Intent)
 ```kotlin
-// State: immutable data class
-data class EncounterUiState(...)
+// State: single immutable data class
+data class EncounterUiState(
+    val round: Int = 1,
+    val activeCreatureId: Long? = null,
+    val mapState: MapState = MapState()
+)
 
-// Intent: user actions
-sealed interface EncounterIntent { ... }
+// Intent: sealed interface for user actions
+sealed interface EncounterIntent {
+    data class MoveTo(val pos: GridPos) : EncounterIntent
+    object EndTurn : EncounterIntent
+}
 
 // ViewModel: unidirectional flow
 class EncounterViewModel : ViewModel() {
     private val _state = MutableStateFlow(EncounterUiState())
     val state: StateFlow<EncounterUiState> = _state.asStateFlow()
     
-    fun handle(intent: EncounterIntent) { ... }
+    fun handle(intent: EncounterIntent) { /* process */ }
 }
 ```
 
 ### Event Sourcing
 ```kotlin
-// All state mutations produce events
+// All state mutations produce immutable events
 sealed interface GameEvent {
     val sessionId: Long
     val timestamp: Long
 }
 
-// Events are immutable and logged
-data class AttackResolved(...) : GameEvent
+data class AttackResolved(
+    override val sessionId: Long,
+    override val timestamp: Long,
+    val attackerId: Long,
+    val targetId: Long,
+    val roll: Int,
+    val hit: Boolean,
+    val damage: Int?
+) : GameEvent
 
-// State is derived from event replay
+// State derived from event replay
 fun replayEvents(events: List<GameEvent>): EncounterState
 ```
 
@@ -478,20 +238,63 @@ interface EventRepository {
 class EventRepositoryImpl(private val dao: EventDao) : EventRepository
 ```
 
----
-
-## Navigation Structure (Planned)
+## Package Structure Template
 
 ```
-Home Screen
-├── Continue Campaign
-├── New Campaign
-│   └── Character Import
-│       └── Scene/Dialogue
-│           └── Combat/Map
-│               └── Encounter Screen
-├── Settings
-└── Import/Export
+module/src/main/kotlin/dev/questweaver/{module}/
+├── {feature}/           # Group by feature
+│   ├── ui/             # Composables, screens
+│   ├── viewmodel/      # ViewModels
+│   └── domain/         # Feature-specific logic
+└── di/                 # Koin module
 ```
 
-Each screen is a Composable in its respective feature module, with navigation handled in the app module.
+## Resource Organization
+
+**App resources**: `app/src/main/res/`
+- `values/strings.xml` - UI strings
+- `values/themes.xml` - Material3 theme
+- `drawable/` - Vector drawables
+- `mipmap/` - App icons
+
+**Assets**: `app/src/main/assets/`
+- `models/intent.onnx` - Intent classifier (~80MB)
+- `models/tokenizer.json` - Tokenizer config
+
+## Build Files
+
+**Root level**:
+- `build.gradle.kts` - Root configuration
+- `settings.gradle.kts` - Module includes
+- `gradle/libs.versions.toml` - Version catalog (single source of truth)
+- `gradle.properties` - JVM args, build flags
+
+**Module level**:
+- Each module has `build.gradle.kts`
+- Libraries use `com.android.library`
+- App uses `com.android.application`
+- All use `kotlin-android` plugin
+
+## Testing Structure
+
+Mirror main source structure in test directories:
+
+```
+module/src/
+├── main/kotlin/dev/questweaver/{module}/
+└── test/kotlin/dev/questweaver/{module}/
+    └── {Feature}Test.kt
+```
+
+**Test naming**: `{ClassUnderTest}Test.kt`
+
+## Key Constraints When Creating Files
+
+1. **core/domain**: Pure Kotlin only, no Android imports
+2. **core/rules**: Deterministic only, no AI, no Android
+3. **feature modules**: Cannot depend on other features (except encounter→map)
+4. **Event sourcing**: All state mutations must produce GameEvent
+5. **MVI pattern**: ViewModels expose StateFlow, handle sealed Intent types
+6. **Repository pattern**: Interfaces in domain, implementations in data
+7. **Sealed types**: Use exhaustive `when` expressions
+8. **Immutability**: Prefer `val` and `data class` for entities

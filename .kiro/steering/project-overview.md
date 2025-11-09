@@ -1,97 +1,125 @@
+---
+inclusion: always
+---
+
 # QuestWeaver Project Overview
 
-**Product Name:** QuestWeaver  
-**Platform:** Android (API 26+)  
+**Platform:** Android (API 26+) | **Language:** Kotlin 100%  
 **Architecture:** Clean Architecture + MVI + Event Sourcing
 
-## Mission
-Deliver a solo-friendly D&D-style experience with an AI GM that handles NPCs, scene narration, rules adjudication (SRD-compatible), and combat with a simple tactical map.
+## What This Project Is
 
-## Core Principles
+QuestWeaver is a solo D&D-style RPG where one player controls their PC while AI manages NPCs, narration, and rules. Features grid-based tactical combat with offline-first design.
 
-### 1. Offline-First
-- All core gameplay works without network
-- On-device AI for intent parsing and basic narration
-- Optional cloud sync for backups only
+## Critical Design Constraints
 
-### 2. Deterministic & Reproducible
-- Event-sourced architecture for full replay capability
-- Seeded RNG for all randomness
-- Every dice roll logged with modifiers and context
+When implementing features, these constraints are non-negotiable:
 
-### 3. Modular & Swappable
-- Clear boundaries between Rules, AI, Map, Data, UI
-- Dependency injection for easy component replacement
-- Interface-driven design for testability
+1. **Offline-First**: Core gameplay must work without network. Cloud sync is optional only.
 
-### 4. Simple Tactical Map
-- Focus on clarity over VTT-grade features
-- Grid + tokens + walls + range overlays
-- No photorealistic rendering or complex lighting
+2. **Deterministic**: All randomness uses seeded RNG. Same events must produce same outcomes for replay.
 
-### 5. Privacy & Security
-- Local encryption (SQLCipher) for saves
-- Opt-in analytics and crash reporting
-- No 3rd-party data sharing without consent
+3. **Event-Sourced**: Every state mutation produces immutable `GameEvent` instances. State is derived, never mutated directly.
 
-## Tech Stack (MVP)
+4. **Module Boundaries**: 
+   - `core/domain` and `core/rules` are pure Kotlin (NO Android dependencies)
+   - Feature modules cannot depend on other features (except `encounter` → `map`)
+   - Rules engine is 100% deterministic (NO AI calls)
 
-- **Language:** Kotlin 100%, Coroutines + Flow
-- **UI:** Jetpack Compose (including map via Canvas)
-- **DI:** Koin
-- **Persistence:** Room + SQLCipher
-- **Networking:** Retrofit + OkHttp
-- **Serialization:** kotlinx-serialization
-- **Cloud:** Firebase (Auth + Storage + Functions)
-- **AI On-device:** ONNX Runtime Mobile
-- **AI Remote:** Firebase Functions or Ktor gateway (optional)
-- **Testing:** kotest + MockK + Paparazzi
+5. **Privacy**: Local data encrypted with SQLCipher. No PII in logs.
 
-## Module Structure
+## Tech Stack
+
+- **UI:** Jetpack Compose + Material3 (Canvas for map rendering)
+- **DI:** Koin 3.5.6 (pure Kotlin DSL)
+- **Async:** Coroutines 1.8.1 + Flow
+- **Database:** Room 2.6.1 + SQLCipher 4.5.5
+- **Network:** Retrofit 2.11.0 + OkHttp 4.12.0
+- **Serialization:** kotlinx-serialization 1.6.3
+- **AI On-device:** ONNX Runtime 1.16.3
+- **Testing:** kotest 5.9.1 + MockK 1.13.10
+
+## Module Architecture
 
 ```
-questweaver/
-├── app/                    # Android app & DI assembly
-├── core/
-│   ├── domain/            # Use cases, entities, sealed events
-│   ├── data/              # Repositories, Room, DAOs
-│   └── rules/             # Deterministic rules engine
-├── feature/
-│   ├── map/               # Map UI + geometry + pathfinding
-│   ├── encounter/         # Turn engine, combat screen
-│   └── character/         # PC sheet, AI party management
-├── ai/
-│   ├── ondevice/          # ONNX models + wrappers
-│   └── gateway/           # Retrofit API + DTOs
-└── sync/
-    └── firebase/          # Firebase integration
+app/                    # DI assembly, navigation, theme
+core/
+  domain/              # Pure Kotlin: entities, use cases, events (NO Android)
+  data/                # Room + SQLCipher, repository implementations
+  rules/               # Deterministic rules engine (NO Android, NO AI)
+feature/
+  map/                 # Compose Canvas, pathfinding, geometry
+  encounter/           # Turn engine, combat UI (depends on feature:map)
+  character/           # Character sheets, party management
+ai/
+  ondevice/            # ONNX Runtime for intent parsing
+  gateway/             # Retrofit client for remote LLM (optional)
+sync/
+  firebase/            # Cloud backup via WorkManager
 ```
 
-## Key Constraints
+## Dependency Rules (Strictly Enforced)
 
-### Non-Goals (v1)
-- Photorealistic maps or VTT-grade features
-- Full copyrighted 5e content (SRD-compatible only)
-- Multiplayer over network
-- Complex lighting or dynamic LoS
+**Allowed:**
+- `app` → all modules
+- `feature/*` → `core:domain`, `core:rules`
+- `feature/encounter` → `feature:map` (ONLY exception)
+- `core:data` → `core:domain`
+- `ai/*`, `sync/*` → `core:domain`
 
-### Performance Budget
-- Map render: ≤4ms on mid-tier device
+**Forbidden:**
+- `core:domain` → any other module
+- `core:rules` → Android dependencies or AI
+- `feature/*` → other `feature/*` (except encounter→map)
+- Circular dependencies
+
+## Performance Budgets
+
+- Map render: ≤4ms per frame (60fps target)
 - AI tactical decision: ≤300ms on-device
-- LLM narration (remote): 4s soft timeout
+- LLM narration: 4s soft timeout, 8s hard timeout
+- Database queries: <50ms typical
 
-## Development Phases
+## Scope Boundaries
 
-**MVP (8-10 weeks)**
-- Core rules engine, map grid, single encounter flow
-- PC import, AI allies/enemies (minimal BT)
-- Local saves, basic narration
+**In Scope:**
+- SRD-compatible D&D 5e mechanics
+- Grid-based tactical combat (basic features)
+- On-device AI for intent parsing
+- Local encrypted storage + optional cloud backup
 
-**v1.0**
-- Cloud backup, dialogue agent
-- Homebrew import/export, cover rules
-- Journal auto-summaries
+**Out of Scope (v1):**
+- Photorealistic maps or VTT-grade features
+- Full copyrighted 5e content (SRD only)
+- Multiplayer or networked gameplay
+- Complex lighting or dynamic line-of-sight
 
-**v1.1+**
-- Advanced tactics, faction memory, quests
-- Map editor, condition icons, difficulty sliders
+## Key Patterns to Follow
+
+**MVI State Management:**
+- Single immutable `UiState` data class
+- Sealed `Intent` interface for user actions
+- `StateFlow` for reactive state
+- Unidirectional data flow
+
+**Event Sourcing:**
+- All mutations produce `GameEvent` instances
+- Events are immutable and logged to database
+- State derived from event replay
+- Use sealed interfaces for event hierarchies
+
+**Repository Pattern:**
+- Interfaces in `core:domain`
+- Implementations in `core:data`
+- Return `Flow` for reactive queries
+- Return `suspend fun` for one-shot operations
+
+## When Making Decisions
+
+Ask these questions:
+
+1. **Does it work offline?** Core features must function without network.
+2. **Is it deterministic?** Can outcomes be reproduced from event log?
+3. **Does it respect module boundaries?** Check dependency rules above.
+4. **Is it SRD-compatible?** Avoid copyrighted content.
+5. **Does it maintain performance budgets?** Check targets above.

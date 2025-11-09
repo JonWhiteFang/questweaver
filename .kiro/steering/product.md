@@ -1,38 +1,72 @@
-# QuestWeaver Product Overview
+---
+inclusion: always
+---
 
-**Product Name:** QuestWeaver  
-**Platform:** Android (API 26+)  
-**Type:** Solo D&D-style RPG with AI Game Master
+# QuestWeaver Product Context
 
-## What It Is
+**Platform:** Android (API 26+) | **Type:** Solo D&D-style RPG with AI Game Master
 
-QuestWeaver is an offline-first Android app that delivers a single-player D&D experience. One human controls their PC while AI manages all NPCs, party members, narration, and rules adjudication. The app includes a simple tactical map for combat with grid-based movement, tokens, obstacles, and range overlays.
+## Product Vision
 
-## Core Features
+QuestWeaver is an offline-first Android app delivering single-player D&D experiences. One human player controls their PC while AI manages NPCs, party members, narration, and rules adjudication. Features a simple tactical map for grid-based combat.
 
-- **AI Game Master**: Handles scene narration, NPC dialogue, rules checks, and combat tactics
-- **Tactical Combat**: Grid-based map with tokens, movement, attacks, spells, and conditions
-- **Event-Sourced Persistence**: Full campaign state with replay capability and deterministic outcomes
-- **Offline-First**: Core gameplay works without network; optional cloud sync for backups
-- **SRD-Compatible Rules**: D&D 5e-style mechanics with homebrew support
+## Core Capabilities
 
-## Key Principles
+- **AI Game Master**: Scene narration, NPC dialogue, rules adjudication, combat tactics
+- **Tactical Combat**: Grid-based map with tokens, movement, attacks, spells, conditions
+- **Event Sourcing**: Full campaign replay with deterministic outcomes
+- **Offline-First**: Core gameplay without network; optional cloud sync
+- **SRD Rules**: D&D 5e-compatible mechanics with homebrew support
 
-1. **Solo-Friendly**: Designed for one player with AI-controlled party members
-2. **Deterministic**: Seeded RNG ensures reproducible outcomes
-3. **Modular**: Swappable AI models, rules engines, and storage layers
-4. **Privacy-First**: Local encryption, opt-in analytics, no data sharing
-5. **Simple Tactical Map**: Focus on clarity over VTT-grade features
+## Design Principles
 
-## Target Users
+When implementing features or making decisions:
 
-- Solo RPG players seeking D&D-style experiences
-- Players who want tactical combat without managing multiple characters
-- Users who prefer offline gameplay with optional cloud backup
+1. **Solo-Friendly First**: Design for one player; AI handles all other characters
+2. **Deterministic Core**: Use seeded RNG; ensure reproducible outcomes
+3. **Offline Capable**: Core features must work without network connectivity
+4. **Privacy-First**: Local encryption by default; opt-in for cloud features
+5. **Clarity Over Complexity**: Simple, clear UI over VTT-grade features
+6. **Modular Design**: Swappable components (AI models, rules engines, storage)
 
-## Non-Goals (v1)
+## Scope Boundaries
 
-- Photorealistic maps or advanced VTT features (lighting, dynamic LoS)
-- Full copyrighted 5e content (SRD-compatible only)
-- Multiplayer over network
-- Complex lighting or dynamic line-of-sight systems
+### In Scope
+- SRD-compatible D&D 5e mechanics
+- Grid-based tactical combat with basic features
+- On-device AI for intent parsing and basic narration
+- Local encrypted storage with optional cloud backup
+- Single-player campaign management
+
+### Out of Scope (v1)
+- Photorealistic maps or advanced VTT features (dynamic lighting, fog of war)
+- Full copyrighted 5e content (use SRD only)
+- Multiplayer or networked gameplay
+- Complex line-of-sight or lighting systems
+- Real-time voice/video integration
+
+## Feature Decision Framework
+
+When evaluating new features or changes, ask:
+
+1. **Does it work offline?** Core features must function without network
+2. **Is it deterministic?** Can outcomes be reproduced from event log?
+3. **Does it respect privacy?** Is data encrypted locally by default?
+4. **Is it simple enough?** Does it maintain clarity over complexity?
+5. **Is it SRD-compatible?** Avoid copyrighted content
+
+## User Experience Priorities
+
+1. **Immediate Playability**: Minimize setup; get into gameplay quickly
+2. **Clear Feedback**: Always show what's happening and why
+3. **Graceful Degradation**: Fallback to templates when AI unavailable
+4. **Responsive UI**: Maintain 60fps on mid-tier devices
+5. **Transparent AI**: Clearly indicate AI-generated content
+
+## Technical Constraints
+
+- **Min SDK**: API 26 (Android 8.0+)
+- **Performance**: Map render ≤4ms, AI decisions ≤300ms on-device
+- **Storage**: Local SQLCipher encryption required
+- **AI**: On-device ONNX for critical path; optional remote for rich narration
+- **Rules**: 100% deterministic; no AI in rules engine

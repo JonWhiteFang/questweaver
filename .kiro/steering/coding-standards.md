@@ -1,45 +1,26 @@
-# QuestWeaver Coding Standards
+---
+inclusion: always
+---
 
-## Kotlin Style
+# Coding Standards
 
-### General
-- Follow official Kotlin coding conventions
-- Use meaningful names; avoid abbreviations unless domain-standard (HP, AC, DC)
-- Prefer immutability; use `val` over `var`
-- Use `data class` for value objects
-- Use `sealed class/interface` for ADTs (actions, events, results)
+## Kotlin Conventions
 
-### Sealed Classes for Domain Events
+**Immutability First**: Use `val` over `var`, `data class` for value objects, sealed types for ADTs
+
+**Naming**: Meaningful names, avoid abbreviations except domain terms (HP, AC, DC)
+
+**Sealed Types**: Always use for events, actions, results. Require exhaustive `when` expressions:
 ```kotlin
 sealed interface GameEvent {
     val sessionId: Long
     val timestamp: Long
-    
-    data class EncounterStarted(
-        override val sessionId: Long,
-        override val timestamp: Long,
-        val mapId: Long,
-        val participants: List<Long>,
-        val seed: Long
-    ) : GameEvent
-    
-    data class MoveCommitted(
-        override val sessionId: Long,
-        override val timestamp: Long,
-        val creatureId: Long,
-        val path: List<GridPos>,
-        val cost: Int
-    ) : GameEvent
 }
-```
 
-### Exhaustive When
-Always use exhaustive `when` for sealed types:
-```kotlin
 fun handle(event: GameEvent) = when (event) {
-    is GameEvent.EncounterStarted -> handleEncounterStart(event)
+    is GameEvent.EncounterStarted -> handleStart(event)
     is GameEvent.MoveCommitted -> handleMove(event)
-    // Compiler enforces exhaustiveness
+    // Compiler enforces exhaustiveness - no else branch
 }
 ```
 
@@ -50,103 +31,83 @@ fun handle(event: GameEvent) = when (event) {
 // State: single immutable data class
 data class EncounterUiState(
     val round: Int = 1,
-    val activeCreatureId: Long? = null,
-    val mapState: MapState = MapState(),
-    val turnOrder: List<InitiativeEntry> = emptyList()
+    val activeCreatureId: Long? = null
 )
 
-// Intent: user actions
+// Intent: sealed interface for user actions
 sealed interface EncounterIntent {
     data class MoveTo(val pos: GridPos) : EncounterIntent
-    data class Attack(val targetId: Long) : EncounterIntent
     object EndTurn : EncounterIntent
 }
 
-// ViewModel: unidirectional flow
+// ViewModel: StateFlow + intent handler
 class EncounterViewModel : ViewModel() {
     private val _state = MutableStateFlow(EncounterUiState())
     val state: StateFlow<EncounterUiState> = _state.asStateFlow()
     
     fun handle(intent: EncounterIntent) {
-        viewModelScope.launch {
-            when (intent) {
-                is EncounterIntent.MoveTo -> processMove(intent.pos)
-                // ...
-            }
-        }
+        viewModelScope.launch { /* process */ }
     }
 }
 ```
 
 ### Use Cases
-- One public suspend function per use case
+- Single public `suspend operator fun invoke()` per use case
 - Return sealed `Result` types
-- No UI dependencies
-
+- No Android/UI dependencies
 ```kotlin
 class ProcessPlayerAction(
     private val rulesEngine: RulesEngine,
     private val eventRepo: EventRepository
 ) {
-    suspend operator fun invoke(input: NLAction): ActionResult {
-        // Validate → Execute → Persist → Return
-    }
+    suspend operator fun invoke(input: NLAction): ActionResult
 }
 ```
 
 ### Repository Pattern
+- Interfaces in `core:domain`, implementations in `core:data`
+- Return `Flow` for reactive queries, `suspend fun` for one-shot operations
 ```kotlin
 interface EventRepository {
     suspend fun append(event: GameEvent)
-    suspend fun forSession(sessionId: Long): List<GameEvent>
     fun observeSession(sessionId: Long): Flow<List<GameEvent>>
 }
 ```
 
-## Event Sourcing
+## Event Sourcing Rules
 
-### Rules
 1. **All state mutations produce events** - never mutate state directly
 2. **Events are immutable** - once written, never modified
 3. **State is derived** - rebuild from event replay
 4. **Deterministic replay** - same events → same state
 
-### Event Design
+**Event Design**: Capture intent AND outcome, not just final state
 ```kotlin
-// Good: captures intent and outcome
+// ✅ Good: captures full context
 data class AttackResolved(
     val attackerId: Long,
     val targetId: Long,
     val roll: Int,
     val modifiers: Int,
-    val advantage: Advantage,
     val hit: Boolean,
     val damage: Int?
 ) : GameEvent
 
-// Bad: captures only outcome
+// ❌ Bad: only captures outcome
 data class HPChanged(val creatureId: Long, val newHP: Int) : GameEvent
 ```
 
-### Seeded Randomness
+**Seeded Randomness**: Always use seeded RNG for deterministic replay
 ```kotlin
 class DiceRoller(private val seed: Long) {
     private val random = Random(seed)
-    
-    fun d20(advantage: Advantage = Advantage.NONE): DiceRoll {
-        val rolls = when (advantage) {
-            Advantage.NONE -> listOf(random.nextInt(1, 21))
-            Advantage.ADVANTAGE -> List(2) { random.nextInt(1, 21) }
-            Advantage.DISADVANTAGE -> List(2) { random.nextInt(1, 21) }
-        }
-        return DiceRoll(rolls, advantage)
-    }
+    fun d20(): Int = random.nextInt(1, 21)
 }
 ```
 
 ## Compose UI
 
-### State Hoisting
+**State Hoisting**: Keep composables stateless, hoist state to ViewModels
 ```kotlin
 @Composable
 fun TacticalMapScreen(
@@ -154,65 +115,35 @@ fun TacticalMapScreen(
     onIntent: (MapIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Stateless composable
-    TacticalMap(
-        state = state,
-        onTileTap = { pos -> onIntent(MapIntent.TileTapped(pos)) },
-        modifier = modifier
-    )
+    // Stateless - receives state, emits intents
 }
 ```
 
-### Performance
+**Performance**:
 - Use `remember` for expensive calculations
 - Use `derivedStateOf` for computed state
-- Avoid recomposition with `key()` for lists
+- Use `key()` to avoid unnecessary recomposition
 - Use `LazyColumn/Row` for large lists
 
-## Testing
+## Dependency Injection (Koin)
 
-### Unit Tests (kotest)
+**Module Organization**: Separate by layer (domain, data, rules, ui)
 ```kotlin
-class RulesEngineTest : FunSpec({
-    test("attack with advantage rolls twice and takes max") {
-        val roller = DiceRoller(seed = 42)
-        val result = roller.d20(Advantage.ADVANTAGE)
-        
-        result.rolls.size shouldBe 2
-        result.value shouldBe result.rolls.max()
-    }
-    
-    test("AC 15 blocks attack roll of 14") {
-        val engine = RulesEngine()
-        val attacker = mockCreature(attackBonus = 5)
-        val target = mockCreature(ac = 15)
-        
-        val outcome = engine.checkAttack(
-            attacker, target, mockWeapon(), 
-            roll = 9 // 9 + 5 = 14, misses AC 15
-        )
-        
-        outcome.hit shouldBe false
-    }
-})
-```
+val domainModule = module {
+    factory { ProcessPlayerAction(get(), get()) }
+}
 
-### Property-Based Tests
-```kotlin
-class DicePropertyTest : FunSpec({
-    test("d20 always returns 1-20") {
-        checkAll(Arb.long()) { seed ->
-            val roller = DiceRoller(seed)
-            val roll = roller.d20()
-            roll.value shouldBeInRange 1..20
-        }
-    }
-})
+val dataModule = module {
+    single<EventRepository> { EventRepositoryImpl(get()) }
+}
+
+// ViewModel injection
+viewModel { EncounterViewModel(get(), get()) }
 ```
 
 ## Error Handling
 
-### Result Types
+**Result Types**: Use sealed interfaces for operation results
 ```kotlin
 sealed interface ActionResult {
     data class Success(val events: List<GameEvent>) : ActionResult
@@ -221,115 +152,99 @@ sealed interface ActionResult {
 }
 ```
 
-### Logging
+**Logging**: Structured logging, never log PII
 ```kotlin
-// Use structured logging
-logger.info { "Attack resolved: attacker=$attackerId, target=$targetId, hit=$hit, damage=$damage" }
-
-// Never log PII
-logger.debug { "User action: ${action.type}" } // Good
-logger.debug { "User ${user.email} did ${action}" } // Bad
+logger.info { "Attack resolved: attacker=$attackerId, hit=$hit" } // ✅
+logger.debug { "User ${user.email} did ${action}" } // ❌ Never log PII
 ```
 
-## Dependency Injection (Koin)
+## Testing (kotest + MockK)
 
-### Module Organization
+**Test Structure**:
 ```kotlin
-val domainModule = module {
-    factory { ProcessPlayerAction(get(), get()) }
-    factory { RunCombatRound(get(), get()) }
-}
+class ComponentTest : FunSpec({
+    test("descriptive behavior description") {
+        // Arrange
+        val input = createTestData()
+        
+        // Act
+        val result = systemUnderTest.process(input)
+        
+        // Assert
+        result shouldBe expectedValue
+    }
+})
+```
 
-val dataModule = module {
-    single { provideDatabase(get(), get(named("dbKey"))) }
-    single<EventRepository> { EventRepositoryImpl(get()) }
-}
+**Deterministic Tests**: Always use seeded RNG
+```kotlin
+val roller = DiceRoller(seed = 42) // ✅ Reproducible
+val result = Random.nextInt(1, 21) // ❌ Non-deterministic
+```
 
-val rulesModule = module {
-    single { RulesEngine(get()) }
-    factory { (seed: Long) -> DiceRoller(seed) }
+**Property-Based Tests**: Use for rules engine
+```kotlin
+test("d20 always returns 1-20") {
+    checkAll(Arb.long()) { seed ->
+        DiceRoller(seed).d20() shouldBeInRange 1..20
+    }
 }
 ```
 
-### ViewModel Injection
+**Mocking**: Use MockK for external dependencies
 ```kotlin
-class EncounterViewModel(
-    private val runCombatRound: RunCombatRound,
-    private val eventRepo: EventRepository
-) : ViewModel() {
-    // ...
-}
-
-// In Koin module
-viewModel { EncounterViewModel(get(), get()) }
+val repo = mockk<EventRepository>()
+coEvery { repo.append(any()) } just Runs
+coVerify { repo.append(any<GameEvent.AttackResolved>()) }
 ```
 
-## Performance
+## Performance Targets
 
-### Map Rendering
-- Keep draw calls minimal; batch where possible
-- Use `drawIntoCanvas` for complex shapes
-- Profile with Android Studio GPU Profiler
-- Target 60fps (16ms frame budget)
+- **Map render**: ≤4ms per frame (60fps)
+- **AI decision**: ≤300ms on-device
+- **Database queries**: <50ms typical
 
-### Database
+**Optimization**:
+- Batch draw calls in map rendering
 - Use transactions for multi-event writes
 - Index foreign keys and query columns
-- Paginate large result sets
-- Use `Flow` for reactive queries
-
-### AI Inference
-- Warm up models on background thread
-- Cache tokenization results
-- Batch requests where possible
-- Set timeouts and fallbacks
+- Warm up AI models on background thread
 
 ## Security
 
-### Encryption
+**Encryption**: SQLCipher with Android Keystore-wrapped keys
 ```kotlin
-// Generate key with Android Keystore
-val keyStore = KeyStore.getInstance("AndroidKeyStore")
-val keyGenerator = KeyGenerator.getInstance(
-    KeyProperties.KEY_ALGORITHM_AES,
-    "AndroidKeyStore"
-)
-
-// Wrap SQLCipher passphrase
 val passphrase = keyStore.getKey("db_key", null).encoded
 val factory = SupportFactory(passphrase)
 ```
 
-### Input Validation
-- Validate all user input before processing
-- Sanitize text for AI prompts
-- Check bounds for grid positions
-- Validate event sequences for consistency
+**Input Validation**: Validate all user input, sanitize AI prompts, check bounds
 
 ## Documentation
 
-### KDoc for Public APIs
+**KDoc for Public APIs**: Document parameters, return values, behavior
 ```kotlin
 /**
  * Resolves an attack roll against a target.
  *
  * @param attacker The creature making the attack
  * @param target The creature being attacked
- * @param weapon The weapon used for the attack
- * @param advantage Whether the attack has advantage/disadvantage
  * @return [AttackOutcome] with hit status and damage
  */
-fun checkAttack(
-    attacker: Creature,
-    target: Creature,
-    weapon: Weapon,
-    advantage: Advantage
-): AttackOutcome
+fun checkAttack(attacker: Creature, target: Creature): AttackOutcome
 ```
 
-### README per Module
-Each feature module should have a README explaining:
-- Purpose and responsibilities
-- Key classes and interfaces
-- Dependencies
-- Testing approach
+**Module READMEs**: Each feature module should document purpose, key classes, dependencies, testing approach
+
+## Critical Rules Summary
+
+1. **Immutability**: Prefer `val`, `data class`, sealed types
+2. **Exhaustive when**: Required for sealed types, no else branch
+3. **Event sourcing**: All mutations produce events, state is derived
+4. **Deterministic**: Use seeded RNG, ensure reproducible outcomes
+5. **MVI pattern**: StateFlow + sealed intents + unidirectional flow
+6. **Repository pattern**: Interfaces in domain, implementations in data
+7. **State hoisting**: Keep composables stateless
+8. **Testing**: Use seeded RNG, property-based tests for rules
+9. **Security**: Encrypt local data, validate all inputs
+10. **Performance**: Target 60fps rendering, <300ms AI decisions

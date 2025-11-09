@@ -1,138 +1,97 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: '**/*.kt'
+fileMatchPattern: ['**/*.kt', '**/*.kts']
 ---
 
-# Jetpack Compose Performance Guidelines
+# Compose Performance Guidelines
 
-## State Reading Phases
+## Core Principle
 
-Compose has three phases where state can be read, each with different performance implications:
+**Read state in the latest phase possible**: Composition → Layout → Drawing (cheapest)
 
-1. **Composition**: Building the UI tree (most expensive)
-2. **Layout**: Measuring and positioning elements
-3. **Drawing**: Rendering to canvas (least expensive)
+Compose has three phases:
+1. **Composition** (most expensive): Building UI tree
+2. **Layout**: Measuring and positioning
+3. **Drawing** (cheapest): Canvas rendering
 
-**Rule**: Read state in the latest phase possible to minimize recomposition overhead.
+Delaying state reads reduces recomposition overhead.
 
-## Lambda Modifiers for Frequently Changing State
+## Lambda Modifiers (Defer to Layout Phase)
 
-### Problem: Direct State Reads Trigger Full Recomposition
+**Use lambda modifiers for rapidly changing state** (scroll, animation, drag):
+
 ```kotlin
-// ❌ Bad: Triggers recomposition on every scroll
-Box {
-    val scroll = rememberScrollState()
-    Column(
-        modifier = Modifier.offset(y = scroll.value.dp)
-    ) {
-        // Content recomposes on every scroll event
-    }
-}
+// ❌ Triggers recomposition on every scroll
+Column(Modifier.offset(y = scroll.value.dp)) { }
+
+// ✅ Skips composition, reads during layout
+Column(Modifier.offset { IntOffset(0, scroll.value) }) { }
 ```
 
-### Solution: Lambda Modifiers Read State During Layout
+**When to use**: Scroll positions, animation values, drag offsets, camera panning
+
+## derivedStateOf (Reduce Recomposition Frequency)
+
+**Use when computed value changes less frequently than source state**:
+
 ```kotlin
-// ✅ Good: Skips composition, goes straight to layout
-Box {
-    val scroll = rememberScrollState()
-    Column(
-        modifier = Modifier.offset { 
-            IntOffset(0, scroll.value) 
-        }
-    ) {
-        // Content doesn't recompose on scroll
-    }
-}
-```
-
-**When to use**: Scroll state, animation values, drag positions, or any rapidly changing state.
-
-## derivedStateOf for Computed State
-
-### Problem: Recomposes on Every Source Change
-```kotlin
-// ❌ Bad: Recomposes on every scroll event
-val listState = rememberLazyListState()
+// ❌ Recomposes on every scroll event
 val showButton = listState.firstVisibleItemIndex > 0
 
-AnimatedVisibility(visible = showButton) {
-    ScrollToTopButton()
-}
-```
-
-### Solution: Only Recomposes When Derived Value Changes
-```kotlin
-// ✅ Good: Only recomposes when boolean changes
-val listState = rememberLazyListState()
+// ✅ Only recomposes when boolean changes
 val showButton by remember {
-    derivedStateOf {
-        listState.firstVisibleItemIndex > 0
-    }
-}
-
-AnimatedVisibility(visible = showButton) {
-    ScrollToTopButton()
+    derivedStateOf { listState.firstVisibleItemIndex > 0 }
 }
 ```
 
-**When to use**: Computed values that change less frequently than their source state.
+**When to use**: Boolean flags from scroll state, filtered lists, computed visibility
 
-## Canvas Drawing Optimization
+## Canvas Drawing (Defer to Draw Phase)
 
-### Read State During Draw Phase
+**Read state in Canvas block to skip composition and layout**:
+
 ```kotlin
 @Composable
 fun TacticalMap(state: MapState, modifier: Modifier = Modifier) {
-    // State changes only trigger redraw, not recomposition
     Canvas(modifier) {
-        // Draw grid
-        for (x in 0..state.w) {
-            drawLine(
-                start = Offset(x * state.tileSize, 0f),
-                end = Offset(x * state.tileSize, size.height),
-                color = Color.Gray,
-                strokeWidth = 1f
-            )
+        // State reads only trigger redraw, not recomposition
+        
+        // Draw grid lines (batch into single Path)
+        val gridPath = Path().apply {
+            for (x in 0..state.w) {
+                moveTo(x * state.tileSize, 0f)
+                lineTo(x * state.tileSize, size.height)
+            }
         }
+        drawPath(gridPath, Color.Gray, style = Stroke(1f))
         
         // Draw tokens
         state.tokens.forEach { token ->
-            val center = Offset(
-                token.pos.x * state.tileSize + state.tileSize / 2,
-                token.pos.y * state.tileSize + state.tileSize / 2
-            )
             drawCircle(
                 color = if (token.isEnemy) Color.Red else Color.Blue,
                 radius = state.tileSize * 0.35f,
-                center = center
+                center = Offset(
+                    token.pos.x * state.tileSize + state.tileSize / 2,
+                    token.pos.y * state.tileSize + state.tileSize / 2
+                )
             )
         }
     }
 }
 ```
 
-### Batch Draw Operations
+**Critical rules**:
+- Batch draw operations (use Path for multiple lines)
+- No allocations in draw lambda
+- Target <4ms per frame (60fps)
+- Cache computed values between frames when possible
+
+## State Design Best Practices
+
+**Use flat, immutable structures**:
+
 ```kotlin
-// ✅ Good: Single drawPath call
-val path = Path().apply {
-    for (x in 0..gridWidth) {
-        moveTo(x * tileSize, 0f)
-        lineTo(x * tileSize, height)
-    }
-}
-drawPath(path, color = Color.Gray, style = Stroke(width = 1f))
-
-// ❌ Bad: Multiple drawLine calls
-for (x in 0..gridWidth) {
-    drawLine(/* ... */)
-}
-```
-
-## Map Rendering Best Practices
-
-### Minimize State Objects
-```kotlin
-// ✅ Good: Flat structure
+// ✅ Flat, immutable
 data class MapState(
     val w: Int,
     val h: Int,
@@ -141,75 +100,57 @@ data class MapState(
     val blocked: Set<GridPos>
 )
 
-// ❌ Bad: Nested mutable state
+// ❌ Nested, mutable
 data class MapState(
     val grid: Grid, // Contains mutable state
-    val entities: MutableList<Entity> // Mutable
+    val entities: MutableList<Entity>
 )
 ```
 
-### Use Immutable Collections
-```kotlin
-// ✅ Good: Immutable list
-data class MapState(
-    val tokens: List<Token> = emptyList()
-)
+**Always use stable keys for lists**:
 
-// ❌ Bad: Mutable list
-data class MapState(
-    val tokens: MutableList<Token> = mutableListOf()
-)
-```
-
-### Key for List Items
 ```kotlin
 LazyColumn {
     items(
         items = creatures,
-        key = { it.id } // Stable key prevents unnecessary recomposition
+        key = { it.id } // Prevents unnecessary recomposition
     ) { creature ->
         CreatureCard(creature)
     }
 }
 ```
 
-## Performance Checklist
+## Common Mistakes to Avoid
 
-### For Map/Canvas Components
-- [ ] State reads happen in Canvas block (draw phase)
-- [ ] Draw operations are batched where possible
-- [ ] No allocations in draw lambda
-- [ ] Target <4ms per frame (60fps)
+```kotlin
+// ❌ Reading state in wrong phase
+val offset = with(LocalDensity.current) { scroll.value.toDp() }
+Column(Modifier.offset(y = offset)) { }
 
-### For Scrolling/Animation
-- [ ] Use lambda modifiers (`Modifier.offset { }`)
-- [ ] Avoid reading scroll state in composition
-- [ ] Use `derivedStateOf` for computed scroll-based values
+// ❌ Heavy computation in composition
+val processed = data.map { expensiveTransform(it) } // Recalculates every time
 
-### For Lists
-- [ ] Use `LazyColumn/Row` for large lists
-- [ ] Provide stable `key` for items
-- [ ] Keep item composables small and focused
-- [ ] Avoid heavy computation in item composables
+// ✅ Memoize with remember
+val processed = remember(data) { data.map { expensiveTransform(it) } }
 
-### General
-- [ ] Use `remember` for expensive calculations
-- [ ] Use `derivedStateOf` for computed state
-- [ ] Minimize state object nesting
-- [ ] Use immutable collections
-- [ ] Profile with Compose Layout Inspector
-
-## Profiling Tools
-
-### Layout Inspector
+// ❌ Unnecessary recomposition from animation
+var time by remember { mutableStateOf(System.currentTimeMillis()) }
+LaunchedEffect(Unit) {
+    while (true) {
+        time = System.currentTimeMillis() // Triggers recomposition every frame
+        delay(16)
+    }
+}
 ```
-Android Studio → View → Tool Windows → Layout Inspector
-```
+
+## Profiling & Debugging
+
+**Layout Inspector** (Android Studio → View → Tool Windows → Layout Inspector):
 - Shows recomposition counts
 - Highlights slow composables
 - Displays composition skips
 
-### Compose Compiler Metrics
+**Compose Compiler Metrics**:
 ```kotlin
 // build.gradle.kts
 tasks.withType<KotlinCompile> {
@@ -222,72 +163,27 @@ tasks.withType<KotlinCompile> {
 }
 ```
 
-### Systrace/Perfetto
-```bash
-# Capture trace
-adb shell am start -n com.android.traceur/.MainActivity
+**Systrace/Perfetto**: Capture with `adb shell am start -n com.android.traceur/.MainActivity`, analyze at https://ui.perfetto.dev/
 
-# Analyze with Perfetto
-# https://ui.perfetto.dev/
-```
+## QuestWeaver-Specific Patterns
 
-## Common Pitfalls
-
-### ❌ Reading State in Wrong Phase
-```kotlin
-// Bad: Reads scroll state during composition
-val offset = with(LocalDensity.current) { scroll.value.toDp() }
-Column(Modifier.offset(y = offset)) { }
-```
-
-### ❌ Unnecessary Recomposition
-```kotlin
-// Bad: Recomposes on every frame
-var time by remember { mutableStateOf(System.currentTimeMillis()) }
-LaunchedEffect(Unit) {
-    while (true) {
-        time = System.currentTimeMillis()
-        delay(16)
-    }
-}
-```
-
-### ❌ Heavy Computation in Composition
-```kotlin
-// Bad: Expensive calculation on every recomposition
-@Composable
-fun MyScreen(data: List<Item>) {
-    val processed = data.map { expensiveTransform(it) } // Recalculates every time
-}
-
-// Good: Memoize with remember
-@Composable
-fun MyScreen(data: List<Item>) {
-    val processed = remember(data) { 
-        data.map { expensiveTransform(it) } 
-    }
-}
-```
-
-## QuestWeaver-Specific Guidelines
-
-### Tactical Map
+**Tactical Map**:
 - Read `MapState` in Canvas draw block
 - Use `Modifier.offset { }` for camera panning
-- Batch grid line drawing into single Path
+- Batch grid lines into single Path
 - Cache token positions between frames
 
-### Turn Order UI
-- Use `LazyColumn` with stable keys (creature ID)
+**Turn Order UI**:
+- Use `LazyColumn` with stable keys (creature.id)
 - Use `derivedStateOf` for "is active creature" checks
-- Animate active creature indicator in draw phase
+- Animate active indicator in draw phase with `graphicsLayer`
 
-### Dice Roller Animation
+**Dice Roller Animation**:
 - Use `animateFloatAsState` for rotation
-- Read animated value in `Modifier.graphicsLayer { }`
-- Avoid recomposing dice result text on every frame
+- Read animated value in `Modifier.graphicsLayer { rotationZ = animatedValue }`
+- Avoid recomposing result text on every frame
 
-### Combat Log
+**Combat Log**:
 - Use `LazyColumn` with `reverseLayout = true`
-- Provide stable keys (event ID)
-- Limit visible items with `maxItemsInViewport`
+- Provide stable keys (event.id)
+- Limit visible items for performance

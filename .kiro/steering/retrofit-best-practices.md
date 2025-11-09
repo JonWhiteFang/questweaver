@@ -1,30 +1,29 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: '**/*Api*.kt'
+fileMatchPattern: ['**/*Api*.kt', '**/*Repository*.kt', '**/gateway/**/*.kt']
 ---
 
-# Retrofit Best Practices for QuestWeaver
+# Retrofit & Network Best Practices
 
-## Basic Setup with Kotlinx Serialization
+## Setup (ai/gateway module)
 
 ```kotlin
 val json = Json {
     ignoreUnknownKeys = true
     coerceInputValues = true
+    isLenient = false
 }
 
 val retrofit = Retrofit.Builder()
-    .baseUrl("https://api.questweaver.example.com")
+    .baseUrl(BuildConfig.API_BASE_URL)
     .client(okHttpClient)
-    .addConverterFactory(
-        json.asConverterFactory("application/json".toMediaType())
-    )
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
     .build()
 ```
 
-**Important:** Add kotlinx-serialization converter **last** if mixing with other converters, as it assumes it can handle all types.
+**Rule:** Add kotlinx-serialization converter last if mixing converters.
 
-## API Interface Definition
+## API Interface (suspend functions only)
 
 ```kotlin
 interface AIGatewayApi {
@@ -33,9 +32,6 @@ interface AIGatewayApi {
     
     @POST("v1/intent")
     suspend fun parseIntent(@Body request: IntentRequest): IntentResponse
-    
-    @POST("v1/dialogue")
-    suspend fun generateDialogue(@Body request: DialogueRequest): DialogueResponse
 }
 
 @Serializable
@@ -54,72 +50,56 @@ data class NarrateResponse(
 )
 ```
 
-## Error Handling
+**Rules:**
+- Use `suspend fun` for all API calls (coroutines-first)
+- Use `@SerialName` for snake_case JSON fields
+- DTOs in `ai/gateway/dto/` package
 
-### HTTP Errors
+## Error Handling (Repository Pattern)
+
+**Rule:** Wrap API calls in repositories, return sealed Result types
+
 ```kotlin
-suspend fun narrate(request: NarrateRequest): Result<NarrateResponse> {
+suspend fun narrate(request: NarrateRequest): NarrationResult {
     return try {
         val response = api.narrate(request)
-        Result.success(response)
+        NarrationResult.Success(response.narration)
     } catch (e: HttpException) {
-        // HTTP error (4xx, 5xx)
-        val errorBody = e.response()?.errorBody()?.string()
-        logger.error { "HTTP ${e.code()}: $errorBody" }
-        Result.failure(e)
+        logger.error { "HTTP ${e.code()}: ${e.message}" }
+        NarrationResult.ApiError(e.code())
     } catch (e: IOException) {
-        // Network error (timeout, no connection)
         logger.error { "Network error: ${e.message}" }
-        Result.failure(e)
+        NarrationResult.NetworkError
     } catch (e: SerializationException) {
-        // JSON parsing error
         logger.error { "Serialization error: ${e.message}" }
-        Result.failure(e)
+        NarrationResult.ParseError
     }
+}
+
+sealed interface NarrationResult {
+    data class Success(val text: String) : NarrationResult
+    data class ApiError(val code: Int) : NarrationResult
+    object NetworkError : NarrationResult
+    object ParseError : NarrationResult
 }
 ```
 
-### Custom Error Response
-```kotlin
-@Serializable
-data class ErrorResponse(
-    val error: String,
-    val code: String,
-    val details: Map<String, String>? = null
-)
+**Never log PII** - log IDs and error codes only
 
-suspend fun narrateWithCustomError(request: NarrateRequest): Result<NarrateResponse> {
-    return try {
-        val response = api.narrate(request)
-        Result.success(response)
-    } catch (e: HttpException) {
-        val errorBody = e.response()?.errorBody()?.string()
-        val error = errorBody?.let { 
-            json.decodeFromString<ErrorResponse>(it) 
-        }
-        logger.error { "API error: ${error?.error}" }
-        Result.failure(ApiException(error))
-    } catch (e: IOException) {
-        Result.failure(e)
-    }
-}
-```
-
-## OkHttp Client Configuration
+## OkHttp Configuration
 
 ```kotlin
 val okHttpClient = OkHttpClient.Builder()
     .connectTimeout(10, TimeUnit.SECONDS)
-    .readTimeout(30, TimeUnit.SECONDS)
+    .readTimeout(30, TimeUnit.SECONDS)  // LLM calls can be slow
     .writeTimeout(30, TimeUnit.SECONDS)
     .addInterceptor(loggingInterceptor)
     .addInterceptor(authInterceptor)
-    .addInterceptor(cacheInterceptor)
     .cache(cache)
     .build()
 ```
 
-### Logging Interceptor
+### Logging (DEBUG builds only)
 ```kotlin
 val loggingInterceptor = HttpLoggingInterceptor { message ->
     logger.debug { message }
@@ -136,357 +116,144 @@ val loggingInterceptor = HttpLoggingInterceptor { message ->
 ```kotlin
 class AuthInterceptor(private val tokenProvider: () -> String?) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val original = chain.request()
+        val request = chain.request()
         val token = tokenProvider()
         
-        val request = if (token != null) {
-            original.newBuilder()
-                .header("Authorization", "Bearer $token")
-                .build()
+        return if (token != null) {
+            chain.proceed(
+                request.newBuilder()
+                    .header("Authorization", "Bearer $token")
+                    .build()
+            )
         } else {
-            original
+            chain.proceed(request)
         }
-        
-        return chain.proceed(request)
     }
 }
 ```
 
-### Cache Interceptor
+### Cache (10MB)
 ```kotlin
-class CacheInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        val response = chain.proceed(request)
-        
-        // Cache narration responses for 1 hour
-        return if (request.url.encodedPath.contains("/narrate")) {
-            response.newBuilder()
-                .header("Cache-Control", "public, max-age=3600")
-                .build()
-        } else {
-            response
-        }
-    }
-}
-
 val cache = Cache(
     directory = File(context.cacheDir, "http_cache"),
-    maxSize = 10L * 1024L * 1024L // 10 MB
+    maxSize = 10L * 1024L * 1024L
 )
 ```
 
-## Timeout Configuration
+## Timeouts (QuestWeaver Requirements)
+
+**Performance Budget:** 4s soft timeout, 8s hard timeout for LLM calls
 
 ```kotlin
-// Per-request timeout
-interface AIGatewayApi {
-    @POST("v1/narrate")
-    @Headers("X-Timeout: 4000") // 4 second timeout
-    suspend fun narrate(@Body request: NarrateRequest): NarrateResponse
-}
-
-// Dynamic timeout interceptor
-class TimeoutInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        val timeout = request.header("X-Timeout")?.toLongOrNull() ?: 30000L
-        
-        val newChain = chain.withConnectTimeout(timeout.toInt(), TimeUnit.MILLISECONDS)
-            .withReadTimeout(timeout.toInt(), TimeUnit.MILLISECONDS)
-        
-        return newChain.proceed(request.newBuilder().removeHeader("X-Timeout").build())
-    }
-}
+val okHttpClient = OkHttpClient.Builder()
+    .callTimeout(8, TimeUnit.SECONDS)  // Hard timeout
+    .connectTimeout(4, TimeUnit.SECONDS)
+    .readTimeout(8, TimeUnit.SECONDS)
+    .build()
 ```
 
-## Retry Logic
+**Rule:** Always provide fallback to template narration on timeout
+
+## Response Caching (LRU)
+
+**Rule:** Cache narration responses by context+action hash
 
 ```kotlin
-class RetryInterceptor(
-    private val maxRetries: Int = 3,
-    private val retryDelay: Long = 1000L
-) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        var attempt = 0
-        var response: Response? = null
-        var exception: IOException? = null
-        
-        while (attempt < maxRetries) {
-            try {
-                response = chain.proceed(chain.request())
-                
-                // Retry on 5xx errors
-                if (response.isSuccessful || response.code < 500) {
-                    return response
-                }
-                
-                response.close()
-                attempt++
-                if (attempt < maxRetries) {
-                    Thread.sleep(retryDelay * attempt) // Exponential backoff
-                }
-            } catch (e: IOException) {
-                exception = e
-                attempt++
-                if (attempt < maxRetries) {
-                    Thread.sleep(retryDelay * attempt)
-                }
-            }
-        }
-        
-        throw exception ?: IOException("Max retries exceeded")
-    }
-}
-```
-
-## Circuit Breaker Pattern
-
-```kotlin
-class CircuitBreaker(
-    private val failureThreshold: Int = 3,
-    private val resetTimeout: Long = 60_000L // 1 minute
-) {
-    private var failureCount = 0
-    private var lastFailureTime = 0L
-    private var state = State.CLOSED
-    
-    enum class State { CLOSED, OPEN, HALF_OPEN }
-    
-    fun <T> execute(block: () -> T): T {
-        when (state) {
-            State.OPEN -> {
-                if (System.currentTimeMillis() - lastFailureTime > resetTimeout) {
-                    state = State.HALF_OPEN
-                } else {
-                    throw CircuitBreakerOpenException()
-                }
-            }
-            State.HALF_OPEN -> {
-                // Try one request
-            }
-            State.CLOSED -> {
-                // Normal operation
-            }
-        }
-        
-        return try {
-            val result = block()
-            onSuccess()
-            result
-        } catch (e: Exception) {
-            onFailure()
-            throw e
-        }
-    }
-    
-    private fun onSuccess() {
-        failureCount = 0
-        state = State.CLOSED
-    }
-    
-    private fun onFailure() {
-        failureCount++
-        lastFailureTime = System.currentTimeMillis()
-        
-        if (failureCount >= failureThreshold) {
-            state = State.OPEN
-        }
-    }
-}
-
-// Usage
-class AIGatewayRepository(private val api: AIGatewayApi) {
-    private val circuitBreaker = CircuitBreaker()
-    
-    suspend fun narrate(request: NarrateRequest): Result<NarrateResponse> {
-        return try {
-            val response = circuitBreaker.execute {
-                runBlocking { api.narrate(request) }
-            }
-            Result.success(response)
-        } catch (e: CircuitBreakerOpenException) {
-            logger.warn { "Circuit breaker open, using fallback" }
-            Result.failure(e)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-}
-```
-
-## Response Caching
-
-```kotlin
-class NarrationCache(private val maxSize: Int = 1000) {
+class NarrationCache(maxSize: Int = 1000) {
     private val cache = LruCache<String, CachedNarration>(maxSize)
     
-    data class CachedNarration(
-        val text: String,
-        val expiresAt: Long
-    )
+    data class CachedNarration(val text: String, val expiresAt: Long)
     
     fun get(key: String): String? {
         val cached = cache.get(key) ?: return null
-        
-        if (cached.expiresAt < System.currentTimeMillis()) {
+        return if (cached.expiresAt > System.currentTimeMillis()) {
+            cached.text
+        } else {
             cache.remove(key)
-            return null
+            null
         }
-        
-        return cached.text
     }
     
     fun put(key: String, text: String, ttlMs: Long = 3600_000) {
-        cache.put(
-            key,
-            CachedNarration(text, System.currentTimeMillis() + ttlMs)
-        )
+        cache.put(key, CachedNarration(text, System.currentTimeMillis() + ttlMs))
     }
     
-    fun generateKey(request: NarrateRequest): String {
-        return "${request.context.hashCode()}_${request.action.hashCode()}"
-    }
-}
-
-// Usage
-suspend fun narrateWithCache(request: NarrateRequest): String {
-    val cacheKey = narrationCache.generateKey(request)
-    
-    // Check cache first
-    narrationCache.get(cacheKey)?.let { return it }
-    
-    // Fetch from API
-    val response = api.narrate(request)
-    
-    // Cache response
-    narrationCache.put(cacheKey, response.narration)
-    
-    return response.narration
+    fun generateKey(request: NarrateRequest): String =
+        "${request.context.hashCode()}_${request.action.hashCode()}"
 }
 ```
 
-## Rate Limiting
-
-```kotlin
-class RateLimiter(
-    private val maxRequestsPerMinute: Int = 30
-) {
-    private val requests = mutableListOf<Long>()
-    
-    suspend fun acquire() {
-        val now = System.currentTimeMillis()
-        
-        // Remove requests older than 1 minute
-        requests.removeAll { it < now - 60_000 }
-        
-        if (requests.size >= maxRequestsPerMinute) {
-            val oldestRequest = requests.first()
-            val waitTime = 60_000 - (now - oldestRequest)
-            delay(waitTime)
-        }
-        
-        requests.add(now)
-    }
-}
-
-// Usage
-class AIGatewayRepository(
-    private val api: AIGatewayApi,
-    private val rateLimiter: RateLimiter
-) {
-    suspend fun narrate(request: NarrateRequest): NarrateResponse {
-        rateLimiter.acquire()
-        return api.narrate(request)
-    }
-}
-```
-
-## Koin Integration
+## Koin DI Setup
 
 ```kotlin
 val networkModule = module {
     single { provideJson() }
-    single { provideOkHttpClient(get()) }
+    single { provideOkHttpClient(androidContext()) }
     single { provideRetrofit(get(), get()) }
     single { provideAIGatewayApi(get()) }
-    single { AIGatewayRepository(get()) }
+    single { AIGatewayRepository(get(), get()) }
+    single { NarrationCache() }
 }
 
 fun provideJson() = Json {
     ignoreUnknownKeys = true
     coerceInputValues = true
+    isLenient = false
 }
 
-fun provideOkHttpClient(context: Context): OkHttpClient {
-    return OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .addInterceptor(loggingInterceptor)
-        .cache(Cache(File(context.cacheDir, "http_cache"), 10L * 1024L * 1024L))
-        .build()
-}
+fun provideOkHttpClient(context: Context) = OkHttpClient.Builder()
+    .callTimeout(8, TimeUnit.SECONDS)
+    .connectTimeout(4, TimeUnit.SECONDS)
+    .readTimeout(8, TimeUnit.SECONDS)
+    .addInterceptor(loggingInterceptor)
+    .cache(Cache(File(context.cacheDir, "http_cache"), 10L * 1024L * 1024L))
+    .build()
 
-fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit {
-    return Retrofit.Builder()
-        .baseUrl(BuildConfig.API_BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(
-            json.asConverterFactory("application/json".toMediaType())
-        )
-        .build()
-}
+fun provideRetrofit(okHttpClient: OkHttpClient, json: Json) = Retrofit.Builder()
+    .baseUrl(BuildConfig.API_BASE_URL)
+    .client(okHttpClient)
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+    .build()
 
-fun provideAIGatewayApi(retrofit: Retrofit): AIGatewayApi {
-    return retrofit.create(AIGatewayApi::class.java)
-}
+fun provideAIGatewayApi(retrofit: Retrofit): AIGatewayApi =
+    retrofit.create(AIGatewayApi::class.java)
 ```
 
-## Testing
+## Testing with MockWebServer
 
 ```kotlin
 class AIGatewayApiTest : FunSpec({
     val mockWebServer = MockWebServer()
+    val json = Json { ignoreUnknownKeys = true }
     val retrofit = Retrofit.Builder()
         .baseUrl(mockWebServer.url("/"))
-        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
     val api = retrofit.create(AIGatewayApi::class.java)
     
-    afterSpec {
-        mockWebServer.shutdown()
-    }
+    afterSpec { mockWebServer.shutdown() }
     
     test("narrate returns successful response") {
-        val responseBody = """
-            {
-                "narration": "The goblin falls!",
-                "cache_key": "abc123",
-                "latency_ms": 1200
-            }
-        """.trimIndent()
-        
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
-                .setBody(responseBody)
+                .setBody("""
+                    {
+                        "narration": "The goblin falls!",
+                        "cache_key": "abc123",
+                        "latency_ms": 1200
+                    }
+                """.trimIndent())
         )
         
-        val request = NarrateRequest(
-            context = mockContext,
-            action = mockAction
-        )
-        
-        val response = api.narrate(request)
+        val response = api.narrate(mockRequest)
         
         response.narration shouldBe "The goblin falls!"
         response.cacheKey shouldBe "abc123"
     }
     
     test("narrate handles 500 error") {
-        mockWebServer.enqueue(
-            MockResponse().setResponseCode(500)
-        )
+        mockWebServer.enqueue(MockResponse().setResponseCode(500))
         
         shouldThrow<HttpException> {
             api.narrate(mockRequest)
@@ -495,42 +262,42 @@ class AIGatewayApiTest : FunSpec({
 })
 ```
 
-## QuestWeaver-Specific Patterns
+## QuestWeaver Fallback Strategy
 
-### Fallback Strategy
+**Critical Rule:** AI is optional - always provide fallback to template narration
+
 ```kotlin
 suspend fun narrateWithFallback(request: NarrateRequest): String {
+    // 1. Try cache first (instant)
+    narrationCache.get(request)?.let { return it }
+    
+    // 2. Try on-device model (fast, ~100ms)
+    onDeviceNarrator.narrate(request)
+        .onSuccess { return it.also { narrationCache.put(request, it) } }
+    
+    // 3. Try remote API (slow, 4-8s timeout)
     return try {
-        // Try on-device model first
-        onDeviceNarrator.narrate(request)
+        api.narrate(request).narration
+            .also { narrationCache.put(request, it) }
     } catch (e: Exception) {
-        try {
-            // Try cached response
-            narrationCache.get(request)
-        } catch (e: Exception) {
-            try {
-                // Try remote API
-                api.narrate(request).narration
-            } catch (e: Exception) {
-                // Fall back to template
-                templateNarrator.narrate(request)
-            }
-        }
+        // 4. Fall back to template (always works)
+        logger.warn { "All AI failed, using template: ${e.message}" }
+        templateNarrator.narrate(request)
     }
 }
 ```
 
-### Batch Requests
-```kotlin
-@POST("v1/narrate/batch")
-suspend fun narrateBatch(@Body requests: List<NarrateRequest>): List<NarrateResponse>
+**Performance Budget:** On-device ≤300ms, remote ≤8s hard timeout
 
-// Usage
-suspend fun narrateMultiple(requests: List<NarrateRequest>): List<String> {
-    return if (requests.size > 1) {
-        api.narrateBatch(requests).map { it.narration }
-    } else {
-        listOf(api.narrate(requests.first()).narration)
-    }
-}
-```
+## Key Rules Summary
+
+1. **Use `suspend fun`** for all API calls (coroutines-first)
+2. **Return sealed Result types** from repositories, not raw responses
+3. **Never log PII** - log IDs and error codes only
+4. **Cache narration responses** by context+action hash (LRU)
+5. **Respect timeouts:** 4s soft, 8s hard for LLM calls
+6. **Always provide fallback** to template narration
+7. **Use `@SerialName`** for snake_case JSON fields
+8. **DTOs in `ai/gateway/dto/`** package
+9. **Test with MockWebServer** and kotest
+10. **Offline-first:** Core gameplay must work without network
