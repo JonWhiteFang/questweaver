@@ -167,26 +167,40 @@
     - Test exhaustive when expressions for GameEvent sealed interface
     - _Requirements: 6.4, 6.5_
 
-- [ ] 5. Define repository interfaces
-  - [ ] 5.1 Create EventRepository interface
+- [x] 5. Define repository interfaces
+
+
+
+
+
+
+  - [x] 5.1 Create EventRepository interface
+
     - Write interface with `append()`, `appendAll()`, `forSession()`, `observeSession()` methods
     - Use suspend functions for one-shot operations
     - Use Flow return type for `observeSession()`
     - _Requirements: 7.1, 7.2, 7.3, 7.5_
   
-  - [ ] 5.2 Create CreatureRepository interface
+
+  - [x] 5.2 Create CreatureRepository interface
+
     - Write interface with CRUD methods: `getById()`, `getAll()`, `insert()`, `update()`, `delete()`
     - Add `observe()` method returning Flow
     - Use suspend functions and domain entities only
     - _Requirements: 7.1, 7.3, 7.4, 7.5_
   
-  - [ ] 5.3 Create CampaignRepository interface
+
+  - [x] 5.3 Create CampaignRepository interface
+
+
     - Write interface with CRUD methods: `getById()`, `getAll()`, `insert()`, `update()`, `delete()`
     - Add `observeAll()` method returning Flow
     - Use suspend functions and domain entities only
     - _Requirements: 7.1, 7.3, 7.4, 7.5_
+
   
-  - [ ] 5.4 Create EncounterRepository interface
+  - [x] 5.4 Create EncounterRepository interface
+
     - Write interface with CRUD methods: `getById()`, `getByCampaign()`, `insert()`, `update()`, `delete()`
     - Add `observe()` method returning Flow
     - Use suspend functions and domain entities only
