@@ -119,13 +119,20 @@
     - Test entity serialization and deserialization
     - _Requirements: 2.5, 3.5, 4.5, 5.5_
 
-- [ ] 4. Implement event sourcing architecture
-  - [ ] 4.1 Create GameEvent sealed interface
+- [x] 4. Implement event sourcing architecture
+
+
+
+
+  - [x] 4.1 Create GameEvent sealed interface
+
     - Write `GameEvent` sealed interface with sessionId and timestamp properties
     - Add `@Serializable` annotation
     - _Requirements: 6.1, 6.4_
   
-  - [ ] 4.2 Create encounter event types
+
+
+  - [x] 4.2 Create encounter event types
     - Write `EncounterStarted` event with encounterId, participants, initiativeOrder
     - Write `RoundStarted` event with encounterId and roundNumber
     - Write `TurnStarted` event with encounterId and creatureId
@@ -133,21 +140,28 @@
     - Write `EncounterEnded` event with encounterId and status
     - Add `@Serializable` annotation to all events
     - _Requirements: 6.2, 6.3, 6.4_
+
   
-  - [ ] 4.3 Create combat event types
+
+  - [x] 4.3 Create combat event types
     - Write `AttackResolved` event with attacker, target, roll, AC, hit, critical
     - Write `DamageApplied` event with target, damageRoll, amount, hpBefore, hpAfter
     - Write `ConditionApplied` event with target, condition, duration
     - Write `ConditionRemoved` event with target and condition
     - Add `@Serializable` annotation to all events
     - _Requirements: 6.2, 6.3, 6.4_
+
   
-  - [ ] 4.4 Create movement event types
+
+  - [x] 4.4 Create movement event types
     - Write `MoveCommitted` event with creatureId, fromPos, toPos, path, movementCost
     - Add `@Serializable` annotation
     - _Requirements: 6.2, 6.3, 6.4_
+
   
-  - [ ] 4.5 Write unit tests for events
+  - [x] 4.5 Write unit tests for events
+
+
     - Test event immutability
     - Test event serialization and deserialization
     - Test exhaustive when expressions for GameEvent sealed interface
