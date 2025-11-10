@@ -16,6 +16,7 @@ kotest = "5.9.1"
 mockk = "1.13.10"
 sqlcipher = "4.5.5"
 sqlite = "2.4.0"
+firebaseBom = "33.1.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -46,6 +47,10 @@ sqlite-ktx = { module = "androidx.sqlite:sqlite-ktx", version.ref = "sqlite" }
 
 work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
+
 onnx-runtime = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnx" }
 
 # Test libs (not wired yet)
@@ -59,6 +64,7 @@ compose = ["compose-ui", "compose-material3", "compose-activity"]
 room = ["room-runtime", "room-ktx"]
 koin = ["koin-core", "koin-android"]
 retrofit = ["retrofit-core", "retrofit-kotlinx", "okhttp-core", "okhttp-logging"]
+firebase = ["firebase-auth", "firebase-storage"]
 kotest = ["kotest-runner", "kotest-assertions", "kotest-property"]
 
 [plugins]
@@ -68,3 +74,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
