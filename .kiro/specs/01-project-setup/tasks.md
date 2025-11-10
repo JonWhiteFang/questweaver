@@ -187,15 +187,15 @@
     - Add basic "Hello QuestWeaver" UI for verification
     - _Requirements: 1.1_
 
-- [ ] 10. Configure code quality tools
-  - [ ] 10.1 Set up Android Lint
+- [x] 10. Configure code quality tools
+  - [x] 10.1 Set up Android Lint
     - Create `lint.xml` in app module with custom rules
     - Configure lint options in app build.gradle.kts
     - Set severity levels for different violation types
     - Configure HTML report generation
     - _Requirements: 5.1, 5.3, 5.5_
   
-  - [ ] 10.2 Set up Detekt
+  - [x] 10.2 Set up Detekt
     - Create `detekt.yml` configuration file in root
     - Configure Detekt plugin in root build.gradle.kts
     - Enable at least 50 rules for Kotlin analysis

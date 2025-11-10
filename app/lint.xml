@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Severity Configuration -->
+    
+    <!-- Critical Issues - Always Error -->
+    <issue id="HardcodedText" severity="error" />
+    <issue id="MissingTranslation" severity="warning" />
+    <issue id="UnusedResources" severity="warning" />
+    <issue id="IconMissingDensityFolder" severity="warning" />
+    
+    <!-- Security Issues - Always Error -->
+    <issue id="HardcodedDebugMode" severity="error" />
+    <issue id="SetJavaScriptEnabled" severity="error" />
+    <issue id="ExportedContentProvider" severity="error" />
+    <issue id="ExportedReceiver" severity="error" />
+    <issue id="ExportedService" severity="error" />
+    <issue id="GrantAllUris" severity="error" />
+    <issue id="WorldReadableFiles" severity="error" />
+    <issue id="WorldWriteableFiles" severity="error" />
+    
+    <!-- Performance Issues -->
+    <issue id="UselessParent" severity="warning" />
+    <issue id="NestedWeights" severity="warning" />
+    <issue id="UnusedIds" severity="warning" />
+    <issue id="InefficientWeight" severity="warning" />
+    <issue id="DisableBaselineAlignment" severity="warning" />
+    
+    <!-- Correctness Issues -->
+    <issue id="InvalidPackage" severity="error" />
+    <issue id="MissingPermission" severity="error" />
+    <issue id="Overdraw" severity="warning" />
+    <issue id="Deprecated" severity="warning" />
+    <issue id="ObsoleteSdkInt" severity="warning" />
+    
+    <!-- Compose-specific Issues -->
+    <issue id="ComposableNaming" severity="error" />
+    <issue id="ComposableLambdaParameterNaming" severity="warning" />
+    <issue id="ComposableModifierFactory" severity="error" />
+    <issue id="ModifierFactoryExtensionFunction" severity="error" />
+    <issue id="ModifierFactoryReturnType" severity="error" />
+    
+    <!-- Kotlin-specific Issues -->
+    <issue id="KotlinPropertyAccess" severity="warning" />
+    <issue id="ObsoleteSdkInt" severity="warning" />
+    
+    <!-- Accessibility Issues -->
+    <issue id="ContentDescription" severity="warning" />
+    <issue id="ClickableViewAccessibility" severity="warning" />
+    <issue id="LabelFor" severity="warning" />
+    
+    <!-- Internationalization -->
+    <issue id="HardcodedText" severity="error" />
+    <issue id="MissingTranslation" severity="warning" />
+    <issue id="ExtraTranslation" severity="warning" />
+    
+    <!-- Ignore certain issues for generated code -->
+    <issue id="all">
+        <ignore path="**/build/**" />
+        <ignore path="**/generated/**" />
+    </issue>
+    
+    <!-- Project-specific customizations -->
+    <!-- Allow hardcoded text in debug builds and previews -->
+    <issue id="HardcodedText">
+        <ignore path="**/debug/**" />
+        <ignore regexp=".*Preview.*" />
+    </issue>
+    
+    <!-- Suppress unused resources during development -->
+    <issue id="UnusedResources" severity="informational" />
+    
+</lint>

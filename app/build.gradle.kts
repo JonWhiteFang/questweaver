@@ -41,6 +41,36 @@ android {
   buildFeatures { compose = true }
   composeOptions { kotlinCompilerExtensionVersion = "1.5.14" }
   packaging { resources.excludes += "META-INF/**" }
+  
+  lint {
+    // Use custom lint configuration
+    lintConfig = file("lint.xml")
+    
+    // Fail build on errors
+    abortOnError = true
+    
+    // Don't fail on warnings
+    warningsAsErrors = false
+    
+    // Generate reports
+    htmlReport = true
+    htmlOutput = file("${layout.buildDirectory.get()}/reports/lint/lint-results.html")
+    
+    xmlReport = true
+    xmlOutput = file("${layout.buildDirectory.get()}/reports/lint/lint-results.xml")
+    
+    // Check all warnings
+    checkAllWarnings = true
+    
+    // Ignore test sources
+    ignoreTestSources = true
+    
+    // Baseline file for existing issues
+    baseline = file("lint-baseline.xml")
+    
+    // Check dependencies
+    checkDependencies = true
+  }
 }
 
 dependencies {
