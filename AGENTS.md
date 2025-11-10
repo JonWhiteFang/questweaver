@@ -22,20 +22,20 @@ This file provides structured guidance for AI coding agents working on QuestWeav
 ## Quick Start Commands
 
 ```bash
-# Build and install (Windows)
-gradlew.bat assembleDebug
-gradlew.bat installDebug
+# Build and install
+gradle assembleDebug
+gradle installDebug
 
 # Run tests
-gradlew.bat test                    # All tests
-gradlew.bat :core:rules:test        # Specific module
-gradlew.bat lint                    # Lint checks
+gradle test                    # All tests
+gradle :core:rules:test        # Specific module
+gradle lint                    # Lint checks
 
 # Clean build
-gradlew.bat clean build
+gradle clean build
 ```
 
-**Note**: Use `./gradlew` on Unix/Mac, `gradlew.bat` on Windows.
+**Note**: This project uses Gradle 9.2.0 installed system-wide. You can also use the Gradle wrapper with `./gradlew` (Unix/Mac) or `gradlew.bat` (Windows) if preferred.
 
 ---
 

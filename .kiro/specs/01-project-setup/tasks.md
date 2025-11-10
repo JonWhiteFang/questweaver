@@ -67,8 +67,8 @@
     - Set root project name to "QuestWeaver"
     - _Requirements: 1.1, 2.1_
 
-- [ ] 5. Create core module structure
-  - [ ] 5.1 Create core:domain module (pure Kotlin)
+- [x] 5. Create core module structure
+  - [x] 5.1 Create core:domain module (pure Kotlin)
     - Create `core/domain/build.gradle.kts` with kotlin("jvm") plugin
     - Set namespace to "dev.questweaver.domain"
     - Configure Java 17 compatibility
@@ -78,7 +78,7 @@
     - Include module in `settings.gradle.kts`
     - _Requirements: 1.1, 1.5, 2.5, 8.3_
   
-  - [ ] 5.2 Create core:rules module (pure Kotlin)
+  - [x] 5.2 Create core:rules module (pure Kotlin)
     - Create `core/rules/build.gradle.kts` with kotlin("jvm") plugin
     - Set namespace to "dev.questweaver.rules"
     - Add dependency on core:domain
@@ -86,7 +86,7 @@
     - Include module in `settings.gradle.kts`
     - _Requirements: 1.1, 1.5, 8.4_
   
-  - [ ] 5.3 Create core:data module (Android library)
+  - [x] 5.3 Create core:data module (Android library)
     - Create `core/data/build.gradle.kts` with android.library plugin
     - Set namespace to "dev.questweaver.data"
     - Configure compileSdk 34, minSdk 26
@@ -95,8 +95,8 @@
     - Include module in `settings.gradle.kts`
     - _Requirements: 1.1, 4.1, 4.2, 8.3_
 
-- [ ] 6. Create feature module structure
-  - [ ] 6.1 Create feature:map module
+- [x] 6. Create feature module structure
+  - [x] 6.1 Create feature:map module
     - Create `feature/map/build.gradle.kts` with android.library plugin
     - Set namespace to "dev.questweaver.feature.map"
     - Configure Android settings (compileSdk 34, minSdk 26)
@@ -105,7 +105,7 @@
     - Include module in `settings.gradle.kts`
     - _Requirements: 1.1, 1.2, 8.2_
   
-  - [ ] 6.2 Create feature:encounter module
+  - [x] 6.2 Create feature:encounter module
     - Create `feature/encounter/build.gradle.kts`
     - Set namespace to "dev.questweaver.feature.encounter"
     - Add dependencies on core:domain, core:rules, feature:map
@@ -113,7 +113,7 @@
     - Include module in `settings.gradle.kts`
     - _Requirements: 1.1, 1.2, 8.2_
   
-  - [ ] 6.3 Create feature:character module
+  - [x] 6.3 Create feature:character module
     - Create `feature/character/build.gradle.kts`
     - Set namespace to "dev.questweaver.feature.character"
     - Add dependency on core:domain only

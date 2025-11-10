@@ -7,15 +7,15 @@ inclusion: always
 ## Build Commands
 
 ```bash
-./gradlew assembleDebug          # Build debug APK
-./gradlew installDebug            # Install on device
-./gradlew test                    # Run all tests
-./gradlew :core:rules:test        # Test specific module
-./gradlew koverHtmlReport         # Generate coverage report
-./gradlew clean build             # Clean build
+gradle assembleDebug          # Build debug APK
+gradle installDebug            # Install on device
+gradle test                    # Run all tests
+gradle :core:rules:test        # Test specific module
+gradle koverHtmlReport         # Generate coverage report
+gradle clean build             # Clean build
 ```
 
-**Windows**: Use `gradlew.bat` instead of `./gradlew`
+**Note**: This project uses Gradle 9.2.0 installed system-wide. You can also use the Gradle wrapper with `./gradlew` (Unix/Mac) or `gradlew.bat` (Windows) if preferred.
 
 ## Gradle Configuration Rules
 

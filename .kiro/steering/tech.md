@@ -95,20 +95,20 @@ class EncounterViewModel : ViewModel() {
 
 ```bash
 # Build & install
-./gradlew assembleDebug
-./gradlew installDebug
+gradle assembleDebug
+gradle installDebug
 
 # Testing
-./gradlew test                    # All tests
-./gradlew :core:rules:test        # Specific module
-./gradlew lint                    # Lint checks
+gradle test                    # All tests
+gradle :core:rules:test        # Specific module
+gradle lint                    # Lint checks
 
 # Clean
-./gradlew clean
-./gradlew clean build
+gradle clean
+gradle clean build
 ```
 
-**Note**: Use `./gradlew` on Unix/Mac, `gradlew.bat` on Windows
+**Note**: This project uses Gradle 9.2.0 installed system-wide. You can also use the Gradle wrapper with `./gradlew` (Unix/Mac) or `gradlew.bat` (Windows) if preferred.
 
 ## Build Configuration
 
