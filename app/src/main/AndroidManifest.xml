@@ -3,8 +3,10 @@
       android:name=".QuestWeaverApp"
       android:allowBackup="true"
       android:label="QuestWeaver"
-      android:theme="@style/Theme.Material3.DayNight.NoActionBar">
-    <activity android:name=".MainActivity">
+      android:theme="@android:style/Theme.Material.Light">
+    <activity 
+        android:name=".MainActivity"
+        android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

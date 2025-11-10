@@ -14,6 +14,10 @@ android {
         
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
     
     buildTypes {
@@ -49,6 +53,8 @@ dependencies {
     
     implementation(libs.sqlcipher)
     implementation(libs.sqlite.ktx)
+    
+    implementation(libs.bundles.koin)
     
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)

@@ -1,11 +1,9 @@
 package dev.questweaver.ai.ondevice
 
-import android.content.Context
-import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 
-class IntentClassifier(context: Context) {
+class IntentClassifier {
     private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
     private val session: OrtSession
 
@@ -16,5 +14,12 @@ class IntentClassifier(context: Context) {
         session = env.createSession(bytes) // will throw until replaced with real model
     }
 
-    fun classify(text: String): String = "attack" // stub
+    fun classify(): String {
+        // Stub implementation - will be replaced with actual ONNX inference
+        return DEFAULT_INTENT
+    }
+
+    companion object {
+        private const val DEFAULT_INTENT = "attack"
+    }
 }

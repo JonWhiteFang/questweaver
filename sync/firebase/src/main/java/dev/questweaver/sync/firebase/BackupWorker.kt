@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 class BackupWorker(appCtx: Context, params: WorkerParameters) : CoroutineWorker(appCtx, params) {
     override suspend fun doWork(): Result {
-        // TODO: upload event deltas to cloud storage
+        // Stub implementation - will upload event deltas to cloud storage
         return Result.success()
     }
 }

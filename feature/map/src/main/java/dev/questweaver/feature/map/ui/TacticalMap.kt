@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
 @Composable
@@ -26,29 +27,37 @@ fun TacticalMap(state: MapState, onTap: (GridPos) -> Unit, modifier: Modifier = 
 
 private fun DrawScope.drawGrid(state: MapState) {
     for (x in 0..state.w) {
-        drawLine(Offset(x*state.tileSize, 0f), Offset(x*state.tileSize, size.height))
+        drawLine(Color.Gray, Offset(x*state.tileSize, 0f), Offset(x*state.tileSize, size.height), strokeWidth = 1f)
     }
     for (y in 0..state.h) {
-        drawLine(Offset(0f, y*state.tileSize), Offset(size.width, y*state.tileSize))
+        drawLine(Color.Gray, Offset(0f, y*state.tileSize), Offset(size.width, y*state.tileSize), strokeWidth = 1f)
     }
 }
 
 private fun DrawScope.drawObstacles(state: MapState) {
     state.blocked.forEach { (x,y) ->
-        drawRect(topLeft = Offset(x*state.tileSize, y*state.tileSize),
+        drawRect(Color.Black, topLeft = Offset(x*state.tileSize, y*state.tileSize),
             size = Size(state.tileSize, state.tileSize), alpha = 0.2f)
     }
 }
 
 private fun DrawScope.drawTokens(state: MapState) {
     state.tokens.forEach { t ->
-        val cx = t.pos.x*state.tileSize + state.tileSize/2
-        val cy = t.pos.y*state.tileSize + state.tileSize/2
-        drawCircle(center = Offset(cx, cy), radius = state.tileSize*0.35f)
+        val cx = t.pos.x * state.tileSize + state.tileSize / HALF_DIVISOR
+        val cy = t.pos.y * state.tileSize + state.tileSize / HALF_DIVISOR
+        drawCircle(Color.Blue, center = Offset(cx, cy), radius = state.tileSize * TOKEN_RADIUS_FACTOR)
         // hp bar
         drawRect(
-            topLeft = Offset(cx - state.tileSize*0.4f, cy + state.tileSize*0.45f),
-            size = Size(state.tileSize*0.8f * t.hpPct, state.tileSize*0.1f)
+            Color.Red,
+            topLeft = Offset(cx - state.tileSize * HP_BAR_OFFSET, cy + state.tileSize * HP_BAR_Y_OFFSET),
+            size = Size(state.tileSize * HP_BAR_WIDTH * t.hpPct, state.tileSize * HP_BAR_HEIGHT)
         )
     }
 }
+
+private const val HALF_DIVISOR = 2f
+private const val TOKEN_RADIUS_FACTOR = 0.35f
+private const val HP_BAR_OFFSET = 0.4f
+private const val HP_BAR_Y_OFFSET = 0.45f
+private const val HP_BAR_WIDTH = 0.8f
+private const val HP_BAR_HEIGHT = 0.1f

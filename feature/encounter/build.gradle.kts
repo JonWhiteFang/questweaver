@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.bundles.compose)
     debugImplementation(libs.compose.ui.tooling)
     
+    implementation(libs.bundles.koin)
+    
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)
 }

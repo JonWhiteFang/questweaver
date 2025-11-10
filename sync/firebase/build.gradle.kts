@@ -38,6 +38,9 @@ dependencies {
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.kotlinx.coroutines)
   
+  // Koin
+  implementation(libs.bundles.koin)
+  
   // Testing
   testImplementation(libs.bundles.kotest)
   testImplementation(libs.mockk)
