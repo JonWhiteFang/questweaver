@@ -67,22 +67,32 @@
     - Test enum serialization
     - _Requirements: 9.5_
 
-- [ ] 3. Implement entity classes
-  - [ ] 3.1 Create Creature entity
+- [x] 3. Implement entity classes
+
+
+
+
+  - [x] 3.1 Create Creature entity
+
+
     - Write `Creature` data class with id, name, AC, HP, speed, abilities, proficiencyBonus, conditions
     - Add validation in init block for positive id, non-blank name, valid HP range
     - Implement `isAlive` and `isBloodied` computed properties
     - Add `@Serializable` annotation
     - _Requirements: 2.1, 2.2, 2.4, 2.5_
   
-  - [ ] 3.2 Create Campaign entity
+  - [x] 3.2 Create Campaign entity
+
+
     - Write `Campaign` data class with id, name, timestamps, playerCharacterId, settings
     - Write `CampaignSettings` data class with difficulty and contentRating
     - Add validation in init block for positive ids, non-blank name, valid timestamps
     - Add `@Serializable` annotation
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
   
-  - [ ] 3.3 Create Encounter entity
+  - [x] 3.3 Create Encounter entity
+
+
     - Write `Encounter` data class with id, campaignId, timestamp, round, activeCreatureId, participants, initiativeOrder, status
     - Write `InitiativeEntry` data class with creatureId and initiative value
     - Add validation for positive round, non-empty participants, valid activeCreatureId
@@ -90,14 +100,18 @@
     - Add `@Serializable` annotation
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
   
-  - [ ] 3.4 Create MapGrid entity
+  - [x] 3.4 Create MapGrid entity
+
+
     - Write `MapGrid` data class with width, height, terrain map, creaturePositions map
     - Add validation for positive dimensions and in-bounds positions
     - Implement `isInBounds()` and `getTerrainAt()` methods
     - Add `@Serializable` annotation
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
   
-  - [ ] 3.5 Write unit tests for entities
+  - [x] 3.5 Write unit tests for entities
+
+
     - Test Creature validation, computed properties, and copy operations
     - Test Campaign validation and settings
     - Test Encounter validation and initiative order consistency
