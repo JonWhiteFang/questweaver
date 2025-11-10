@@ -221,8 +221,8 @@
     - Create example property test in core:domain
     - _Requirements: 6.5_
 
-- [ ] 12. Create ProGuard configuration
-  - [ ] 12.1 Create `app/proguard-rules.pro`
+- [x] 12. Create ProGuard configuration
+  - [x] 12.1 Create `app/proguard-rules.pro`
     - Add keep rules for kotlinx-serialization
     - Add keep rules for Retrofit interfaces
     - Add keep rules for Room entities
