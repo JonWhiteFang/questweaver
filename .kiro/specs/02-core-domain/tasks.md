@@ -206,20 +206,34 @@
     - Use suspend functions and domain entities only
     - _Requirements: 7.1, 7.3, 7.4, 7.5_
 
-- [ ] 6. Define use case result types
-  - [ ] 6.1 Create ActionResult sealed interface
+- [x] 6. Define use case result types
+
+
+
+
+
+
+  - [x] 6.1 Create ActionResult sealed interface
+
     - Write sealed interface with Success, Failure, RequiresChoice subtypes
     - Success contains list of GameEvent instances
     - Failure contains reason string
     - RequiresChoice contains list of ActionOption instances
     - _Requirements: 8.3, 10.1, 10.2, 10.3, 10.4, 10.5_
   
-  - [ ] 6.2 Create ActionOption data class
+
+  - [x] 6.2 Create ActionOption data class
+
+
     - Write data class with id, description, and metadata properties
     - Add `@Serializable` annotation
     - _Requirements: 10.4_
+
+
   
-  - [ ] 6.3 Write unit tests for result types
+  - [x] 6.3 Write unit tests for result types
+
+
     - Test exhaustive when expressions for ActionResult
     - Test ActionOption creation and serialization
     - _Requirements: 10.5_
