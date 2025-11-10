@@ -12,8 +12,15 @@
   - Configure test dependencies (kotest, kotest-property)
   - _Requirements: 1.1, 1.3_
 
-- [ ] 2. Implement value objects
-  - [ ] 2.1 Create GridPos value object
+- [x] 2. Implement value objects
+
+
+
+
+
+  - [x] 2.1 Create GridPos value object
+
+
     - Write `GridPos` data class with x and y properties
     - Add validation in init block for non-negative coordinates
     - Implement `distanceTo()` method using Chebyshev distance
@@ -21,14 +28,18 @@
     - Add `@Serializable` annotation
     - _Requirements: 9.1_
   
-  - [ ] 2.2 Create Abilities value object
+  - [x] 2.2 Create Abilities value object
+
+
     - Write `Abilities` data class with six ability score properties
     - Add validation in init block for scores between 1 and 30
     - Implement computed modifier properties for all six abilities
     - Add `@Serializable` annotation
     - _Requirements: 2.2, 2.3, 9.2_
   
-  - [ ] 2.3 Create DiceRoll value object
+  - [x] 2.3 Create DiceRoll value object
+
+
     - Write `DiceRoll` data class with diceType, count, modifier, and result properties
     - Add validation for valid dice types (d4, d6, d8, d10, d12, d20, d100)
     - Add validation for result within possible range
@@ -36,7 +47,9 @@
     - Add `@Serializable` annotation
     - _Requirements: 9.3_
   
-  - [ ] 2.4 Create enum types
+  - [x] 2.4 Create enum types
+
+
     - Write `TerrainType` enum with EMPTY, DIFFICULT, IMPASSABLE, OCCUPIED
     - Write `Condition` enum with all D&D 5e conditions
     - Write `Difficulty` enum with EASY, NORMAL, HARD, DEADLY
@@ -45,7 +58,9 @@
     - Add `@Serializable` annotation to all enums
     - _Requirements: 5.3_
   
-  - [ ] 2.5 Write unit tests for value objects
+  - [x] 2.5 Write unit tests for value objects
+
+
     - Test GridPos validation, distance calculation, and neighbors
     - Test Abilities validation and modifier calculations with property-based tests
     - Test DiceRoll validation for all dice types
