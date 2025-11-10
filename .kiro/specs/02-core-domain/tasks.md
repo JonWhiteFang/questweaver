@@ -238,12 +238,22 @@
     - Test ActionOption creation and serialization
     - _Requirements: 10.5_
 
-- [ ] 7. Create domain error types
+- [x] 7. Create domain error types
+
+
+
+
+
   - Write `DomainError` sealed class with InvalidEntity, InvalidOperation, NotFound subtypes
   - Add descriptive properties for error context
   - _Requirements: 1.1_
 
-- [ ] 8. Verify module dependencies
+- [x] 8. Verify module dependencies
+
+
+
+
+
   - Run Gradle build to verify no Android dependencies
   - Verify module compiles with Kotlin JVM only
   - Check that all imports are from Kotlin stdlib or kotlinx libraries
