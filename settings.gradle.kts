@@ -11,6 +11,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // SQLCipher repository
+        maven { url = uri("https://repo1.maven.org/maven2/") }
     }
 }
 

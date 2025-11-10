@@ -203,20 +203,20 @@
     - Set up build failure on critical violations
     - _Requirements: 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 11. Configure testing framework
-  - [ ] 11.1 Configure kotest for all modules
+- [x] 11. Configure testing framework
+  - [x] 11.1 Configure kotest for all modules
     - Add kotest dependencies to version catalog (already done in task 3)
     - Configure test tasks with JUnit Platform
     - Enable parallel test execution
     - Configure HTML and XML report generation
     - _Requirements: 6.1, 6.3, 6.4_
   
-  - [ ] 11.2 Add MockK configuration
+  - [x] 11.2 Add MockK configuration
     - Add MockK dependency to version catalog (already done in task 3)
     - Verify MockK works with kotest
     - _Requirements: 6.2_
   
-  - [ ] 11.3 Add kotest property testing
+  - [x] 11.3 Add kotest property testing
     - Add kotest-property dependency (already in catalog)
     - Create example property test in core:domain
     - _Requirements: 6.5_
