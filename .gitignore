@@ -3,7 +3,6 @@
 build/
 */build/
 gradle-app.setting
-!gradle-wrapper.jar
 .gradletasknamecache
 
 # Android
@@ -43,10 +42,13 @@ release/
 
 # Intermediate files
 *.class
-*.jar
 *.war
 *.ear
 *.aar
+
+# JAR files (except Gradle wrapper)
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
 
 # Build outputs
 *.hprof
