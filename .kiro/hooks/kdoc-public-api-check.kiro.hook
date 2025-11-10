@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "KDoc Public API Verification",
+  "description": "Verifies that all public functions in core/domain files have KDoc comments documenting parameters, return values, and behavior",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "core/domain/**/*.kt"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the saved file and verify that all public functions, classes, and interfaces have KDoc comments. Check that:\n1. All public functions have KDoc with @param tags for each parameter\n2. All public functions with non-Unit return types have @return tags\n3. The KDoc describes the behavior and purpose clearly\n4. Any exceptions thrown are documented with @throws tags\n5. Public classes and interfaces have class-level KDoc\n\nIf any public API lacks proper documentation, provide specific feedback on what needs to be added."
+  }
+}

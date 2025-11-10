@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Test File Runner",
+  "description": "Automatically runs a test file when it is saved to provide immediate feedback on test failures",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*Test.kt",
+      "**/test/**/*.kt"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A test file has been saved. Run the specific test file that was modified to provide immediate feedback on test results. Use the appropriate Gradle command to run just that test file (e.g., `gradle :module:test --tests ClassName`). Report the test results including any failures, errors, or successes."
+  }
+}

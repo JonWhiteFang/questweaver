@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Map Render Performance Check",
+  "description": "When files in feature/map/render are saved, suggest running performance tests to verify the ≤4ms render budget is maintained",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "feature/map/render/**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Files in feature/map/render have been modified. The map rendering has a strict performance budget of ≤4ms per frame to maintain 60fps. Please:\n\n1. Review the changes for potential performance impacts (draw calls, allocations, complex calculations)\n2. Suggest running performance tests to verify the render budget is maintained\n3. If performance tests exist, recommend running them now\n4. If no performance tests exist, suggest creating a benchmark test that measures render time\n5. Remind about optimization techniques: batch draw calls, use remember for expensive calculations, avoid allocations in render loop\n\nExample test pattern:\n```kotlin\n@Test\nfun mapRenderingPerformance() {\n    val duration = measureTimeMillis {\n        repeat(100) { renderMap(state) }\n    }\n    (duration / 100) shouldBeLessThan 4\n}\n```"
+  }
+}

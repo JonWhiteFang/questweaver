@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Gradle Dependency Validator",
+  "description": "Monitors build.gradle.kts files across all modules and automatically checks that dependencies comply with strict module boundary rules (e.g., core/domain has no Android deps, features don't cross-depend except encounter→map)",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/build.gradle.kts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A build.gradle.kts file has been modified. Analyze the dependency declarations and verify they comply with the following strict module boundary rules:\n\n**ALLOWED:**\n- `app` → all modules\n- `feature/*` → `core:domain`, `core:rules` ONLY\n- `feature/encounter` → `feature:map` (ONLY exception for feature cross-dependency)\n- `core:data` → `core:domain`\n- `core:rules` → `core:domain`\n- `ai/*` → `core:domain`\n- `sync/*` → `core:domain`, `core:data`\n\n**FORBIDDEN:**\n- `core:domain` → any other module (must be pure Kotlin, NO Android dependencies)\n- `core:rules` → Android dependencies or AI modules (must be deterministic, pure Kotlin)\n- `feature/*` → other `feature/*` modules (except encounter→map)\n- Circular dependencies\n- Any Android framework dependencies in `core:domain` or `core:rules`\n\nCheck for:\n1. Project dependencies (implementation(project(...)))\n2. Android framework dependencies in core modules (androidx.*, android.*)\n3. Feature-to-feature dependencies (except the allowed encounter→map)\n4. Any violations of the module boundary rules\n\nIf violations are found, report them clearly with:\n- The module that has the violation\n- The specific dependency that violates the rules\n- Why it violates the rules\n- Suggested fix\n\nIf all dependencies are compliant, confirm that the module boundaries are respected."
+  }
+}
