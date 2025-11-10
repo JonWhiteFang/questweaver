@@ -311,7 +311,7 @@
     - Verify cache is used on subsequent runs
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 16. Create .gitignore file
+- [x] 16. Create .gitignore file
   - Add Gradle build directories
   - Add IDE-specific files (.idea, *.iml)
   - Add local.properties

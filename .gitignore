@@ -1,54 +1,116 @@
-# Gradle
+# Gradle build directories
 .gradle/
 build/
 */build/
+**/build/
 gradle-app.setting
 .gradletasknamecache
+!gradle/wrapper/gradle-wrapper.jar
 
-# Android
+# Android build outputs
 *.apk
 *.aab
 *.ap_
 *.dex
-local.properties
 captures/
 .externalNativeBuild
 .cxx
+output.json
 
-# IDE
+# Local configuration
+local.properties
+
+# IDE-specific files
 .idea/
 *.iml
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.settings/
+nbproject/
+.nb-gradle/
 
-# OS
+# OS-specific files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Generated files
 bin/
 gen/
 out/
 release/
+R.java
+BuildConfig.java
 
-# Keystore files
+# Keystore files (security)
 *.jks
 *.keystore
+*.p12
+*.pem
+key.properties
 
 # Logs
 *.log
+logs/
 
-# Intermediate files
+# Intermediate build artifacts
 *.class
 *.war
 *.ear
 *.aar
-
-# JAR files (except Gradle wrapper)
-*.jar
-!gradle/wrapper/gradle-wrapper.jar
-
-# Build outputs
+*.so
+*.o
+*.a
 *.hprof
+*.orig
+
+# Test results and coverage
+test-results/
+**/test-results/
+coverage/
+**/coverage/
+*.exec
+*.ec
+
+# Lint and code quality reports
+lint-report.html
+lint-report.xml
+lint-baseline.xml
+detekt-report.html
+detekt-report.xml
+
+# Kotlin
+*.kotlin_module
+.kotlin/
+
+# Navigation component generated files
+**/navigation.json
+
+# Room schema exports
+**/schemas/
+
+# Compose compiler reports
+**/compose_compiler/
+
+# Profiler output
+*.hprof
+*.trace
+
+# Firebase
+google-services.json
+firebase-debug.log
+.firebase/
+
+# Backup files
+*.bak
+*.tmp
+*~
+
+# Misc
+*.orig
+*.rej
+.cache/
