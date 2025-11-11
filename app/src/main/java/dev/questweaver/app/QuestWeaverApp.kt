@@ -1,7 +1,7 @@
 package dev.questweaver.app
 
 import android.app.Application
-import dev.questweaver.core.data.di.dataModule
+import dev.questweaver.data.di.dataModule
 import dev.questweaver.core.rules.di.rulesModule
 import dev.questweaver.feature.map.di.mapModule
 import dev.questweaver.feature.encounter.di.encounterModule
