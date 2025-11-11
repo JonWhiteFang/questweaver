@@ -7,7 +7,7 @@ inclusion: always
 ## Core Stack
 
 **Language**: Kotlin 100% (1.9.24, JVM 17)  
-**Build**: Gradle 8.5+ with Kotlin DSL, versions in `gradle/libs.versions.toml`  
+**Build**: Gradle 9.2.0 with Kotlin DSL, versions in `gradle/libs.versions.toml`  
 **UI**: Jetpack Compose (BOM 2024.06.00) + Material3  
 **Architecture**: Clean Architecture + MVI + Event Sourcing  
 **DI**: Koin 3.5.6 (pure Kotlin DSL)  
@@ -108,7 +108,7 @@ gradle clean
 gradle clean build
 ```
 
-**Note**: This project uses Gradle 9.2.0 installed system-wide. You can also use the Gradle wrapper with `./gradlew` (Unix/Mac) or `gradlew.bat` (Windows) if preferred.
+**Note**: This project uses Gradle 9.2.0. You can use either the system-wide installation or the wrapper with `./gradlew` (Unix/Mac) or `gradlew.bat` (Windows).
 
 ## Build Configuration
 

@@ -167,9 +167,6 @@ class DamageCalculatorTest : FunSpec({
         }
 
         test("resistance rounds down odd damage") {
-            val roller = DiceRoller(seed = 42L)
-            val calculator = DamageCalculator(roller)
-            
             // Find a seed that produces odd damage
             for (seed in 1L..100L) {
                 val testRoller = DiceRoller(seed)
