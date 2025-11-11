@@ -10,7 +10,65 @@ import kotlin.random.Random
  * for event sourcing where the same sequence of events must always produce
  * the same outcomes.
  *
- * @param seed The seed value for the random number generator
+ * ## Usage Examples
+ *
+ * ### Basic Rolling
+ * ```kotlin
+ * // Initialize with session seed for deterministic behavior
+ * val roller = DiceRoller(seed = 12345L)
+ *
+ * // Roll a single d20
+ * val attackRoll = roller.d20(modifier = 5)
+ * println("Attack: ${attackRoll.total}") // e.g., "Attack: 19" (14 + 5)
+ *
+ * // Roll multiple dice (e.g., 2d6 for damage)
+ * val damageRoll = roller.roll(count = 2, die = DieType.D6, modifier = 3)
+ * println("Damage: ${damageRoll.total}") // e.g., "Damage: 12" (4 + 5 + 3)
+ * ```
+ *
+ * ### Advantage and Disadvantage
+ * ```kotlin
+ * // Roll with advantage (take higher of two d20s)
+ * val advantageRoll = roller.rollWithAdvantage(modifier = 2)
+ * println("Rolls: ${advantageRoll.rolls}") // e.g., [8, 15]
+ * println("Selected: ${advantageRoll.selectedValue}") // 15
+ * println("Result: ${advantageRoll.result}") // 17 (15 + 2)
+ *
+ * // Roll with disadvantage (take lower of two d20s)
+ * val disadvantageRoll = roller.rollWithDisadvantage(modifier = 2)
+ * println("Rolls: ${disadvantageRoll.rolls}") // e.g., [12, 7]
+ * println("Selected: ${disadvantageRoll.selectedValue}") // 7
+ * println("Result: ${disadvantageRoll.result}") // 9 (7 + 2)
+ * ```
+ *
+ * ### Deterministic Replay
+ * ```kotlin
+ * // Same seed produces identical sequences
+ * val roller1 = DiceRoller(seed = 42L)
+ * val roller2 = DiceRoller(seed = 42L)
+ *
+ * val roll1 = roller1.d20()
+ * val roll2 = roller2.d20()
+ *
+ * assert(roll1.rolls == roll2.rolls) // Always true
+ * ```
+ *
+ * ### Convenience Methods
+ * ```kotlin
+ * val roller = DiceRoller(seed = System.currentTimeMillis())
+ *
+ * // All standard D&D dice types
+ * val d4Roll = roller.d4()      // 1-4
+ * val d6Roll = roller.d6()      // 1-6
+ * val d8Roll = roller.d8()      // 1-8
+ * val d10Roll = roller.d10()    // 1-10
+ * val d12Roll = roller.d12()    // 1-12
+ * val d20Roll = roller.d20()    // 1-20
+ * val d100Roll = roller.d100()  // 1-100 (percentile)
+ * ```
+ *
+ * @param seed The seed value for the random number generator. Use the same seed
+ *             to reproduce identical roll sequences for event replay.
  */
 @Suppress("TooManyFunctions") // Convenience methods for each die type are intentional
 class DiceRoller(seed: Long) {

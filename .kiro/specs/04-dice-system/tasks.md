@@ -54,7 +54,12 @@
   - Delegate to main roll() method with appropriate DieType
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
 
-- [ ] 6. Write unit tests for deterministic behavior
+- [x] 6. Write unit tests for deterministic behavior
+
+
+
+
+
   - Test that identical seeds produce identical roll sequences
   - Test that different seeds produce different roll sequences
   - Test that all die types return values within valid ranges
@@ -66,7 +71,9 @@
   - Test DiceRoll validation (empty rolls, out of range values)
   - _Requirements: 1.1, 1.4, 3.3, 3.4, 4.3, 4.4, 6.4, 6.5_
 
-- [ ] 6.1 Write property-based tests for exhaustive verification
+- [x] 6.1 Write property-based tests for exhaustive verification
+
+
   - Write property test: d20 returns 1-20 for arbitrary seeds
   - Write property test: d4 returns 1-4 for arbitrary seeds
   - Write property test: d6 returns 1-6 for arbitrary seeds
@@ -80,14 +87,21 @@
   - Write property test: modifier correctly applied for arbitrary values
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [ ] 6.2 Write performance benchmark tests
+- [x] 6.2 Write performance benchmark tests
+
+
   - Benchmark single die roll performance (target <1μs)
   - Benchmark advantage/disadvantage performance (target <1μs)
   - Benchmark 1000 rolls performance (target <10ms)
   - Verify memory footprint for typical DiceRoll instances
   - _Requirements: Design performance targets_
 
-- [ ] 7. Add KDoc documentation
+- [x] 7. Add KDoc documentation
+
+
+
+
+
   - Document DiceRoller class with usage examples
   - Document all public methods with parameter descriptions
   - Document DiceRoll properties and computed values
