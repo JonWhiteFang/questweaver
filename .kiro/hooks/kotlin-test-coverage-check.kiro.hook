@@ -4,12 +4,7 @@
   "description": "When a Kotlin file is saved in core/rules, core/domain, or core/data, check if corresponding test file exists and meets coverage targets (90%/85%/80% respectively). Optionally run tests for that module.",
   "version": "1",
   "when": {
-    "type": "fileEdited",
-    "patterns": [
-      "core/rules/**/*.kt",
-      "core/domain/**/*.kt",
-      "core/data/**/*.kt"
-    ]
+    "type": "userTriggered"
   },
   "then": {
     "type": "askAgent",

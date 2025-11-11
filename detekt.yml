@@ -45,6 +45,8 @@ comments:
     active: true
   EndOfSentenceFormat:
     active: false
+  KDocReferencesNonPublicProperty:
+    active: false
   OutdatedDocumentation:
     active: true
   UndocumentedPublicClass:
@@ -56,6 +58,9 @@ comments:
 
 complexity:
   active: true
+  CognitiveComplexMethod:
+    active: true
+    threshold: 15
   ComplexCondition:
     active: true
     threshold: 4
@@ -137,6 +142,8 @@ coroutines:
   RedundantSuspendModifier:
     active: true
   SleepInsteadOfDelay:
+    active: true
+  SuspendFunSwallowedCancellation:
     active: true
   SuspendFunWithCoroutineScopeReceiver:
     active: true
@@ -339,6 +346,8 @@ potential-bugs:
     active: true
     forbiddenTypePatterns:
       - 'kotlin.String'
+  CastNullableToNonNullableType:
+    active: true
   CastToNullableType:
     active: false
   Deprecation:
@@ -347,8 +356,9 @@ potential-bugs:
     active: false
   DoubleMutabilityForCollection:
     active: true
-  DuplicateCaseInWhenExpression:
+  ElseCaseInsteadOfExhaustiveWhen:
     active: true
+    ignoredSubjectTypes: []
   EqualsAlwaysReturnsTrueOrFalse:
     active: true
   EqualsWithHashCodeExist:
@@ -381,8 +391,12 @@ potential-bugs:
     active: false
   NullableToStringCall:
     active: true
+  PropertyUsedBeforeDeclaration:
+    active: true
   UnconditionalJumpStatementInLoop:
     active: false
+  UnnecessaryNotNullCheck:
+    active: true
   UnnecessaryNotNullOperator:
     active: true
   UnnecessarySafeCall:
@@ -425,6 +439,8 @@ style:
   DestructuringDeclarationWithTooManyEntries:
     active: true
     maxDestructuringEntries: 3
+  DoubleNegativeLambda:
+    active: false
   EqualsNullCall:
     active: true
   EqualsOnSignatureLine:
@@ -435,9 +451,11 @@ style:
     active: false
   ExpressionBodySyntax:
     active: false
+  ForbiddenAnnotation:
+    active: false
   ForbiddenComment:
     active: true
-    values:
+    comments:
       - 'FIXME:'
       - 'STOPSHIP:'
     allowedPatterns: ''
@@ -445,7 +463,7 @@ style:
     active: false
   ForbiddenMethodCall:
     active: false
-  ForbiddenPublicDataClass:
+  ForbiddenSuppress:
     active: false
   ForbiddenVoid:
     active: true
@@ -491,6 +509,8 @@ style:
     active: true
   MultilineLambdaItParameter:
     active: false
+  MultilineRawStringIndentation:
+    active: false
   NestedClassesVisibility:
     active: true
   NewLineAtEndOfFile:
@@ -529,6 +549,8 @@ style:
     active: true
   SpacingBetweenPackageAndImports:
     active: false
+  StringShouldBeRawString:
+    active: false
   ThrowsCount:
     active: true
     max: 2
@@ -546,6 +568,8 @@ style:
   UnnecessaryApply:
     active: true
   UnnecessaryBackticks:
+    active: false
+  UnnecessaryBracesAroundTrailingLambda:
     active: false
   UnnecessaryFilter:
     active: true
@@ -590,6 +614,8 @@ style:
     active: false
   UseIsNullOrEmpty:
     active: true
+  UseLet:
+    active: false
   UseOrEmpty:
     active: true
   UseRequire:

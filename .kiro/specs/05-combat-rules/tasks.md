@@ -1,64 +1,95 @@
 # Implementation Plan
 
-- [ ] 1. Set up module structure and core data models
+- [x] 1. Set up module structure and core data models
+
+
   - Create `core/rules` module with `build.gradle.kts` configured as pure Kotlin library
   - Add module to `settings.gradle.kts`
   - Create package structure: `combat/`, `conditions/`, `modifiers/`, `outcomes/`
   - Add dependency on `core:domain` and `04-dice-system`
   - _Requirements: 6.5_
 
-- [ ] 2. Implement sealed types and enums for combat mechanics
-- [ ] 2.1 Create RollModifier sealed interface
+- [x] 2. Implement sealed types and enums for combat mechanics
+
+
+- [x] 2.1 Create RollModifier sealed interface
+
+
   - Define `Normal`, `Advantage`, `Disadvantage` objects
   - _Requirements: 1.4, 1.5_
 
-- [ ] 2.2 Create ProficiencyLevel enum
+- [x] 2.2 Create ProficiencyLevel enum
+
+
   - Define `None`, `Proficient`, `Expertise` values
   - _Requirements: 4.4, 4.5_
 
-- [ ] 2.3 Create DamageType enum
+- [x] 2.3 Create DamageType enum
+
+
   - Define all SRD damage types (Slashing, Piercing, Bludgeoning, Fire, Cold, etc.)
   - _Requirements: 2.1_
 
-- [ ] 2.4 Create DamageModifier sealed interface
+- [x] 2.4 Create DamageModifier sealed interface
+
+
   - Define `Resistance`, `Vulnerability`, `Immunity` data classes with damageType parameter
   - _Requirements: 2.3, 2.4, 2.5_
 
-- [ ] 2.5 Create Condition sealed interface
+- [x] 2.5 Create Condition sealed interface
+
+
   - Define condition objects: `Prone`, `Stunned`, `Poisoned`, `Blinded`, `Restrained`, `Incapacitated`, `Paralyzed`, `Unconscious`
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 2.6 Create AbilityType enum and SaveEffect sealed interface
+- [x] 2.6 Create AbilityType enum and SaveEffect sealed interface
+
+
   - Define ability types (Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma)
   - Define save effects: `AutoFail`, `Disadvantage`, `Normal`
   - _Requirements: 3.1, 3.5_
 
-- [ ] 3. Implement outcome data classes
-- [ ] 3.1 Create AttackOutcome data class
+- [x] 3. Implement outcome data classes
+
+
+- [x] 3.1 Create AttackOutcome data class
+
+
   - Include fields: d20Roll, attackBonus, totalRoll, targetAC, hit, isCritical, isAutoMiss, rollModifier, appliedConditions
   - _Requirements: 7.1_
 
-- [ ] 3.2 Create DamageOutcome data class
+- [x] 3.2 Create DamageOutcome data class
+
+
   - Include fields: diceRolls, diceTotal, damageModifier, baseDamage, damageType, isCritical, appliedModifiers, finalDamage
   - _Requirements: 7.4_
 
-- [ ] 3.3 Create SavingThrowOutcome data class
+- [x] 3.3 Create SavingThrowOutcome data class
+
+
   - Include fields: d20Roll, abilityModifier, proficiencyBonus, totalRoll, dc, success, isAutoSuccess, rollModifier, appliedConditions
   - _Requirements: 7.2_
 
-- [ ] 3.4 Create AbilityCheckOutcome data class
+- [x] 3.4 Create AbilityCheckOutcome data class
+
+
   - Include fields: d20Roll, abilityModifier, proficiencyBonus, totalRoll, dc, success, rollModifier, proficiencyLevel, appliedConditions
   - _Requirements: 7.3_
 
-- [ ] 4. Implement ConditionRegistry
-- [ ] 4.1 Create ConditionRegistry object with condition effect lookup methods
+- [x] 4. Implement ConditionRegistry
+
+
+- [x] 4.1 Create ConditionRegistry object with condition effect lookup methods
+
+
   - Implement `getAttackRollEffect(condition, isAttacker)` returning RollModifier
   - Implement `getSavingThrowEffect(condition, abilityType)` returning SaveEffect
   - Implement `getAbilityCheckEffect(condition)` returning RollModifier
   - Implement `preventsActions(condition)` returning Boolean
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 7.5_
 
-- [ ] 4.2 Implement condition effect logic for each condition
+- [x] 4.2 Implement condition effect logic for each condition
+
   - Prone: disadvantage on attacks, advantage for melee attacks against
   - Stunned: auto-fail STR/DEX saves, prevents actions
   - Poisoned: disadvantage on attacks and ability checks
@@ -66,28 +97,37 @@
   - Restrained: disadvantage on attacks and DEX saves, advantage for attacks against
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 5. Implement AttackResolver
-- [ ] 5.1 Create AttackResolver class with DiceRoller dependency
+- [x] 5. Implement AttackResolver
+
+
+
+- [x] 5.1 Create AttackResolver class with DiceRoller dependency
+
+
   - Define `resolveAttack()` method with parameters: attackBonus, targetAC, rollModifier, attackerConditions, targetConditions
   - _Requirements: 1.1, 6.1_
 
-- [ ] 5.2 Implement attack roll logic with advantage/disadvantage
+- [x] 5.2 Implement attack roll logic with advantage/disadvantage
+
   - Roll d20 (or 2d20 for advantage/disadvantage) using DiceRoller
   - Apply advantage: take higher of two rolls
   - Apply disadvantage: take lower of two rolls
   - _Requirements: 1.1, 1.4, 1.5_
 
-- [ ] 5.3 Implement critical hit and auto-miss detection
+- [x] 5.3 Implement critical hit and auto-miss detection
+
   - Check for natural 20 (critical hit, always hits)
   - Check for natural 1 (auto-miss, always misses)
   - _Requirements: 1.2, 1.3_
 
-- [ ] 5.4 Implement condition effects on attack rolls
+- [x] 5.4 Implement condition effects on attack rolls
+
   - Query ConditionRegistry for attacker and target conditions
   - Combine roll modifiers (multiple sources of advantage/disadvantage)
   - _Requirements: 5.1, 5.3, 5.4, 7.5_
 
-- [ ] 5.5 Calculate final attack result and return AttackOutcome
+- [x] 5.5 Calculate final attack result and return AttackOutcome
+
   - Calculate total: d20 + attackBonus
   - Determine hit: total >= targetAC (or critical hit)
   - Return AttackOutcome with all details
