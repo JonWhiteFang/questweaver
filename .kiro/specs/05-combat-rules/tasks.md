@@ -133,50 +133,72 @@
   - Return AttackOutcome with all details
   - _Requirements: 1.1, 7.1_
 
-- [ ] 6. Implement DamageCalculator
-- [ ] 6.1 Create DamageCalculator class with DiceRoller dependency
+- [x] 6. Implement DamageCalculator
+
+
+
+
+- [x] 6.1 Create DamageCalculator class with DiceRoller dependency
+
+
   - Define `calculateDamage()` method with parameters: damageDice, damageModifier, damageType, isCritical, targetModifiers
   - _Requirements: 2.1, 6.1_
 
-- [ ] 6.2 Implement damage dice parsing and rolling
+
+- [x] 6.2 Implement damage dice parsing and rolling
+
   - Parse damage dice expression (e.g., "2d6", "1d8+3")
   - Roll damage dice using DiceRoller
   - Add flat damage modifier
   - _Requirements: 2.1_
 
-- [ ] 6.3 Implement critical hit damage doubling
+
+- [x] 6.3 Implement critical hit damage doubling
+
   - If critical, double the number of dice rolled (not the modifier)
   - _Requirements: 2.2_
 
-- [ ] 6.4 Implement damage modifiers (resistance/vulnerability/immunity)
+
+- [x] 6.4 Implement damage modifiers (resistance/vulnerability/immunity)
+
   - Apply resistance: halve damage (rounded down)
   - Apply vulnerability: double damage
   - Apply immunity: reduce damage to zero
   - Handle multiple modifiers in correct order
+
   - _Requirements: 2.3, 2.4, 2.5_
 
-- [ ] 6.5 Return DamageOutcome with breakdown
+- [x] 6.5 Return DamageOutcome with breakdown
+
   - Include individual die rolls, totals, modifiers applied, and final damage
   - _Requirements: 7.4_
 
-- [ ] 7. Implement SavingThrowResolver
-- [ ] 7.1 Create SavingThrowResolver class with DiceRoller dependency
+- [x] 7. Implement SavingThrowResolver
+
+
+
+- [x] 7.1 Create SavingThrowResolver class with DiceRoller dependency
+
   - Define `resolveSavingThrow()` method with parameters: abilityModifier, proficiencyBonus, dc, rollModifier, isProficient, conditions
   - _Requirements: 3.1, 6.1_
+
 
 - [ ] 7.2 Implement saving throw roll logic with advantage/disadvantage
   - Roll d20 (or 2d20 for advantage/disadvantage) using DiceRoller
   - Apply advantage/disadvantage logic
   - _Requirements: 3.1, 3.2, 3.3_
 
+
 - [ ] 7.3 Implement proficiency and natural 20 handling
   - Add proficiency bonus if isProficient is true
   - Check for natural 20 (automatic success)
+
   - _Requirements: 3.4, 3.5_
 
 - [ ] 7.4 Implement condition effects on saving throws
   - Query ConditionRegistry for condition effects
   - Handle auto-fail for Stunned on STR/DEX saves
+
   - Apply disadvantage from conditions
   - _Requirements: 5.2, 7.5_
 
@@ -186,23 +208,31 @@
   - Return SavingThrowOutcome with all details
   - _Requirements: 3.1, 7.2_
 
-- [ ] 8. Implement AbilityCheckResolver
-- [ ] 8.1 Create AbilityCheckResolver class with DiceRoller dependency
+- [x] 8. Implement AbilityCheckResolver
+
+
+
+- [x] 8.1 Create AbilityCheckResolver class with DiceRoller dependency
+
   - Define `resolveAbilityCheck()` method with parameters: abilityModifier, proficiencyBonus, dc, rollModifier, proficiencyLevel, conditions
   - _Requirements: 4.1, 6.1_
+
 
 - [ ] 8.2 Implement ability check roll logic with advantage/disadvantage
   - Roll d20 (or 2d20 for advantage/disadvantage) using DiceRoller
   - Apply advantage/disadvantage logic
   - _Requirements: 4.1, 4.2, 4.3_
 
+
 - [ ] 8.3 Implement proficiency and expertise handling
   - Calculate proficiency multiplier: 0x for None, 1x for Proficient, 2x for Expertise
   - Add (proficiencyBonus × multiplier) to roll
+
   - _Requirements: 4.4, 4.5_
 
 - [ ] 8.4 Implement condition effects on ability checks
   - Query ConditionRegistry for condition effects
+
   - Apply disadvantage from Poisoned condition
   - _Requirements: 5.3, 7.5_
 
@@ -212,7 +242,10 @@
   - Return AbilityCheckOutcome with all details
   - _Requirements: 4.1, 7.3_
 
-- [ ] 9. Add Koin dependency injection module
+- [x] 9. Add Koin dependency injection module
+
+
+
   - Create `RulesModule.kt` in `di/` package
   - Define factory bindings for AttackResolver, DamageCalculator, SavingThrowResolver, AbilityCheckResolver
   - Each resolver should receive DiceRoller as dependency
