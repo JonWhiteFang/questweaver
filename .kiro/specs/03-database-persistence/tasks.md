@@ -1,34 +1,38 @@
 # Implementation Plan
 
 - [x] 1. Set up core:data module structure and dependencies
-
-
-
-
-
   - Create `core/data/` module directory with Gradle build configuration
   - Add dependencies: Room 2.6.1, SQLCipher 4.5.5, kotlinx-serialization 1.6.3, Koin 3.5.6
   - Configure Kotlin serialization plugin in module build.gradle.kts
   - Create package structure: `db/`, `repositories/`, `security/`, `di/`
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 2. Implement encryption key management with Android Keystore
-  - [ ] 2.1 Create KeystoreManager class for secure key generation and retrieval
+- [x] 2. Implement encryption key management with Android Keystore
+  - [x] 2.1 Create KeystoreManager class for secure key generation and retrieval
     - Implement `getOrCreateDatabaseKey()` method that checks for existing key
     - Implement `generateAndStoreKey()` using KeyGenerator with AES-256-GCM
     - Implement `retrieveKey()` to fetch existing key from Android Keystore
     - Configure KeyGenParameterSpec with hardware-backed security and no user authentication
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 3. Define Room database entities and type converters
-  - [ ] 3.1 Create EventEntity Room entity class
+- [x] 3. Define Room database entities and type converters
+
+
+
+
+
+  - [x] 3.1 Create EventEntity Room entity class
+
+
     - Define entity with columns: id (auto-generated), session_id, timestamp, event_type, event_data
     - Add composite index on (session_id, timestamp) for query performance
     - Add single index on session_id for count/delete operations
     - Annotate with @Entity, @PrimaryKey, @ColumnInfo, @Index
     - _Requirements: 3.1, 3.5_
   
-  - [ ] 3.2 Create GameEventConverters type converter class
+  - [x] 3.2 Create GameEventConverters type converter class
+
+
     - Implement @TypeConverter method to serialize GameEvent to JSON string
     - Implement @TypeConverter method to deserialize JSON string to GameEvent
     - Configure Json instance with ignoreUnknownKeys, encodeDefaults=false, classDiscriminator
