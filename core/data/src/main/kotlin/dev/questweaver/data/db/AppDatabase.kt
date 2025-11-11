@@ -9,6 +9,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.questweaver.data.db.converters.GameEventConverters
 import dev.questweaver.data.db.dao.EventDao
 import dev.questweaver.data.db.entities.EventEntity
+import dev.questweaver.data.db.migrations.ALL_MIGRATIONS
+import dev.questweaver.data.db.migrations.MigrationCallback
 import net.sqlcipher.database.SupportFactory
 
 /**
@@ -42,18 +44,20 @@ abstract class AppDatabase : RoomDatabase() {
 }
 
 /**
- * Builds an encrypted AppDatabase instance with SQLCipher integration.
+ * Builds an encrypted AppDatabase instance with SQLCipher integration and migration support.
  * 
- * This function configures Room with SQLCipher encryption using the provided
- * passphrase. The database uses Write-Ahead Logging (WAL) for better concurrency
- * and is configured with fallbackToDestructiveMigration for v1 development
- * (should be removed for production).
+ * This function configures Room with:
+ * - SQLCipher encryption using the provided passphrase
+ * - Write-Ahead Logging (WAL) for better concurrency
+ * - Migration strategy with all defined migrations
+ * - Migration callback for logging and validation
+ * - Fallback to destructive migration for v1 development (should be removed for production)
  * 
  * @param context Android application context
  * @param passphrase Encryption key as ByteArray (typically from Android Keystore)
- * @return Configured AppDatabase instance with encryption enabled
+ * @return Configured AppDatabase instance with encryption and migration support enabled
  * 
- * Requirements: 1.1, 1.5, 2.3
+ * Requirements: 1.1, 1.5, 2.3, 5.1, 5.2, 5.3, 5.4, 5.5
  */
 fun buildDatabase(context: Context, passphrase: ByteArray): AppDatabase {
     val factory = SupportFactory(passphrase)
@@ -65,6 +69,8 @@ fun buildDatabase(context: Context, passphrase: ByteArray): AppDatabase {
     )
     .openHelperFactory(factory)
     .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+    .addMigrations(*ALL_MIGRATIONS) // Add all defined migrations
+    .addCallback(MigrationCallback()) // Add callback for logging and validation
     .fallbackToDestructiveMigration() // v1 only - remove for production
     .build()
 }

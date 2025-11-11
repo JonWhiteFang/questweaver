@@ -74,8 +74,15 @@
     - Configure fallbackToDestructiveMigration for v1 (remove for production)
     - _Requirements: 1.1, 1.5, 2.3_
 
-- [ ] 6. Implement EventRepository with domain/entity mapping
-  - [ ] 6.1 Create EventRepositoryImpl implementing EventRepository interface
+- [x] 6. Implement EventRepository with domain/entity mapping
+
+
+
+
+
+  - [x] 6.1 Create EventRepositoryImpl implementing EventRepository interface
+
+
     - Implement append() method to insert single GameEvent
     - Implement appendAll() method for batch insertion with transaction
     - Implement forSession() method to retrieve all events for a session
@@ -83,14 +90,17 @@
     - Implement eventCount() method for session event counting
     - _Requirements: 4.1, 4.2, 4.3, 4.4_
   
-  - [ ] 6.2 Add entity/domain mapping extension functions
+  - [x] 6.2 Add entity/domain mapping extension functions
+
     - Create GameEvent.toEntity() extension converting domain to EventEntity
     - Create EventEntity.toDomain() extension converting entity to GameEvent
     - Use kotlinx-serialization for JSON serialization/deserialization
     - Extract event type discriminator from GameEvent class name
     - _Requirements: 3.3, 3.4, 4.5_
 
-- [ ] 7. Configure Koin dependency injection for data layer
+- [x] 7. Configure Koin dependency injection for data layer
+
+
   - Create DataModule.kt with Koin module definition
   - Provide KeystoreManager as singleton with androidContext()
   - Provide AppDatabase as singleton using buildDatabase() with encryption key
@@ -98,7 +108,10 @@
   - Provide EventRepository implementation as singleton
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 8. Add database migration support infrastructure
+- [x] 8. Add database migration support infrastructure
+
+
+
   - Define Migration object for version 1 to 2 (placeholder for future)
   - Configure Room database builder to include migration strategy
   - Add migration validation logic to verify database integrity post-migration
