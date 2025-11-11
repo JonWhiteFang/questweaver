@@ -445,7 +445,7 @@ class EventRepositoryImpl(
 - Verify key generation on first access
 - Verify key retrieval on subsequent access
 - Verify key persistence across instances
-- Use Robolectric for Android Keystore
+- Use instrumented tests for Android Keystore
 
 **TypeConvertersTest**:
 - Verify serialization of all GameEvent subtypes

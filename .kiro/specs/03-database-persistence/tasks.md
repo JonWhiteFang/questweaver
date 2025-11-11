@@ -119,29 +119,42 @@
   - Document fallback behavior for migration failures
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 9. Write comprehensive tests for persistence layer
-  - [ ] 9.1 Create EventRepositoryImplTest with in-memory database
+- [x] 9. Write comprehensive tests for persistence layer
+
+
+
+
+
+  - [x] 9.1 Create EventRepositoryImplTest with in-memory database
+
+
     - Test event insertion and retrieval through repository
     - Test event ordering by timestamp is maintained
     - Test Flow observation emits updates on new events
     - Test batch insertion with multiple events
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
   
-  - [ ] 9.2 Create EventDaoTest with Room in-memory database
+  - [x] 9.2 Create EventDaoTest with Room in-memory database
+
+
     - Test insert, query, and observe operations
     - Test composite index usage with EXPLAIN QUERY PLAN
     - Test transaction rollback on error
     - Test countBySession and deleteBySession operations
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
   
-  - [ ] 9.3 Create GameEventConvertersTest for serialization
+  - [x] 9.3 Create GameEventConvertersTest for serialization
+
+
     - Test serialization of all GameEvent subtypes
     - Test deserialization produces equivalent objects
     - Test unknown keys are ignored (forward compatibility)
     - Test polymorphic type discrimination with @SerialName
     - _Requirements: 8.5_
   
-  - [ ] 9.4 Create KeystoreManagerTest with Robolectric
+  - [x] 9.4 Create KeystoreManagerTest with instrumented tests
+
+
     - Test key generation on first access
     - Test key retrieval on subsequent access
     - Test key persistence across KeystoreManager instances

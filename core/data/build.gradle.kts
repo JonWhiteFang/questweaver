@@ -56,8 +56,15 @@ dependencies {
     
     implementation(libs.bundles.koin)
     
+    // Unit tests (non-Android)
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)
+    
+    // Android instrumented tests
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }
 
 tasks.withType<Test> {

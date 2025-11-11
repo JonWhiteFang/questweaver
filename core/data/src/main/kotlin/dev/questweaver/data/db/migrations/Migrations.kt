@@ -52,8 +52,11 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
             validateMigration(database)
             
             Log.i(TAG, "Successfully completed migration from version 1 to 2")
-        } catch (e: Exception) {
-            Log.e(TAG, "Migration from version 1 to 2 failed", e)
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Migration from version 1 to 2 failed: validation error", e)
+            throw e
+        } catch (e: android.database.SQLException) {
+            Log.e(TAG, "Migration from version 1 to 2 failed: SQL error", e)
             throw e
         }
     }
@@ -70,9 +73,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         val cursor = database.query("SELECT name FROM sqlite_master WHERE type='table' AND name='events'")
         val tableExists = cursor.use { it.count > 0 }
         
-        if (!tableExists) {
-            throw IllegalStateException("Migration validation failed: events table not found")
-        }
+        check(tableExists) { "Migration validation failed: events table not found" }
         
         Log.d(TAG, "Migration validation passed: events table exists")
     }
@@ -118,20 +119,40 @@ class MigrationCallback : androidx.room.RoomDatabase.Callback() {
         Log.d(TAG, "Database opened with version ${db.version}")
         
         // Verify database integrity on open
+        performIntegrityCheck(db)
+    }
+    
+    /**
+     * Performs database integrity check.
+     * 
+     * Extracted to reduce nesting depth and improve readability.
+     * 
+     * Requirements: 5.5
+     */
+    private fun performIntegrityCheck(db: SupportSQLiteDatabase) {
         try {
-            val cursor = db.query("PRAGMA integrity_check")
-            cursor.use {
-                if (it.moveToFirst()) {
-                    val result = it.getString(0)
-                    if (result != "ok") {
-                        Log.e(TAG, "Database integrity check failed: $result")
-                    } else {
-                        Log.d(TAG, "Database integrity check passed")
-                    }
+            checkDatabaseIntegrity(db)
+        } catch (e: android.database.SQLException) {
+            Log.e(TAG, "Failed to perform integrity check: SQL error", e)
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to perform integrity check: invalid state", e)
+        }
+    }
+    
+    /**
+     * Executes the integrity check query and logs results.
+     */
+    private fun checkDatabaseIntegrity(db: SupportSQLiteDatabase) {
+        val cursor = db.query("PRAGMA integrity_check")
+        cursor.use {
+            if (it.moveToFirst()) {
+                val result = it.getString(0)
+                if (result != "ok") {
+                    Log.e(TAG, "Database integrity check failed: $result")
+                } else {
+                    Log.d(TAG, "Database integrity check passed")
                 }
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to perform integrity check", e)
         }
     }
 }
