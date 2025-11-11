@@ -1,6 +1,11 @@
 # Implementation Plan
 
-- [ ] 1. Set up core:data module structure and dependencies
+- [x] 1. Set up core:data module structure and dependencies
+
+
+
+
+
   - Create `core/data/` module directory with Gradle build configuration
   - Add dependencies: Room 2.6.1, SQLCipher 4.5.5, kotlinx-serialization 1.6.3, Koin 3.5.6
   - Configure Kotlin serialization plugin in module build.gradle.kts
