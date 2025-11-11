@@ -1,12 +1,16 @@
 # Implementation Plan
 
-- [ ] 1. Create core dice domain models
+- [x] 1. Create core dice domain models
+
+
   - Create `DieType` enum with standard D&D dice types (d4, d6, d8, d10, d12, d20, d100)
   - Implement `roll()` method on DieType that accepts a Random instance
   - Create `RollType` enum for NORMAL, ADVANTAGE, DISADVANTAGE
   - _Requirements: 1.2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
 
-- [ ] 2. Implement DiceRoll value object
+
+- [x] 2. Implement DiceRoll value object
+
   - Create immutable `DiceRoll` data class with val properties
   - Add properties: dieType, rolls (List<Int>), modifier, rollType
   - Implement computed properties: naturalTotal, total, selectedValue, result
@@ -14,7 +18,9 @@
   - Add @Serializable annotation for event sourcing
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 6.3, 6.4, 6.5_
 
-- [ ] 3. Implement DiceRoller class with seeded RNG
+
+- [x] 3. Implement DiceRoller class with seeded RNG
+
   - Create `DiceRoller` class that accepts seed parameter in constructor
   - Initialize internal `kotlin.random.Random` with provided seed
   - Implement `roll(die: DieType, modifier: Int = 0)` method for single die
@@ -23,7 +29,9 @@
   - Return DiceRoll value objects from all roll methods
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.8, 3.1, 3.2, 3.5, 6.1, 6.2_
 
-- [ ] 4. Implement advantage and disadvantage mechanics
+
+- [x] 4. Implement advantage and disadvantage mechanics
+
   - Implement `rollWithAdvantage(modifier: Int = 0)` method that rolls two d20s
   - Select higher value for advantage rolls
   - Implement `rollWithDisadvantage(modifier: Int = 0)` method that rolls two d20s
@@ -32,7 +40,10 @@
   - Set appropriate RollType in returned DiceRoll
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 5. Add convenience methods for common dice types
+- [x] 5. Add convenience methods for common dice types
+
+
+
   - Implement `d4(modifier: Int = 0)` convenience method
   - Implement `d6(modifier: Int = 0)` convenience method
   - Implement `d8(modifier: Int = 0)` convenience method
