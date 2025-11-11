@@ -90,8 +90,8 @@ detekt-report.xml
 # Navigation component generated files
 **/navigation.json
 
-# Room schema exports
-**/schemas/
+# Room schema exports (commented out - schemas should be version controlled for migrations)
+# **/schemas/
 
 # Compose compiler reports
 **/compose_compiler/
