@@ -183,26 +183,26 @@
   - _Requirements: 3.1, 6.1_
 
 
-- [ ] 7.2 Implement saving throw roll logic with advantage/disadvantage
+- [x] 7.2 Implement saving throw roll logic with advantage/disadvantage
   - Roll d20 (or 2d20 for advantage/disadvantage) using DiceRoller
   - Apply advantage/disadvantage logic
   - _Requirements: 3.1, 3.2, 3.3_
 
 
-- [ ] 7.3 Implement proficiency and natural 20 handling
+- [x] 7.3 Implement proficiency and natural 20 handling
   - Add proficiency bonus if isProficient is true
   - Check for natural 20 (automatic success)
 
   - _Requirements: 3.4, 3.5_
 
-- [ ] 7.4 Implement condition effects on saving throws
+- [x] 7.4 Implement condition effects on saving throws
   - Query ConditionRegistry for condition effects
   - Handle auto-fail for Stunned on STR/DEX saves
 
   - Apply disadvantage from conditions
   - _Requirements: 5.2, 7.5_
 
-- [ ] 7.5 Calculate final result and return SavingThrowOutcome
+- [x] 7.5 Calculate final result and return SavingThrowOutcome
   - Calculate total: d20 + abilityModifier + (proficiencyBonus if proficient)
   - Determine success: total >= dc (or natural 20)
   - Return SavingThrowOutcome with all details
@@ -218,25 +218,25 @@
   - _Requirements: 4.1, 6.1_
 
 
-- [ ] 8.2 Implement ability check roll logic with advantage/disadvantage
+- [x] 8.2 Implement ability check roll logic with advantage/disadvantage
   - Roll d20 (or 2d20 for advantage/disadvantage) using DiceRoller
   - Apply advantage/disadvantage logic
   - _Requirements: 4.1, 4.2, 4.3_
 
 
-- [ ] 8.3 Implement proficiency and expertise handling
+- [x] 8.3 Implement proficiency and expertise handling
   - Calculate proficiency multiplier: 0x for None, 1x for Proficient, 2x for Expertise
   - Add (proficiencyBonus × multiplier) to roll
 
   - _Requirements: 4.4, 4.5_
 
-- [ ] 8.4 Implement condition effects on ability checks
+- [x] 8.4 Implement condition effects on ability checks
   - Query ConditionRegistry for condition effects
 
   - Apply disadvantage from Poisoned condition
   - _Requirements: 5.3, 7.5_
 
-- [ ] 8.5 Calculate final result and return AbilityCheckOutcome
+- [x] 8.5 Calculate final result and return AbilityCheckOutcome
   - Calculate total: d20 + abilityModifier + (proficiencyBonus × multiplier)
   - Determine success: total >= dc
   - Return AbilityCheckOutcome with all details
@@ -251,8 +251,14 @@
   - Each resolver should receive DiceRoller as dependency
   - _Requirements: 6.1_
 
-- [ ] 10. Write comprehensive unit tests
-- [ ] 10.1 Write AttackResolver tests
+- [x] 10. Write comprehensive unit tests
+
+
+
+
+- [x] 10.1 Write AttackResolver tests
+
+
   - Test normal attacks hit/miss based on AC
   - Test natural 20 always hits (critical)
   - Test natural 1 always misses
@@ -261,7 +267,9 @@
   - Test condition effects apply correctly
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 10.2 Write DamageCalculator tests
+- [x] 10.2 Write DamageCalculator tests
+
+
   - Test basic damage calculation (dice + modifier)
   - Test critical hits double dice (not modifier)
   - Test resistance halves damage (rounded down)
@@ -270,7 +278,9 @@
   - Test multiple modifiers apply correctly
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 10.3 Write SavingThrowResolver tests
+- [x] 10.3 Write SavingThrowResolver tests
+
+
   - Test success/failure based on DC
   - Test natural 20 always succeeds
   - Test proficiency adds bonus
@@ -279,7 +289,9 @@
   - Test condition effects apply correctly
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 10.4 Write AbilityCheckResolver tests
+- [x] 10.4 Write AbilityCheckResolver tests
+
+
   - Test success/failure based on DC
   - Test proficiency adds 1x bonus
   - Test expertise adds 2x bonus
@@ -287,20 +299,26 @@
   - Test Poisoned applies disadvantage
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 10.5 Write ConditionRegistry tests
+- [x] 10.5 Write ConditionRegistry tests
+
+
   - Test each condition applies correct modifiers
   - Test multiple conditions stack appropriately
   - Test all condition effects are covered
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 10.6 Write property-based determinism tests
+- [x] 10.6 Write property-based determinism tests
+
+
   - Test same seed produces same attack outcomes
   - Test same seed produces same damage outcomes
   - Test same seed produces same saving throw outcomes
   - Test same seed produces same ability check outcomes
   - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 10.7 Write property-based invariant tests
+- [x] 10.7 Write property-based invariant tests
+
+
   - Test damage with resistance is always half or less
   - Test damage with vulnerability is always double or more
   - Test damage with immunity is always zero
