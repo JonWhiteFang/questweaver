@@ -39,7 +39,11 @@
     - Handle SerializationException with appropriate error messages
     - _Requirements: 3.4, 6.1, 6.2, 6.3, 6.5_
 
-- [ ] 4. Create EventDao interface with Room queries
+- [x] 4. Create EventDao interface with Room queries
+
+
+
+
   - Define @Insert method for single event with OnConflictStrategy.ABORT
   - Define @Insert method for batch events (insertAll) with transaction support
   - Define @Query method to retrieve events by session_id ordered by timestamp
