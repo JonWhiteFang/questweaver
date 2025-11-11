@@ -51,15 +51,23 @@
   - Define @Query methods for countBySession and deleteBySession
   - _Requirements: 3.2, 3.3_
 
-- [ ] 5. Configure AppDatabase with SQLCipher encryption
-  - [ ] 5.1 Create AppDatabase abstract class extending RoomDatabase
+- [x] 5. Configure AppDatabase with SQLCipher encryption
+
+
+
+
+
+  - [x] 5.1 Create AppDatabase abstract class extending RoomDatabase
+
+
     - Annotate with @Database including EventEntity and version 1
     - Add @TypeConverters annotation for GameEventConverters
     - Define abstract method for eventDao()
     - Set exportSchema = true for migration tracking
     - _Requirements: 1.1, 1.2, 1.4_
   
-  - [ ] 5.2 Implement database builder function with SQLCipher integration
+  - [x] 5.2 Implement database builder function with SQLCipher integration
+
     - Create buildDatabase() function accepting Context and passphrase ByteArray
     - Configure SupportFactory with encryption passphrase
     - Set journal mode to WRITE_AHEAD_LOGGING for concurrency
