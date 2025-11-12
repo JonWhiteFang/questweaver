@@ -98,7 +98,14 @@
   - Test neighbor queries for interior, edge, and corner positions
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 10. Write unit tests for line-of-effect
+- [x] 10. Write unit tests for line-of-effect
+
+
+
+
+
+
+
   - Test Bresenham line for horizontal, vertical, and diagonal paths
   - Test Bresenham line for arbitrary angles
   - Test line-of-effect with no obstacles (clear path)
