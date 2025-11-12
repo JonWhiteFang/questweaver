@@ -267,7 +267,11 @@
   - Benchmark individual validators for performance profiling
   - _Requirements: 1.5_
 
-- [ ] 13. Update module documentation
+- [x] 13. Update module documentation
+
+
+
+
   - Add KDoc comments to all public APIs
   - Document validation flow in ActionValidator
   - Document resource cost calculation

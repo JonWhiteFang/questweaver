@@ -2,107 +2,98 @@
 inclusion: always
 ---
 
----
-inclusion: always
----
-
 # Documentation Standards
 
-## Core Rules
+## Documentation Location Rules
 
-**Location**: All documentation in `docs/` directory (except root `README.md` and `AGENTS.md`)
+**Primary location**: `docs/` directory  
+**Exceptions**: `README.md` and `AGENTS.md` in project root only
 
-**Structure**:
+**Directory structure**:
 ```
 docs/
 ├── README.md              # Navigation index
 ├── architecture/          # System design, modules, patterns
 ├── development/           # Setup, coding standards, build/test
 ├── product/              # Vision, scope, design principles
-├── ai-agents/            # Agent guides and hooks
-└── modules/{name}/       # Module-specific docs
+└── modules/{name}/       # Module-specific documentation
 ```
 
-**Naming**: lowercase-with-hyphens.md (except `README.md`)
+**File naming**: `lowercase-with-hyphens.md` (except `README.md`)
 
 ## When to Update Documentation
 
-**Always update when**:
-- Adding/removing modules
-- Changing module dependencies
-- Adding architectural patterns
-- Modifying build procedures
-- Updating coding standards
+### Always Update
+- Adding/removing modules → Update `docs/modules/{name}/README.md`, `docs/architecture/modules.md`, `docs/README.md`
+- Changing module dependencies → Update affected module READMEs and `docs/architecture/modules.md`
+- Adding architectural patterns → Update `docs/architecture/patterns.md` and `docs/development/quick-reference.md`
+- Modifying build procedures → Update `docs/development/setup.md` and `build-and-test.md`
+- Updating coding standards → Update `docs/development/coding-standards.md`
 
-**Consider updating when**:
-- Fixing bugs revealing design issues
-- Adding significant classes
-- Changing testing approaches
-
-## AI Agent Workflow
-
-### Before Making Changes
-1. Check `docs/architecture/` for module boundaries and patterns
-2. Verify dependency rules in `docs/architecture/modules.md`
-3. Review coding standards in `docs/development/coding-standards.md`
-
-### After Making Changes
-1. **New module**: Create `docs/modules/{name}/README.md`, update `docs/architecture/modules.md` and `docs/README.md`
-2. **Architecture change**: Update `docs/architecture/overview.md` or `patterns.md`, affected module READMEs
-3. **New pattern**: Add to `docs/architecture/patterns.md` and `docs/development/quick-reference.md`
-4. **Build change**: Update `docs/development/setup.md` and `build-and-test.md`
-
-### Documentation Quality Checklist
-- Clear and concise
-- Includes code examples
-- Explains "why" not just "what"
-- Uses relative links: `[text](../path/file.md)`
-- Updates timestamp
+### Consider Updating
+- Fixing bugs that reveal design issues → Update relevant architecture docs
+- Adding significant classes → Update module README
+- Changing testing approaches → Update `docs/development/build-and-test.md`
 
 ## Module README Template
+
+When creating module documentation, use this structure:
 
 ```markdown
 # {module-name}
 
-**One-line purpose**
+**One-line purpose statement**
 
 ## Responsibilities
-- Key responsibility 1
-- Key responsibility 2
+- Primary responsibility 1
+- Primary responsibility 2
 
 ## Module Rules
-✅ **Allowed**: What this module can do/depend on
-❌ **Forbidden**: What this module cannot do/depend on
+✅ **Allowed Dependencies**: List allowed module dependencies
+❌ **Forbidden**: List prohibited dependencies and patterns
 
 ## Key Classes
-Brief descriptions of main classes/interfaces
+- `ClassName`: Brief description of purpose
+- `AnotherClass`: Brief description of purpose
 
 ## Dependencies
-**Production**: List
-**Test**: List
+**Production**: List production dependencies
+**Test**: List test dependencies
 
 ## Testing Approach
-Coverage target and key test patterns
+**Coverage Target**: X%
+**Key Patterns**: List testing patterns used
 
 ## Package Structure
 ```
-package/structure
+package/
+├── subpackage1/
+└── subpackage2/
 ```
 
 ---
 **Last Updated**: YYYY-MM-DD
 ```
 
-## Critical Constraints
+## Documentation Quality Standards
+
+Every documentation update must:
+- Be clear and concise
+- Include code examples for patterns
+- Explain "why" not just "what"
+- Use relative links: `[text](../path/file.md)`
+- Update timestamp at bottom
+
+## Critical Rules
 
 **NEVER**:
-- Create docs in root directory (except `README.md` and `AGENTS.md`)
-- Duplicate documentation across locations
-- Leave broken cross-references
+- Create documentation in project root (except `README.md` and `AGENTS.md`)
+- Duplicate content across multiple locations
+- Leave broken cross-references after moving/renaming files
 - Skip timestamp updates
 
 **ALWAYS**:
-- Place docs in `docs/` directory
+- Place all documentation in `docs/` directory
 - Use relative links for cross-references
-- Update docs when changing code
-- Follow naming conventions
+- Update documentation when changing code structure
+- Follow naming conventions (`lowercase-with-hyphens.md`)

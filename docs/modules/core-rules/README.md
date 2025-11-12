@@ -18,6 +18,20 @@ The `core:rules` module implements a deterministic rules engine for D&D 5e Syste
 
 ## Key Classes and Interfaces
 
+### Action Validation System
+
+**See [Action Validation Documentation](./action-validation.md) for detailed usage.**
+
+- `ActionValidator`: Main orchestrator for validating action legality
+- `ActionEconomyValidator`: Validates action/bonus action/reaction/movement availability
+- `ResourceValidator`: Validates spell slots, class features, item charges
+- `RangeValidator`: Validates distance and line-of-effect
+- `ConcentrationValidator`: Validates concentration spell requirements
+- `ConditionValidator`: Validates whether conditions prevent actions
+- `TurnState`: Tracks turn-specific state (action economy, resources, concentration)
+- `ResourcePool`: Tracks consumable resources (spell slots, class features, etc.)
+- `ValidationResult`: Sealed interface for validation outcomes (Success, Failure, RequiresChoice)
+
 ### Rules Engine (Placeholder)
 
 - `RulesEngine`: Main entry point for rules validation and resolution
@@ -29,12 +43,6 @@ The `core:rules` module implements a deterministic rules engine for D&D 5e Syste
 
 - `DiceRoller`: Seeded random number generator for dice rolls
 - `DiceExpression`: Parses and evaluates dice notation (e.g., "2d6+3")
-
-### Validators (Placeholder)
-
-- `ActionValidator`: Validates if an action is legal
-- `MovementValidator`: Validates movement and positioning
-- `SpellValidator`: Validates spell casting requirements
 
 ### Calculators (Placeholder)
 
@@ -230,12 +238,17 @@ class CombatResolverTest : FunSpec({
 
 ```
 dev.questweaver.rules/
-├── engine/            # RulesEngine and main logic
-├── dice/             # DiceRoller and expressions
-├── combat/           # Combat resolution
-├── spells/           # Spell mechanics
-├── conditions/       # Status effects
-└── validators/       # Action validation
+├── validation/       # Action validation system (IMPLEMENTED)
+│   ├── ActionValidator.kt
+│   ├── actions/     # GameAction types
+│   ├── validators/  # Individual validators
+│   ├── state/       # TurnState, ResourcePool, etc.
+│   └── results/     # ValidationResult, ValidationFailure, etc.
+├── engine/          # RulesEngine and main logic (Placeholder)
+├── dice/            # DiceRoller and expressions (Placeholder)
+├── combat/          # Combat resolution (Placeholder)
+├── spells/          # Spell mechanics (Placeholder)
+└── conditions/      # Status effects (Placeholder)
 ```
 
 ## Integration Points
@@ -288,6 +301,11 @@ test("combat resolution is deterministic") {
 - Use property-based tests to verify determinism
 - Follow D&D 5e SRD rules (avoid copyrighted content)
 
+## Additional Documentation
+
+- [Action Validation System](./action-validation.md) - Comprehensive guide to action validation
+- [Benchmarks](./benchmarks.md) - Performance benchmarks and targets
+
 ---
 
-**Last Updated**: 2025-11-10
+**Last Updated**: 2025-11-12
