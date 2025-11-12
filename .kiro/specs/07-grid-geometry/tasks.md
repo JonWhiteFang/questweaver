@@ -142,7 +142,10 @@
   - Test AoE templates are deterministic for same inputs
   - _Requirements: 2.1, 2.2, 3.1, 5.6_
 
-- [ ] 13. Write performance tests
+- [x] 13. Write performance tests
+
+
+
   - Benchmark distance calculation (<1μs per operation)
   - Benchmark range query for 30ft on 50x50 grid (<1ms)
   - Benchmark line-of-effect check (<100μs per check)
