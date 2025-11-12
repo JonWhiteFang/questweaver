@@ -1,93 +1,66 @@
 package dev.questweaver.rules.conditions
 
 /**
- * Represents status conditions that can affect creatures in D&D 5e.
+ * Sealed interface representing D&D 5e conditions that can affect creatures.
  *
- * Conditions modify a creature's capabilities, affecting attack rolls, saving throws,
- * ability checks, and available actions. This sealed interface includes a subset of
- * D&D 5e SRD conditions for v1.
+ * Conditions modify a creature's capabilities, imposing penalties or restrictions
+ * on their actions, movement, and rolls. This is a subset of SRD conditions
+ * implemented for v1.
  */
 sealed interface Condition {
     /**
-     * Prone condition - creature is lying on the ground.
-     *
-     * Effects:
-     * - Disadvantage on attack rolls
-     * - Melee attacks against the creature have advantage
-     * - Ranged attacks against the creature have disadvantage
+     * Prone: A prone creature's only movement option is to crawl, unless it stands up.
+     * The creature has disadvantage on attack rolls. An attack roll against the creature
+     * has advantage if the attacker is within 5 feet, otherwise disadvantage.
      */
-    data object Prone : Condition
-    
+    object Prone : Condition
+
     /**
-     * Stunned condition - creature is incapacitated and cannot move.
-     *
-     * Effects:
-     * - Cannot take actions or reactions
-     * - Automatically fails Strength and Dexterity saving throws
-     * - Attack rolls against the creature have advantage
+     * Stunned: A stunned creature is incapacitated, can't move, and can speak only falteringly.
+     * The creature automatically fails Strength and Dexterity saving throws.
+     * Attack rolls against the creature have advantage.
      */
-    data object Stunned : Condition
-    
+    object Stunned : Condition
+
     /**
-     * Poisoned condition - creature is suffering from poison.
-     *
-     * Effects:
-     * - Disadvantage on attack rolls
-     * - Disadvantage on ability checks
+     * Poisoned: A poisoned creature has disadvantage on attack rolls and ability checks.
      */
-    data object Poisoned : Condition
-    
+    object Poisoned : Condition
+
     /**
-     * Blinded condition - creature cannot see.
-     *
-     * Effects:
-     * - Automatically fails ability checks that require sight
-     * - Disadvantage on attack rolls
-     * - Attack rolls against the creature have advantage
+     * Blinded: A blinded creature can't see and automatically fails any ability check
+     * that requires sight. Attack rolls against the creature have advantage, and the
+     * creature's attack rolls have disadvantage.
      */
-    data object Blinded : Condition
-    
+    object Blinded : Condition
+
     /**
-     * Restrained condition - creature's movement is restricted.
-     *
-     * Effects:
-     * - Speed becomes 0
-     * - Disadvantage on attack rolls
-     * - Disadvantage on Dexterity saving throws
-     * - Attack rolls against the creature have advantage
+     * Restrained: A restrained creature's speed becomes 0, and it can't benefit from
+     * any bonus to its speed. Attack rolls against the creature have advantage, and
+     * the creature's attack rolls have disadvantage. The creature has disadvantage
+     * on Dexterity saving throws.
      */
-    data object Restrained : Condition
-    
+    object Restrained : Condition
+
     /**
-     * Incapacitated condition - creature cannot take actions or reactions.
-     *
-     * Effects:
-     * - Cannot take actions or reactions
+     * Incapacitated: An incapacitated creature can't take actions or reactions.
      */
-    data object Incapacitated : Condition
-    
+    object Incapacitated : Condition
+
     /**
-     * Paralyzed condition - creature is frozen in place.
-     *
-     * Effects:
-     * - Incapacitated (cannot take actions or reactions)
-     * - Automatically fails Strength and Dexterity saving throws
-     * - Attack rolls against the creature have advantage
-     * - Melee attacks within 5 feet are automatic critical hits if they hit
+     * Paralyzed: A paralyzed creature is incapacitated and can't move or speak.
+     * The creature automatically fails Strength and Dexterity saving throws.
+     * Attack rolls against the creature have advantage. Any attack that hits the
+     * creature is a critical hit if the attacker is within 5 feet.
      */
-    data object Paralyzed : Condition
-    
+    object Paralyzed : Condition
+
     /**
-     * Unconscious condition - creature is knocked out.
-     *
-     * Effects:
-     * - Incapacitated (cannot take actions or reactions)
-     * - Cannot move or speak
-     * - Unaware of surroundings
-     * - Drops whatever it's holding and falls prone
-     * - Automatically fails Strength and Dexterity saving throws
-     * - Attack rolls against the creature have advantage
-     * - Melee attacks within 5 feet are automatic critical hits if they hit
+     * Unconscious: An unconscious creature is incapacitated, can't move or speak,
+     * and is unaware of its surroundings. The creature drops whatever it's holding
+     * and falls prone. The creature automatically fails Strength and Dexterity
+     * saving throws. Attack rolls against the creature have advantage. Any attack
+     * that hits the creature is a critical hit if the attacker is within 5 feet.
      */
-    data object Unconscious : Condition
+    object Unconscious : Condition
 }

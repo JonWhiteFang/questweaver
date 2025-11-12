@@ -111,8 +111,12 @@
     - Allow non-concentration spells while concentrating
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 6. Implement condition-based validation
-  - [ ] 6.1 Implement ConditionValidator
+- [x] 6. Implement condition-based validation
+
+
+
+  - [x] 6.1 Implement ConditionValidator
+
     - Create `ConditionValidator` class with conditionRegistry dependency
     - Implement validateConditions method to check if conditions prevent action
     - Implement getBlockingCondition method to find blocking conditions
@@ -125,8 +129,12 @@
     - Return ValidationResult.Success if no blocking conditions
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 7. Implement turn state management
-  - [ ] 7.1 Create TurnState data class
+
+
+- [x] 7. Implement turn state management
+
+  - [x] 7.1 Create TurnState data class
+
     - Define data class `TurnState` with creatureId, round, actionUsed, bonusActionUsed, reactionUsed, movementUsed, movementTotal, resourcePool, concentrationState fields
     - Implement remainingMovement method
     - Implement hasActionAvailable, hasBonusActionAvailable, hasReactionAvailable methods
@@ -134,13 +142,19 @@
     - Implement consumeResources method to apply ResourceCost
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-- [ ] 8. Implement main ActionValidator orchestrator
-  - [ ] 8.1 Create ActionValidator class
+
+
+- [x] 8. Implement main ActionValidator orchestrator
+
+  - [x] 8.1 Create ActionValidator class
+
     - Create `ActionValidator` class with dependencies on all validators
     - Inject ActionEconomyValidator, ResourceValidator, RangeValidator, ConcentrationValidator, ConditionValidator
     - _Requirements: 1.1, 5.1, 5.2, 5.3, 5.4, 5.5, 10.1, 10.2, 10.3, 10.4, 10.5_
   
-  - [ ] 8.2 Implement validation orchestration
+
+  - [x] 8.2 Implement validation orchestration
+
     - Implement validate method with action, actor, turnState, encounterState parameters
     - Step 1: Validate conditions (fail-fast if blocked)
     - Step 2: Validate action economy (fail-fast if exhausted)
@@ -152,7 +166,10 @@
     - Return ValidationResult.Failure with first failure reason if any check fails
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 5.1, 5.2, 5.3, 5.4, 5.5, 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 9. Add Koin dependency injection module
+
+
+- [x] 9. Add Koin dependency injection module
+
   - Create `validationModule` in `core/rules/src/main/kotlin/dev/questweaver/core/rules/di/ValidationModule.kt`
   - Register ActionValidator as factory
   - Register all sub-validators as factory
