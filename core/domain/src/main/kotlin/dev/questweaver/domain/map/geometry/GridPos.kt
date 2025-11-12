@@ -1,5 +1,6 @@
 package dev.questweaver.domain.map.geometry
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -9,6 +10,7 @@ import kotlinx.serialization.Serializable
  * @property y The y-coordinate (row) on the grid
  */
 @Serializable
+@SerialName("grid_pos")
 data class GridPos(
     val x: Int,
     val y: Int

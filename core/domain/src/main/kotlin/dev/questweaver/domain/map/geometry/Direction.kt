@@ -1,5 +1,6 @@
 package dev.questweaver.domain.map.geometry
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -7,12 +8,20 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 enum class Direction {
+    @SerialName("north")
     NORTH,
+    @SerialName("northeast")
     NORTHEAST,
+    @SerialName("east")
     EAST,
+    @SerialName("southeast")
     SOUTHEAST,
+    @SerialName("south")
     SOUTH,
+    @SerialName("southwest")
     SOUTHWEST,
+    @SerialName("west")
     WEST,
+    @SerialName("northwest")
     NORTHWEST
 }

@@ -1,5 +1,6 @@
 package dev.questweaver.domain.map.geometry
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -12,6 +13,7 @@ import kotlinx.serialization.Serializable
  * @property cells Map of grid positions to their properties
  */
 @Serializable
+@SerialName("map_grid")
 data class MapGrid(
     val width: Int,
     val height: Int,

@@ -1,5 +1,6 @@
 package dev.questweaver.domain.map.geometry
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,8 +11,12 @@ import kotlinx.serialization.Serializable
  * @property occupiedBy The ID of the creature occupying this cell, or null if empty
  */
 @Serializable
+@SerialName("cell_properties")
 data class CellProperties(
+    @SerialName("terrain_type")
     val terrainType: TerrainType = TerrainType.NORMAL,
+    @SerialName("has_obstacle")
     val hasObstacle: Boolean = false,
+    @SerialName("occupied_by")
     val occupiedBy: Long? = null
 )

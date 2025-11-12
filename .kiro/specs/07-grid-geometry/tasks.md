@@ -42,7 +42,9 @@
   - Filter out-of-bounds positions from range query results
   - _Requirements: 2.5, 4.1, 4.2, 4.3, 4.5_
 
-- [ ] 5. Implement line-of-effect calculations
+- [x] 5. Implement line-of-effect calculations
+
+
   - Create `LineOfEffect` object in geometry package
   - Implement `bresenhamLine()` algorithm for path tracing
   - Implement `hasLineOfEffect()` checking obstacles along path
@@ -50,7 +52,9 @@
   - Implement `positionsWithinRangeAndLOS()` combining range and LOS checks
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 4.4_
 
-- [ ] 6. Implement AoE template system
+- [x] 6. Implement AoE template system
+
+
   - Create `AoETemplate` sealed interface with `affectedPositions()` method
   - Implement `SphereTemplate` with radius validation and range-based calculation
   - Implement `CubeTemplate` with side length validation and rectangular area
@@ -59,7 +63,10 @@
   - Ensure all templates filter out-of-bounds positions
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
 
-- [ ] 7. Add serialization support
+- [x] 7. Add serialization support
+
+
+
   - Add `@Serializable` annotations to GridPos, MapGrid, CellProperties
   - Add `@SerialName` annotations for stable JSON field names
   - Configure kotlinx-serialization for enum types
