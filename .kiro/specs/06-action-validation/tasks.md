@@ -176,8 +176,15 @@
   - Inject dependencies from Combat Rules Engine (ConditionRegistry, GeometryCalculator)
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 10. Write comprehensive unit tests
-  - [ ] 10.1 Test ActionEconomyValidator
+- [x] 10. Write comprehensive unit tests
+
+
+
+
+
+  - [x] 10.1 Test ActionEconomyValidator
+
+
     - Test action validation: can't take action if already used
     - Test bonus action validation: can't take bonus action if already used
     - Test reaction validation: can't take reaction if already used
@@ -186,7 +193,9 @@
     - Test action economy resets on new turn
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
   
-  - [ ] 10.2 Test ResourceValidator
+  - [x] 10.2 Test ResourceValidator
+
+
     - Test spell slot validation: requires available slot
     - Test upcasting: higher-level slot works for lower-level spell
     - Test cantrips: don't consume spell slots
@@ -195,7 +204,9 @@
     - Test resource consumption updates pool correctly
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 8.1, 8.2, 8.3, 8.4, 8.5_
   
-  - [ ] 10.3 Test RangeValidator
+  - [x] 10.3 Test RangeValidator
+
+
     - Test touch range: requires 5 feet or less
     - Test ranged actions: fail beyond max range
     - Test line-of-effect: blocked by obstacles
@@ -203,7 +214,9 @@
     - Test edge case: exactly at max range
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
   
-  - [ ] 10.4 Test ConcentrationValidator
+  - [x] 10.4 Test ConcentrationValidator
+
+
     - Test concentration conflict: can't cast while concentrating
     - Test non-concentration spells: allowed while concentrating
     - Test breaking concentration: new concentration spell breaks old
@@ -211,7 +224,9 @@
     - Test Unconscious breaks concentration
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
   
-  - [ ] 10.5 Test ConditionValidator
+  - [x] 10.5 Test ConditionValidator
+
+
     - Test Stunned prevents all actions
     - Test Incapacitated prevents actions and reactions
     - Test Paralyzed prevents actions, reactions, movement
@@ -219,7 +234,9 @@
     - Test Prone doesn't prevent actions
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
   
-  - [ ] 10.6 Test ActionValidator integration
+  - [x] 10.6 Test ActionValidator integration
+
+
     - Test complete validation flow with all checks
     - Test fail-fast behavior: first failure returned
     - Test resource cost aggregation from multiple validators

@@ -11,6 +11,7 @@ import dev.questweaver.rules.modifiers.SaveEffect
  * various game mechanics. It's implemented as an object singleton since
  * condition effects are static and never change.
  */
+@Suppress("TooManyFunctions") // Registry objects naturally have many lookup functions
 object ConditionRegistry {
     /**
      * Checks if a condition prevents all actions.
@@ -146,15 +147,32 @@ object ConditionRegistry {
      * @return The roll modifier effect, or null if no effect
      */
     fun getAttackRollEffect(condition: Condition, isAttacker: Boolean): RollModifier? {
+        return if (isAttacker) {
+            getAttackerEffect(condition)
+        } else {
+            getTargetEffect(condition)
+        }
+    }
+
+    private fun getAttackerEffect(condition: Condition): RollModifier? {
         return when (condition) {
-            Condition.Poisoned -> if (isAttacker) RollModifier.Disadvantage else null
-            Condition.Blinded -> if (isAttacker) RollModifier.Disadvantage else RollModifier.Advantage
-            Condition.Prone -> if (isAttacker) RollModifier.Disadvantage else RollModifier.Advantage
-            Condition.Restrained -> if (isAttacker) RollModifier.Disadvantage else RollModifier.Advantage
-            Condition.Stunned -> if (isAttacker) null else RollModifier.Advantage
-            Condition.Paralyzed -> if (isAttacker) null else RollModifier.Advantage
-            Condition.Unconscious -> if (isAttacker) null else RollModifier.Advantage
-            Condition.Incapacitated -> null
+            Condition.Poisoned,
+            Condition.Blinded,
+            Condition.Prone,
+            Condition.Restrained -> RollModifier.Disadvantage
+            else -> null
+        }
+    }
+
+    private fun getTargetEffect(condition: Condition): RollModifier? {
+        return when (condition) {
+            Condition.Blinded,
+            Condition.Prone,
+            Condition.Restrained,
+            Condition.Stunned,
+            Condition.Paralyzed,
+            Condition.Unconscious -> RollModifier.Advantage
+            else -> null
         }
     }
 
