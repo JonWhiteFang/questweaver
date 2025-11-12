@@ -10,7 +10,7 @@ inclusion: always
 
 ## Core Rules
 
-**Location**: All documentation in `docs/` directory (except root `README.md`)
+**Location**: All documentation in `docs/` directory (except root `README.md` and `AGENTS.md`)
 
 **Structure**:
 ```
@@ -96,7 +96,7 @@ package/structure
 ## Critical Constraints
 
 **NEVER**:
-- Create docs in root directory (except `README.md`)
+- Create docs in root directory (except `README.md` and `AGENTS.md`)
 - Duplicate documentation across locations
 - Leave broken cross-references
 - Skip timestamp updates
