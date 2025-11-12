@@ -13,15 +13,22 @@
   - Define sealed interface `ActionChoice` with SpellSlotLevel, TargetSelection, FeatureOption variants
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 2. Implement action economy types and validator
-  - [ ] 2.1 Create action economy data structures
+- [x] 2. Implement action economy types and validator
+
+
+
+  - [x] 2.1 Create action economy data structures
+
+
     - Define enum `ActionEconomyResource` with Action, BonusAction, Reaction, Movement, FreeAction
     - Define enum `ActionType` with Action, BonusAction, Reaction, Movement, FreeAction
     - Define sealed interface `GameAction` with actorId and actionType properties
     - Implement GameAction variants: Attack, CastSpell, Move, Dash, Disengage, Dodge, UseClassFeature, OpportunityAttack
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
   
-  - [ ] 2.2 Implement ActionEconomyValidator
+  - [x] 2.2 Implement ActionEconomyValidator
+
+
     - Create `ActionEconomyValidator` class with validateActionEconomy method
     - Implement getActionCost method to determine resource consumption
     - Implement validation logic: check if action/bonus/reaction already used

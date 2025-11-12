@@ -1,6 +1,6 @@
 package dev.questweaver.core.rules.validation.results
 
-import dev.questweaver.core.rules.conditions.Condition
+import dev.questweaver.rules.conditions.Condition
 import dev.questweaver.core.rules.validation.state.GridPos
 
 /**
