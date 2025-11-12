@@ -2,6 +2,7 @@ package dev.questweaver.core.rules.validation.results
 
 import dev.questweaver.rules.conditions.Condition
 import dev.questweaver.core.rules.validation.state.GridPos
+import dev.questweaver.core.rules.validation.state.Resource
 
 /**
  * Sealed interface representing specific reasons why action validation failed.
@@ -100,42 +101,6 @@ enum class ActionEconomyResource {
     Reaction,
     Movement,
     FreeAction
-}
-
-/**
- * Sealed interface representing consumable resources.
- */
-sealed interface Resource {
-    /**
-     * A spell slot of a specific level.
-     *
-     * @property level The spell slot level (1-9)
-     */
-    data class SpellSlot(val level: Int) : Resource
-
-    /**
-     * A limited-use class feature.
-     *
-     * @property featureId The unique identifier of the class feature
-     * @property uses The number of uses required
-     */
-    data class ClassFeature(val featureId: String, val uses: Int) : Resource
-
-    /**
-     * Charges from a magic item.
-     *
-     * @property itemId The unique identifier of the item
-     * @property charges The number of charges required
-     */
-    data class ItemCharge(val itemId: Long, val charges: Int) : Resource
-
-    /**
-     * Hit dice for healing during short rests.
-     *
-     * @property diceType The type of hit dice (e.g., "d8", "d10")
-     * @property count The number of hit dice required
-     */
-    data class HitDice(val diceType: String, val count: Int) : Resource
 }
 
 /**

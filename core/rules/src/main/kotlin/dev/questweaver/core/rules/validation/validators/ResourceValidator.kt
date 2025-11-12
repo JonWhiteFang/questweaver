@@ -2,10 +2,10 @@ package dev.questweaver.core.rules.validation.validators
 
 import dev.questweaver.core.rules.validation.actions.GameAction
 import dev.questweaver.core.rules.validation.results.ActionChoice
-import dev.questweaver.core.rules.validation.results.Resource
 import dev.questweaver.core.rules.validation.results.ResourceCost
 import dev.questweaver.core.rules.validation.results.ValidationFailure
 import dev.questweaver.core.rules.validation.results.ValidationResult
+import dev.questweaver.core.rules.validation.state.Resource
 import dev.questweaver.core.rules.validation.state.ResourcePool
 
 /**

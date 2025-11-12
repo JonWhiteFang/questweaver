@@ -1,5 +1,7 @@
 package dev.questweaver.core.rules.validation.results
 
+import dev.questweaver.core.rules.validation.state.Resource
+
 /**
  * Data class representing the resources that would be consumed by executing an action.
  *
