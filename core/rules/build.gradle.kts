@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.jmh)
 }
 
 java {
@@ -21,6 +22,10 @@ dependencies {
     
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)
+    
+    // JMH benchmarking
+    jmh(libs.jmh.core)
+    jmh(libs.jmh.generator)
 }
 
 tasks.withType<Test> {
@@ -41,4 +46,14 @@ tasks.withType<Test> {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showStandardStreams = false
     }
+}
+
+// JMH configuration
+jmh {
+    iterations = 3
+    warmupIterations = 2
+    fork = 1
+    timeUnit = "ms"
+    resultFormat = "JSON"
+    resultsFile = project.layout.buildDirectory.file("reports/jmh/results.json")
 }

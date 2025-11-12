@@ -19,6 +19,7 @@ sqlcipher = "4.5.4"
 sqlite = "2.4.0"
 firebaseBom = "33.1.0"
 detekt = "1.23.6"
+jmh = "1.37"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -65,6 +66,10 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 androidx-test-junit = { module = "androidx.test.ext:junit", version = "1.1.5" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
+# Benchmark libs
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-generator = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
+
 [bundles]
 compose = ["compose-ui", "compose-material3", "compose-activity"]
 room = ["room-runtime", "room-ktx"]
@@ -82,3 +87,4 @@ kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+jmh = { id = "me.champeau.jmh", version = "0.7.2" }
