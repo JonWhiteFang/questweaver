@@ -1,6 +1,8 @@
 # Implementation Plan
 
-- [ ] 1. Set up core data structures
+- [x] 1. Set up core data structures
+
+
   - Create `core/domain/map/geometry` package structure
   - Define `GridPos` data class with x, y coordinates and serialization
   - Define `Direction` enum with 8 cardinal and diagonal directions
@@ -8,7 +10,9 @@
   - Define `CellProperties` data class with terrain, obstacle, and occupancy fields
   - _Requirements: 1.1, 1.2, 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 2. Implement MapGrid data structure
+- [x] 2. Implement MapGrid data structure
+
+
   - Create `MapGrid` data class with width, height, and cells map
   - Add initialization validation for dimensions (10-100 range)
   - Implement `isInBounds()` method for position validation
@@ -17,7 +21,9 @@
   - Implement `allPositions()` method returning lazy Sequence
   - _Requirements: 1.1, 1.2, 1.3, 1.5, 6.4, 6.5_
 
-- [ ] 3. Implement distance calculations
+- [x] 3. Implement distance calculations
+
+
   - Create `DistanceCalculator` object in geometry package
   - Implement `chebyshevDistance()` using max(abs(dx), abs(dy)) formula
   - Implement `distanceInFeet()` multiplying Chebyshev distance by 5
@@ -25,7 +31,10 @@
   - Implement `isWithinRange()` method on GridPos
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 4. Implement neighbor and range queries
+- [x] 4. Implement neighbor and range queries
+
+
+
   - Implement `neighbors()` method on GridPos returning 8 adjacent positions
   - Implement `neighborsInDirection()` method for directional movement
   - Add Direction extension `toVector()` for coordinate offsets
