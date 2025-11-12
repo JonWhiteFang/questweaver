@@ -130,7 +130,11 @@
   - Verify all templates exclude out-of-bounds positions
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
 
-- [ ] 12. Write property-based tests
+- [x] 12. Write property-based tests
+
+
+
+
   - Test distance symmetry: distanceTo(a, b) == distanceTo(b, a)
   - Test triangle inequality: distanceTo(a, c) <= distanceTo(a, b) + distanceTo(b, c)
   - Test all positions within range satisfy distance constraint
