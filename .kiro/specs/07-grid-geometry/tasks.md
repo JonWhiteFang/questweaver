@@ -73,7 +73,10 @@
   - Test serialization round-trip for all data structures
   - _Requirements: 6.4_
 
-- [ ] 8. Write unit tests for core data structures
+- [x] 8. Write unit tests for core data structures
+
+
+
   - Test GridPos creation, equality, and serialization
   - Test MapGrid initialization with valid and invalid dimensions
   - Test MapGrid bounds checking for various positions
