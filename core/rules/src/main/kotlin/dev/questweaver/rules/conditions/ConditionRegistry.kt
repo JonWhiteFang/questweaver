@@ -1,5 +1,9 @@
 package dev.questweaver.rules.conditions
 
+import dev.questweaver.rules.modifiers.AbilityType
+import dev.questweaver.rules.modifiers.RollModifier
+import dev.questweaver.rules.modifiers.SaveEffect
+
 /**
  * Registry for condition effects and their impact on actions and rolls.
  *
@@ -113,5 +117,73 @@ object ConditionRegistry {
      */
     fun getBlockingMovementCondition(conditions: Set<Condition>): Condition? {
         return conditions.firstOrNull { preventsMovement(it) }
+    }
+
+    /**
+     * Gets the effect of a condition on ability checks.
+     *
+     * @param condition The condition to check
+     * @return The roll modifier effect, or null if no effect
+     */
+    fun getAbilityCheckEffect(condition: Condition): RollModifier? {
+        return when (condition) {
+            Condition.Poisoned -> RollModifier.Disadvantage
+            Condition.Stunned,
+            Condition.Incapacitated,
+            Condition.Paralyzed,
+            Condition.Unconscious,
+            Condition.Prone,
+            Condition.Blinded,
+            Condition.Restrained -> null
+        }
+    }
+
+    /**
+     * Gets the effect of a condition on attack rolls.
+     *
+     * @param condition The condition to check
+     * @param isAttacker True if checking the attacker's conditions, false for target's conditions
+     * @return The roll modifier effect, or null if no effect
+     */
+    fun getAttackRollEffect(condition: Condition, isAttacker: Boolean): RollModifier? {
+        return when (condition) {
+            Condition.Poisoned -> if (isAttacker) RollModifier.Disadvantage else null
+            Condition.Blinded -> if (isAttacker) RollModifier.Disadvantage else null
+            Condition.Prone -> if (isAttacker) null else RollModifier.Advantage
+            Condition.Restrained -> if (isAttacker) RollModifier.Disadvantage else RollModifier.Advantage
+            Condition.Stunned,
+            Condition.Incapacitated,
+            Condition.Paralyzed,
+            Condition.Unconscious -> null
+        }
+    }
+
+    /**
+     * Gets the effect of a condition on saving throws.
+     *
+     * @param condition The condition to check
+     * @param abilityType The ability type of the saving throw
+     * @return The save effect, or null if no effect
+     */
+    fun getSavingThrowEffect(condition: Condition, abilityType: AbilityType): SaveEffect? {
+        return when (condition) {
+            Condition.Stunned -> when (abilityType) {
+                AbilityType.Strength, AbilityType.Dexterity -> SaveEffect.AutoFail
+                else -> null
+            }
+            Condition.Paralyzed -> when (abilityType) {
+                AbilityType.Strength, AbilityType.Dexterity -> SaveEffect.AutoFail
+                else -> null
+            }
+            Condition.Restrained -> when (abilityType) {
+                AbilityType.Dexterity -> SaveEffect.Disadvantage
+                else -> null
+            }
+            Condition.Incapacitated,
+            Condition.Unconscious,
+            Condition.Prone,
+            Condition.Poisoned,
+            Condition.Blinded -> null
+        }
     }
 }

@@ -4,6 +4,7 @@ import dev.questweaver.core.rules.validation.actions.GameAction
 import dev.questweaver.core.rules.validation.results.ValidationResult
 import dev.questweaver.core.rules.validation.results.ResourceCost
 import dev.questweaver.core.rules.validation.state.EncounterState
+import dev.questweaver.core.rules.validation.state.GridPos
 import dev.questweaver.core.rules.validation.state.TurnState
 import dev.questweaver.core.rules.validation.validators.ActionEconomyValidator
 import dev.questweaver.core.rules.validation.validators.ConditionValidator
@@ -82,9 +83,35 @@ class ActionValidator(
     ): ValidationResult {
         val actorPos = encounterState.positions[action.actorId]
         return if (actorPos != null) {
-            rangeValidator.validateRange(action, actorPos, encounterState)
+            val targetPos = getTargetPosition(action, encounterState)
+            rangeValidator.validateRange(action, actorPos, targetPos, encounterState)
         } else {
             ValidationResult.Success(ResourceCost.None)
+        }
+    }
+
+    /**
+     * Extracts the target position from an action.
+     *
+     * @param action The action to extract target position from
+     * @param encounterState Current encounter state with positions
+     * @return The target position, or null if action has no target or target position unknown
+     */
+    private fun getTargetPosition(
+        action: GameAction,
+        encounterState: EncounterState
+    ): GridPos? {
+        return when (action) {
+            is GameAction.Attack -> encounterState.positions[action.targetId]
+            is GameAction.CastSpell -> action.targetPos ?: action.targetIds.firstOrNull()?.let { 
+                encounterState.positions[it] 
+            }
+            is GameAction.OpportunityAttack -> encounterState.positions[action.targetId]
+            is GameAction.UseClassFeature -> action.targetId?.let { encounterState.positions[it] }
+            is GameAction.Move,
+            is GameAction.Dash,
+            is GameAction.Disengage,
+            is GameAction.Dodge -> null
         }
     }
 
