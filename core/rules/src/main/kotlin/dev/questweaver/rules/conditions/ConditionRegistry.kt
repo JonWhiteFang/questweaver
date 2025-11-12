@@ -148,13 +148,13 @@ object ConditionRegistry {
     fun getAttackRollEffect(condition: Condition, isAttacker: Boolean): RollModifier? {
         return when (condition) {
             Condition.Poisoned -> if (isAttacker) RollModifier.Disadvantage else null
-            Condition.Blinded -> if (isAttacker) RollModifier.Disadvantage else null
-            Condition.Prone -> if (isAttacker) null else RollModifier.Advantage
+            Condition.Blinded -> if (isAttacker) RollModifier.Disadvantage else RollModifier.Advantage
+            Condition.Prone -> if (isAttacker) RollModifier.Disadvantage else RollModifier.Advantage
             Condition.Restrained -> if (isAttacker) RollModifier.Disadvantage else RollModifier.Advantage
-            Condition.Stunned,
-            Condition.Incapacitated,
-            Condition.Paralyzed,
-            Condition.Unconscious -> null
+            Condition.Stunned -> if (isAttacker) null else RollModifier.Advantage
+            Condition.Paralyzed -> if (isAttacker) null else RollModifier.Advantage
+            Condition.Unconscious -> if (isAttacker) null else RollModifier.Advantage
+            Condition.Incapacitated -> null
         }
     }
 
@@ -175,12 +175,15 @@ object ConditionRegistry {
                 AbilityType.Strength, AbilityType.Dexterity -> SaveEffect.AutoFail
                 else -> null
             }
+            Condition.Unconscious -> when (abilityType) {
+                AbilityType.Strength, AbilityType.Dexterity -> SaveEffect.AutoFail
+                else -> null
+            }
             Condition.Restrained -> when (abilityType) {
                 AbilityType.Dexterity -> SaveEffect.Disadvantage
                 else -> null
             }
             Condition.Incapacitated,
-            Condition.Unconscious,
             Condition.Prone,
             Condition.Poisoned,
             Condition.Blinded -> null
