@@ -84,7 +84,12 @@
   - Test MapGrid cell property get/set operations
   - _Requirements: 1.1, 1.2, 1.3, 1.5_
 
-- [ ] 9. Write unit tests for distance calculations
+- [x] 9. Write unit tests for distance calculations
+
+
+
+
+
   - Test Chebyshev distance for orthogonal movement (same row/column)
   - Test Chebyshev distance for diagonal movement (45-degree angles)
   - Test Chebyshev distance for mixed movement (knight's move patterns)
