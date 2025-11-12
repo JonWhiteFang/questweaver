@@ -115,7 +115,11 @@
   - Test positionsWithinRangeAndLOS combining both constraints
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 4.4_
 
-- [ ] 11. Write unit tests for AoE templates
+- [x] 11. Write unit tests for AoE templates
+
+
+
+
   - Test SphereTemplate with radii 5ft, 10ft, 15ft, 20ft
   - Test SphereTemplate at grid edges and corners
   - Test CubeTemplate with side lengths 5ft, 10ft, 15ft, 20ft
