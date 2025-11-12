@@ -702,7 +702,7 @@ questweaver/
 ### 26.3 Version Catalog (gradle/libs.versions.toml)
 ```toml
 [versions]
-androidGradle = "8.5.0"
+androidGradle = "8.13.1"
 kotlin = "1.9.24"
 composeBom = "2024.06.00"
 coroutines = "1.8.1"

@@ -13,7 +13,7 @@ This file provides structured guidance for AI coding agents working on QuestWeav
 - **Platform**: Android (API 26+, targetSdk 34)
 - **Language**: Kotlin 100% (1.9.24, JVM 17)
 - **Architecture**: Clean Architecture + MVI + Event Sourcing
-- **Build System**: Gradle 8.5+ with Kotlin DSL
+- **Build System**: Gradle 9.2.0 with Kotlin DSL
 
 **Core Principle**: Offline-first, deterministic, event-sourced gameplay with strict module boundaries.
 

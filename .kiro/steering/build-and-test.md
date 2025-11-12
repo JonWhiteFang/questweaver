@@ -15,7 +15,7 @@ gradle koverHtmlReport         # Generate coverage report
 gradle clean build             # Clean build
 ```
 
-**Note**: This project uses Gradle 9.2.0 installed system-wide. You can also use the Gradle wrapper with `./gradlew` (Unix/Mac) or `gradlew.bat` (Windows) if preferred.
+**Note**: This project uses Gradle 9.2.0. You can use either the system-wide installation or the wrapper with `./gradlew` (Unix/Mac) or `gradlew.bat` (Windows).
 
 ## Gradle Configuration Rules
 

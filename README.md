@@ -9,7 +9,7 @@ QuestWeaver is a single-player tactical RPG where one human player controls thei
 - **Platform**: Android (API 26+, targetSdk 34)
 - **Language**: Kotlin 100% (1.9.24, JVM 17)
 - **Architecture**: Clean Architecture + MVI + Event Sourcing
-- **Build System**: Gradle 8.5+ with Kotlin DSL
+- **Build System**: Gradle 9.2.0 with Kotlin DSL
 - **UI Framework**: Jetpack Compose + Material3
 - **Database**: Room 2.6.1 + SQLCipher 4.5.5 (encrypted)
 
