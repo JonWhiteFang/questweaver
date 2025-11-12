@@ -37,15 +37,21 @@
     - Return ValidationResult.Success with ResourceCost if validation passes
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-- [ ] 3. Implement resource tracking and validation
-  - [ ] 3.1 Create resource data structures
+- [x] 3. Implement resource tracking and validation
+
+
+
+  - [x] 3.1 Create resource data structures
+
     - Define sealed interface `Resource` with SpellSlot, ClassFeature, ItemCharge, HitDice variants
     - Define data class `ResourcePool` with spellSlots, classFeatures, itemCharges, hitDice maps
     - Implement ResourcePool.hasResource method to check availability
     - Implement ResourcePool.consume method to create updated pool with resource consumed
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 8.1, 8.2, 8.3, 8.4, 8.5_
   
-  - [ ] 3.2 Implement ResourceValidator
+
+  - [x] 3.2 Implement ResourceValidator
+
     - Create `ResourceValidator` class with validateResources method
     - Implement getResourceCost method to determine required resources
     - Implement spell slot validation: check if slot of required level or higher available
@@ -56,13 +62,19 @@
     - Return ValidationResult.Success with ResourceCost if validation passes
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 4. Implement range and line-of-effect validation
-  - [ ] 4.1 Create range data structures
+- [x] 4. Implement range and line-of-effect validation
+
+
+
+  - [x] 4.1 Create range data structures
+
     - Define sealed interface `Range` with Touch, Feet, Sight, Self, Radius variants
     - Define data class `GridPos` for grid positions (if not already in core:domain)
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
   
-  - [ ] 4.2 Implement RangeValidator
+
+  - [x] 4.2 Implement RangeValidator
+
     - Create `RangeValidator` class with geometryCalculator dependency
     - Implement validateRange method to check distance and line-of-effect
     - Implement calculateDistance method using D&D 5e grid rules (5ft per square, diagonal movement)
@@ -73,8 +85,13 @@
     - Return ValidationResult.Success if range and line-of-effect valid
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 5. Implement concentration validation
-  - [ ] 5.1 Create concentration data structures
+- [x] 5. Implement concentration validation
+
+
+
+
+  - [x] 5.1 Create concentration data structures
+
     - Define data class `ConcentrationInfo` with spell, startedRound, dc fields
     - Define data class `ConcentrationState` with activeConcentrations map
     - Implement ConcentrationState.isConcentrating method
@@ -83,7 +100,9 @@
     - Implement ConcentrationState.breakConcentration method
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
   
-  - [ ] 5.2 Implement ConcentrationValidator
+
+  - [x] 5.2 Implement ConcentrationValidator
+
     - Create `ConcentrationValidator` class with validateConcentration method
     - Implement getActiveConcentration method to check current concentration
     - Implement validation logic: check if already concentrating on another spell
