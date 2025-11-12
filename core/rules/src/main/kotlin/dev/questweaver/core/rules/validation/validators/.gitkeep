@@ -1,0 +1,7 @@
+# Validators directory
+# This directory will contain validator implementations for:
+# - ActionEconomyValidator
+# - ResourceValidator
+# - RangeValidator
+# - ConcentrationValidator
+# - ConditionValidator

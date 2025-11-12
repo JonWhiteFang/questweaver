@@ -1,6 +1,10 @@
 # Implementation Plan
 
-- [ ] 1. Set up validation module structure and core types
+- [x] 1. Set up validation module structure and core types
+
+
+
+
   - Create package structure in `core/rules/src/main/kotlin/dev/questweaver/core/rules/validation/`
   - Create subdirectories: `validators/`, `state/`, `results/`
   - Define sealed interface `ValidationResult` with Success, Failure, RequiresChoice variants
