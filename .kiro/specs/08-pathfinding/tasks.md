@@ -11,7 +11,12 @@
   - Define `MovementCostCalculator` interface with `calculateCost()` method
   - _Requirements: 1.1, 1.3, 7.1, 7.2, 7.3, 7.5_
 
-- [ ] 2. Implement movement cost calculator
+- [x] 2. Implement movement cost calculator
+
+
+
+
+
   - Create `DefaultMovementCostCalculator` implementing MovementCostCalculator
   - Implement cost calculation: NORMAL terrain = 1, DIFFICULT = 2, IMPASSABLE = Int.MAX_VALUE
   - Add validation for grid bounds and cell properties
