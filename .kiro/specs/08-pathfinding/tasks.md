@@ -23,7 +23,9 @@
   - Ensure pure function with no side effects
   - _Requirements: 3.1, 3.2, 3.3, 5.5_
 
-- [ ] 3. Implement A* pathfinding core algorithm
+- [x] 3. Implement A* pathfinding core algorithm
+
+
   - Create `AStarPathfinder` class implementing Pathfinder interface
   - Implement priority queue for open set using PathNode with fScore ordering
   - Implement closed set using HashSet for visited positions
@@ -31,14 +33,18 @@
   - Implement cameFrom map for path reconstruction
   - _Requirements: 1.2, 5.1, 5.5, 6.2_
 
-- [ ] 4. Implement A* heuristic and node comparison
+
+- [x] 4. Implement A* heuristic and node comparison
+
   - Create `PathNode` data class with position, gScore, fScore
   - Implement Comparable interface with deterministic tie-breaking (fScore, then gScore, then position)
   - Implement heuristic function using Chebyshev distance from grid geometry
   - Ensure consistent ordering for deterministic behavior
   - _Requirements: 1.2, 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 5. Implement A* main search loop
+
+- [x] 5. Implement A* main search loop
+
   - Implement input validation (bounds checking for start and destination)
   - Initialize open set with start node
   - Implement main loop: poll lowest fScore node, check if destination reached
@@ -46,7 +52,10 @@
   - Implement early termination when destination is reached
   - _Requirements: 1.1, 1.2, 1.5, 6.1, 6.3_
 
-- [ ] 6. Implement obstacle detection and traversability
+
+- [x] 6. Implement obstacle detection and traversability
+
+
   - Create `isTraversable()` helper method checking cell properties
   - Block movement through IMPASSABLE terrain and obstacles
   - Block movement through occupied cells (except destination)
