@@ -126,7 +126,9 @@
   - Clamp zoom level between 0.5x and 3.0x
   - _Requirements: 7.3, 7.4_
 
-- [ ] 13. Create MapViewModel with MVI pattern
+- [x] 13. Create MapViewModel with MVI pattern
+
+
   - Create `MapViewModel` class extending ViewModel
   - Define private MutableStateFlow for MapRenderState
   - Expose public StateFlow for state observation
@@ -135,7 +137,8 @@
   - Update state immutably using copy() and update()
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 14. Implement range overlay logic in ViewModel
+- [x] 14. Implement range overlay logic in ViewModel
+
   - Add `showMovementRange()` method using ReachabilityCalculator
   - Add `showWeaponRange()` method using DistanceCalculator
   - Add `showSpellRange()` method with line-of-effect checking
@@ -143,7 +146,8 @@
   - Clear overlay when selection changes
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 15. Implement AoE preview logic in ViewModel
+- [x] 15. Implement AoE preview logic in ViewModel
+
   - Add `showAoEPreview()` method accepting AoETemplate and origin
   - Calculate affected positions using template.affectedPositions()
   - Update MapRenderState with AoEOverlayData
@@ -151,7 +155,10 @@
   - Clear AoE overlay when preview dismissed
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 16. Add Koin DI module for feature:map
+- [x] 16. Add Koin DI module for feature:map
+
+
+
   - Create `MapModule.kt` with Koin module definition
   - Register MapViewModel as viewModel scope
   - Inject Pathfinder and ReachabilityCalculator dependencies
