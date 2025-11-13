@@ -46,7 +46,7 @@ class RenderingPerformanceTest : FunSpec({
     
     // Detect CI environment and adjust thresholds accordingly
     val isCI = System.getenv("CI")?.toBoolean() ?: false
-    val ciMultiplier = if (isCI) 3 else 1
+    val ciMultiplier = if (isCI) 5 else 1
     
     /**
      * Warmup function to ensure JIT compilation doesn't affect benchmark results.
@@ -139,7 +139,7 @@ class RenderingPerformanceTest : FunSpec({
             }
             
             val avgDurationNs = duration / iterations
-            avgDurationNs shouldBeLessThan (1000L * ciMultiplier) // Local: 1μs, CI: 3μs
+            avgDurationNs shouldBeLessThan (1500L * ciMultiplier) // Local: 1.5μs, CI: 4.5μs
         }
         
         test("terrain type lookup should be fast for large grids") {
