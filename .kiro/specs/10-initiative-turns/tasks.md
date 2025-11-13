@@ -179,8 +179,14 @@
   - Return true if action is available, false otherwise
   - _Requirements: 3.1_
 
-- [ ] 7. Implement InitiativeTracker
-- [ ] 7.1 Create InitiativeTracker class
+- [x] 7. Implement InitiativeTracker
+
+
+
+
+- [x] 7.1 Create InitiativeTracker class
+
+
   - Implement initialize() method creating initial RoundState
   - Set roundNumber to 0 (or 1 if no surprise round)
   - Set isSurpriseRound based on surprisedCreatures
@@ -188,7 +194,10 @@
   - Create initial TurnState for first creature
   - _Requirements: 1.5, 2.1_
 
-- [ ] 7.2 Implement advanceTurn() method
+
+
+- [x] 7.2 Implement advanceTurn() method
+
   - Increment turn index
   - If index exceeds order length, reset to 0 and increment round
   - If surprise round and creature is surprised, skip and recurse
@@ -196,27 +205,42 @@
   - Return updated RoundState
   - _Requirements: 4.1, 5.2, 5.5_
 
-- [ ] 7.3 Implement addCreature() method
+
+
+
+- [x] 7.3 Implement addCreature() method
+
   - Insert new InitiativeEntry into sorted position in initiative order
   - Adjust turn index if insertion is before current turn
   - Return updated RoundState
+
+
   - _Requirements: 4.4_
+
+
 
 - [ ] 7.4 Implement removeCreature() method
   - Find and remove creature from initiative order
   - If creature is before current turn, decrement turn index
   - If removed creature was active, advance turn
+
+
   - Return updated RoundState
+
   - _Requirements: 4.5_
+
 
 - [ ] 7.5 Implement delayTurn() method
   - Remove creature from current position in initiative order
   - Add creature to delayedCreatures map with original InitiativeEntry
+
+
   - Advance turn to next creature
   - Return updated RoundState
   - _Requirements: 7.1, 7.5_
 
-- [ ] 7.6 Implement resumeDelayedTurn() method
+- [x] 7.6 Implement resumeDelayedTurn() method
+
   - Remove creature from delayedCreatures map
   - Create new InitiativeEntry with new initiative score
   - Insert creature at current position in initiative order
