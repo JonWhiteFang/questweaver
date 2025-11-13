@@ -302,7 +302,12 @@
   - Return InvalidState for validation failures
   - _Requirements: 8.2_
 
-- [ ] 10. Add Koin dependency injection module
+- [x] 10. Add Koin dependency injection module
+
+
+
+
+
   - Create InitiativeModule.kt in core/rules/di/ package
   - Define factory binding for InitiativeRoller with DiceRoller dependency
   - Define factory binding for InitiativeTracker
