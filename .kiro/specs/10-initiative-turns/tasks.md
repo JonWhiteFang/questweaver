@@ -48,71 +48,102 @@
   - Define values: Action, BonusAction, Reaction, Movement, FreeAction
   - _Requirements: 3.1_
 
-- [ ] 3. Implement event data classes
-- [ ] 3.1 Create EncounterStarted event
+- [x] 3. Implement event data classes
+
+
+- [x] 3.1 Create EncounterStarted event
+
+
   - Define fields: sessionId, timestamp, initiativeRolls, surprisedCreatures
   - Extend GameEvent sealed interface
   - _Requirements: 1.5, 8.2_
 
-- [ ] 3.2 Create RoundStarted event
+
+- [x] 3.2 Create RoundStarted event
+
   - Define fields: sessionId, timestamp, roundNumber
   - _Requirements: 4.2, 8.2_
 
-- [ ] 3.3 Create TurnStarted event
+
+
+- [x] 3.3 Create TurnStarted event
   - Define fields: sessionId, timestamp, creatureId, roundNumber, turnIndex
+
   - _Requirements: 5.1, 8.2_
 
-- [ ] 3.4 Create TurnEnded event
+- [x] 3.4 Create TurnEnded event
+
   - Define fields: sessionId, timestamp, creatureId, roundNumber
   - _Requirements: 5.2, 8.2_
 
-- [ ] 3.5 Create ReactionUsed event
+
+
+- [x] 3.5 Create ReactionUsed event
   - Define fields: sessionId, timestamp, creatureId, reactionType, trigger
   - _Requirements: 6.5, 8.2_
 
-- [ ] 3.6 Create TurnDelayed event
+
+
+- [x] 3.6 Create TurnDelayed event
   - Define fields: sessionId, timestamp, creatureId, originalInitiative
+
   - _Requirements: 7.5, 8.2_
 
-- [ ] 3.7 Create DelayedTurnResumed event
+- [x] 3.7 Create DelayedTurnResumed event
+
   - Define fields: sessionId, timestamp, creatureId, newInitiative
   - _Requirements: 7.3, 8.2_
 
-- [ ] 3.8 Create CreatureAddedToCombat event
+- [x] 3.8 Create CreatureAddedToCombat event
+
   - Define fields: sessionId, timestamp, creatureId, initiativeEntry
   - _Requirements: 4.4, 8.2_
 
-- [ ] 3.9 Create CreatureRemovedFromCombat event
+- [x] 3.9 Create CreatureRemovedFromCombat event
+
   - Define fields: sessionId, timestamp, creatureId, reason
   - _Requirements: 4.5, 8.2_
 
-- [ ] 4. Implement InitiativeRoller
-- [ ] 4.1 Create InitiativeRoller class with DiceRoller dependency
+- [x] 4. Implement InitiativeRoller
+
+
+
+- [x] 4.1 Create InitiativeRoller class with DiceRoller dependency
+
   - Define constructor accepting DiceRoller
   - _Requirements: 1.1, 8.1_
 
-- [ ] 4.2 Implement rollInitiative() method
+
+- [x] 4.2 Implement rollInitiative() method
   - Roll d20 using DiceRoller
   - Add Dexterity modifier to roll
   - Create and return InitiativeEntry with creature ID, roll, modifier, and total
   - _Requirements: 1.1_
 
-- [ ] 4.3 Implement rollInitiativeForAll() method
+
+- [x] 4.3 Implement rollInitiativeForAll() method
   - Call rollInitiative() for each creature in the map
   - Sort resulting InitiativeEntry list using Comparable implementation
+
+
   - Return sorted list (highest initiative first)
   - _Requirements: 1.2, 1.3, 1.4_
 
-- [ ] 5. Implement SurpriseHandler
-- [ ] 5.1 Create SurpriseHandler class
+- [x] 5. Implement SurpriseHandler
+
+
+- [x] 5.1 Create SurpriseHandler class
+
   - Implement hasSurpriseRound() method returning true if surprisedCreatures is not empty
   - _Requirements: 2.1_
 
-- [ ] 5.2 Implement canActInSurpriseRound() method
+
+- [x] 5.2 Implement canActInSurpriseRound() method
   - Return true if creatureId is not in surprisedCreatures set
   - _Requirements: 2.2_
 
-- [ ] 5.3 Implement endSurpriseRound() method
+
+- [x] 5.3 Implement endSurpriseRound() method
   - Return empty set (all creatures no longer surprised)
   - _Requirements: 2.4_
 

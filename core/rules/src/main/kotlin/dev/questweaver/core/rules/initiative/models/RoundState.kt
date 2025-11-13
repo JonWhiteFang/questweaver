@@ -10,8 +10,8 @@ package dev.questweaver.core.rules.initiative.models
  * @property roundNumber The current round number (0 for surprise round, 1+ for normal rounds)
  * @property isSurpriseRound Whether this is a surprise round
  * @property initiativeOrder The sorted list of creatures in initiative order (highest first)
- * @property surprisedCreatures Set of creature IDs that are surprised (cannot act in surprise round)
- * @property delayedCreatures Map of creature IDs to their original initiative entries for creatures that delayed their turn
+ * @property surprisedCreatures Set of creature IDs that are surprised
+ * @property delayedCreatures Map of creature IDs to their original initiative entries
  * @property currentTurn The current turn state, or null if no turn is active
  */
 data class RoundState(
