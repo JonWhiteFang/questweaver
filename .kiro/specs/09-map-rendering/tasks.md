@@ -235,6 +235,11 @@
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
 - [ ] 23. Integration and validation
+
+
+
+
+
   - Verify module dependencies follow architecture rules (feature:map → core:domain only)
   - Test integration with grid geometry from spec 07
   - Test integration with pathfinding from spec 08
