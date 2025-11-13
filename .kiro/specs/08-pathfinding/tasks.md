@@ -119,7 +119,9 @@
   - Test start equals destination (trivial path)
   - _Requirements: 1.1, 1.2, 1.3, 2.3_
 
-- [ ] 13. Write unit tests for movement costs
+- [x] 13. Write unit tests for movement costs
+
+
   - Test path through normal terrain (cost 1 per cell)
   - Test path through difficult terrain (cost 2 per cell)
   - Test path through mixed terrain
@@ -127,7 +129,9 @@
   - Test diagonal movement cost equals orthogonal per D&D 5e
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 14. Write unit tests for obstacles and occupancy
+- [x] 14. Write unit tests for obstacles and occupancy
+
+
   - Test obstacle blocks path
   - Test IMPASSABLE terrain blocks path
   - Test occupied cell blocks intermediate path
@@ -135,7 +139,9 @@
   - Test pathfinding around occupied cells
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 15. Write unit tests for movement budget
+- [x] 15. Write unit tests for movement budget
+
+
   - Test path within budget returns Success
   - Test path exceeding budget returns ExceedsMovementBudget
   - Test path at exact budget boundary
@@ -143,7 +149,8 @@
   - Test reachable positions exclude those beyond budget
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 16. Write unit tests for path validation
+- [x] 16. Write unit tests for path validation
+
   - Test isValidPath with connected path
   - Test isValidPath rejects non-adjacent steps
   - Test isValidPath rejects out-of-bounds positions
@@ -151,7 +158,9 @@
   - Test isWithinBudget compares cost to budget
   - _Requirements: 1.4, 1.5, 4.1, 4.2_
 
-- [ ] 17. Write unit tests for edge cases
+- [x] 17. Write unit tests for edge cases
+
+
   - Test pathfinding on grid boundaries
   - Test pathfinding on maximum grid size (100x100)
   - Test empty path when start is blocked
