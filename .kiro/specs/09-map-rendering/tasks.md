@@ -197,7 +197,9 @@
   - Test allegiance color mapping
   - _Requirements: 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 20. Write Compose UI tests
+- [x] 20. Write Compose UI tests
+
+
   - Test TacticalMapCanvas renders without crashing
   - Test tap gesture emits MapIntent.CellTapped
   - Test pan gesture emits MapIntent.Pan
@@ -205,7 +207,13 @@
   - Test tokens render at correct positions
   - _Requirements: 7.1, 7.2, 7.3, 8.5_
 
-- [ ] 21. Write performance tests
+- [x] 21. Write performance tests
+
+
+
+
+
+
   - Benchmark grid rendering for 50x50 grid (target ≤4ms)
   - Benchmark full frame render with tokens and overlays (target ≤4ms)
   - Test frame rate during pan/zoom gestures (target 60fps)
