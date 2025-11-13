@@ -1,30 +1,50 @@
 # Implementation Plan
 
-- [ ] 1. Set up module structure and core data models
+- [x] 1. Set up module structure and core data models
+
+
+
+
+
   - Create package structure in `core/rules/initiative/`: root level and `models/` subdirectory
   - Add dependencies on `core:domain` and `04-dice-system` in `core/rules/build.gradle.kts`
   - Verify module compiles with no Android dependencies
   - _Requirements: 8.5_
 
-- [ ] 2. Implement immutable state data classes
-- [ ] 2.1 Create InitiativeEntry data class
+- [x] 2. Implement immutable state data classes
+
+
+
+
+
+- [x] 2.1 Create InitiativeEntry data class
+
+
   - Define fields: creatureId, roll, modifier, total
   - Implement Comparable interface for sorting (total desc, modifier desc, creatureId asc)
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 2.2 Create TurnPhase data class
+
+- [x] 2.2 Create TurnPhase data class
+
   - Define fields: creatureId, movementRemaining, actionAvailable, bonusActionAvailable, reactionAvailable
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 2.3 Create TurnState data class
+- [x] 2.3 Create TurnState data class
+
+
   - Define fields: activeCreatureId, turnPhase, turnIndex
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 2.4 Create RoundState data class
+
+- [x] 2.4 Create RoundState data class
+
   - Define fields: roundNumber, isSurpriseRound, initiativeOrder, surprisedCreatures, delayedCreatures, currentTurn
   - _Requirements: 4.1, 4.2, 4.3_
 
-- [ ] 2.5 Create ActionType enum
+
+- [x] 2.5 Create ActionType enum
+
   - Define values: Action, BonusAction, Reaction, Movement, FreeAction
   - _Requirements: 3.1_
 
