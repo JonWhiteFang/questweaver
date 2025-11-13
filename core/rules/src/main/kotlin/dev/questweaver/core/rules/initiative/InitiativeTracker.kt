@@ -20,6 +20,7 @@ import dev.questweaver.core.rules.initiative.models.TurnState
  * - Dynamic creature addition/removal mid-combat
  * - Delayed turn support (Ready action)
  */
+@Suppress("TooManyFunctions")
 class InitiativeTracker {
     
     companion object {
@@ -28,6 +29,15 @@ class InitiativeTracker {
          * Standard humanoid movement speed in D&D 5e is 30 feet.
          */
         private const val DEFAULT_MOVEMENT_SPEED = 30
+        
+        private const val ERROR_EMPTY_ORDER = "Initiative order cannot be empty"
+        private const val ERROR_CANNOT_ADVANCE = "Cannot advance turn with empty initiative order"
+        private const val ERROR_CANNOT_ADD = "Cannot add creature to empty initiative order"
+        private const val ERROR_CANNOT_REMOVE = "Cannot remove creature from empty initiative order"
+        private const val ERROR_CANNOT_DELAY = "Cannot delay turn with empty initiative order"
+        
+        private fun outOfBoundsError(index: Int, max: Int): String =
+            "Turn index $index is out of bounds (0-$max)"
     }
     
     /**
@@ -52,7 +62,7 @@ class InitiativeTracker {
     ): InitiativeResult<RoundState> {
         // Validate initiative order is not empty
         if (initiativeOrder.isEmpty()) {
-            return InitiativeResult.InvalidState("Initiative order cannot be empty")
+            return InitiativeResult.InvalidState(ERROR_EMPTY_ORDER)
         }
         val hasSurpriseRound = surprisedCreatures.isNotEmpty()
         val roundNumber = if (hasSurpriseRound) 0 else 1
@@ -112,86 +122,130 @@ class InitiativeTracker {
      * @return Success with updated RoundState, or InvalidState if validation fails
      */
     fun advanceTurn(currentState: RoundState): InitiativeResult<RoundState> {
-        val initiativeOrder = currentState.initiativeOrder
+        val validationResult = validateAdvanceTurn(currentState)
+        if (validationResult != null) return validationResult
         
-        // Validate initiative order is not empty
-        if (initiativeOrder.isEmpty()) {
-            return InitiativeResult.InvalidState("Cannot advance turn with empty initiative order")
+        val nextTurnData = calculateNextTurn(currentState)
+        val nextCreature = currentState.initiativeOrder[nextTurnData.index]
+        val shouldSkip = nextTurnData.isSurpriseRound && 
+            nextCreature.creatureId in nextTurnData.surprisedCreatures
+        
+        return if (shouldSkip) {
+            advanceTurnSkippingSurprised(currentState, nextTurnData)
+        } else {
+            createNextTurnState(currentState, nextTurnData, nextCreature)
+        }
+    }
+    
+    private fun validateAdvanceTurn(state: RoundState): InitiativeResult.InvalidState? =
+        when {
+            state.initiativeOrder.isEmpty() -> 
+                InitiativeResult.InvalidState(ERROR_CANNOT_ADVANCE)
+            else -> validateTurnIndex(state, allowNegativeOne = true) 
+                ?: validateActiveCreatureExists(state)
+        }
+    
+    private fun validateActiveCreatureExists(
+        state: RoundState
+    ): InitiativeResult.InvalidState? {
+        if (state.currentTurn == null) return null
+        
+        val activeExists = state.initiativeOrder.any { 
+            it.creatureId == state.currentTurn.activeCreatureId 
         }
         
-        // Validate turn index is within bounds
-        val currentTurnIndex = currentState.currentTurn?.turnIndex ?: -1
-        if (currentTurnIndex < -1 || currentTurnIndex >= initiativeOrder.size) {
-            return InitiativeResult.InvalidState("Turn index $currentTurnIndex is out of bounds (0-${initiativeOrder.size - 1})")
+        return if (!activeExists) {
+            val creatureId = state.currentTurn.activeCreatureId
+            InitiativeResult.InvalidState(
+                "Active creature $creatureId not found in initiative order"
+            )
+        } else {
+            null
         }
+    }
+    
+    private fun validateTurnIndex(
+        state: RoundState,
+        allowNegativeOne: Boolean = false
+    ): InitiativeResult.InvalidState? {
+        val currentTurn = state.currentTurn ?: return null
+        val turnIndex = currentTurn.turnIndex
+        val maxIndex = state.initiativeOrder.size - 1
+        val minIndex = if (allowNegativeOne) -1 else 0
         
-        // Validate active creature exists in order (if turn is active)
-        if (currentState.currentTurn != null) {
-            val activeCreatureExists = initiativeOrder.any { 
-                it.creatureId == currentState.currentTurn.activeCreatureId 
-            }
-            if (!activeCreatureExists) {
-                return InitiativeResult.InvalidState("Active creature ${currentState.currentTurn.activeCreatureId} not found in initiative order")
-            }
+        return if (turnIndex < minIndex || turnIndex > maxIndex) {
+            InitiativeResult.InvalidState(outOfBoundsError(turnIndex, maxIndex))
+        } else {
+            null
         }
+    }
+    
+    private data class NextTurnData(
+        val index: Int,
+        val roundNumber: Int,
+        val isSurpriseRound: Boolean,
+        val surprisedCreatures: Set<Long>
+    )
+    
+    private fun calculateNextTurn(state: RoundState): NextTurnData {
+        val currentIndex = state.currentTurn?.turnIndex ?: -1
+        var nextIndex = currentIndex + 1
+        var newRound = state.roundNumber
+        var newIsSurprise = state.isSurpriseRound
+        var newSurprised = state.surprisedCreatures
         
-        var nextIndex = currentTurnIndex + 1
-        var newRoundNumber = currentState.roundNumber
-        var newIsSurpriseRound = currentState.isSurpriseRound
-        var newSurprisedCreatures = currentState.surprisedCreatures
-        
-        // Check if we've wrapped around to start a new round
-        if (nextIndex >= initiativeOrder.size) {
+        if (nextIndex >= state.initiativeOrder.size) {
             nextIndex = 0
-            newRoundNumber++
+            newRound++
             
-            // End surprise round if it was active
-            if (currentState.isSurpriseRound) {
-                newIsSurpriseRound = false
-                newSurprisedCreatures = emptySet()
-                newRoundNumber = 1 // First normal round after surprise
+            if (state.isSurpriseRound) {
+                newIsSurprise = false
+                newSurprised = emptySet()
+                newRound = 1
             }
         }
         
-        val nextCreature = initiativeOrder[nextIndex]
-        val shouldSkip = newIsSurpriseRound && nextCreature.creatureId in newSurprisedCreatures
+        return NextTurnData(nextIndex, newRound, newIsSurprise, newSurprised)
+    }
+    
+    private fun advanceTurnSkippingSurprised(
+        state: RoundState,
+        turnData: NextTurnData
+    ): InitiativeResult<RoundState> {
+        val updatedState = state.copy(
+            roundNumber = turnData.roundNumber,
+            isSurpriseRound = turnData.isSurpriseRound,
+            surprisedCreatures = turnData.surprisedCreatures,
+            currentTurn = state.currentTurn?.copy(turnIndex = turnData.index)
+        )
+        return advanceTurn(updatedState)
+    }
+    
+    private fun createNextTurnState(
+        state: RoundState,
+        turnData: NextTurnData,
+        nextCreature: InitiativeEntry
+    ): InitiativeResult<RoundState> {
+        val newTurnState = TurnState(
+            activeCreatureId = nextCreature.creatureId,
+            turnPhase = TurnPhase(
+                creatureId = nextCreature.creatureId,
+                movementRemaining = DEFAULT_MOVEMENT_SPEED,
+                actionAvailable = true,
+                bonusActionAvailable = true,
+                reactionAvailable = true
+            ),
+            turnIndex = turnData.index
+        )
         
-        // Build result state - either skip to next turn or create new turn state
-        return when {
-            shouldSkip -> {
-                // Skip surprised creatures in surprise round (recursive call)
-                val updatedState = currentState.copy(
-                    roundNumber = newRoundNumber,
-                    isSurpriseRound = newIsSurpriseRound,
-                    surprisedCreatures = newSurprisedCreatures,
-                    currentTurn = currentState.currentTurn?.copy(turnIndex = nextIndex)
-                )
-                advanceTurn(updatedState)
-            }
-            else -> {
-                // Create new turn state for next creature
-                val newTurnState = TurnState(
-                    activeCreatureId = nextCreature.creatureId,
-                    turnPhase = TurnPhase(
-                        creatureId = nextCreature.creatureId,
-                        movementRemaining = DEFAULT_MOVEMENT_SPEED,
-                        actionAvailable = true,
-                        bonusActionAvailable = true,
-                        reactionAvailable = true
-                    ),
-                    turnIndex = nextIndex
-                )
-                
-                InitiativeResult.Success(
-                    currentState.copy(
-                        roundNumber = newRoundNumber,
-                        isSurpriseRound = newIsSurpriseRound,
-                        surprisedCreatures = newSurprisedCreatures,
-                        currentTurn = newTurnState
-                    )
-                )
-            }
-        }
+        return InitiativeResult.Success(
+            state.copy(
+                roundNumber = turnData.roundNumber,
+                isSurpriseRound = turnData.isSurpriseRound,
+                surprisedCreatures = turnData.surprisedCreatures,
+                currentTurn = newTurnState
+            )
+        )
     }
     
     /**
@@ -213,22 +267,12 @@ class InitiativeTracker {
         currentState: RoundState,
         newEntry: InitiativeEntry
     ): InitiativeResult<RoundState> {
-        // Validate initiative order is not empty
-        if (currentState.initiativeOrder.isEmpty()) {
-            return InitiativeResult.InvalidState("Cannot add creature to empty initiative order")
-        }
+        val validationResult = validateAddCreature(currentState)
+        if (validationResult != null) return validationResult
         
-        // Validate turn index is within bounds (if turn is active)
-        if (currentState.currentTurn != null) {
-            val turnIndex = currentState.currentTurn.turnIndex
-            if (turnIndex < 0 || turnIndex >= currentState.initiativeOrder.size) {
-                return InitiativeResult.InvalidState("Turn index $turnIndex is out of bounds (0-${currentState.initiativeOrder.size - 1})")
-            }
-        }
         val newOrder = (currentState.initiativeOrder + newEntry).sorted()
         val newIndex = newOrder.indexOf(newEntry)
         
-        // Adjust turn index if insertion is before current turn
         val adjustedTurnIndex = currentState.currentTurn?.let { currentTurn ->
             if (newIndex <= currentTurn.turnIndex) {
                 currentTurn.turnIndex + 1
@@ -245,6 +289,14 @@ class InitiativeTracker {
                 currentTurn = updatedTurn
             )
         )
+    }
+    
+    private fun validateAddCreature(state: RoundState): InitiativeResult.InvalidState? {
+        if (state.initiativeOrder.isEmpty()) {
+            return InitiativeResult.InvalidState(ERROR_CANNOT_ADD)
+        }
+        
+        return validateTurnIndex(state)
     }
     
     /**
@@ -267,59 +319,82 @@ class InitiativeTracker {
         currentState: RoundState,
         creatureId: Long
     ): InitiativeResult<RoundState> {
-        // Validate initiative order is not empty
-        if (currentState.initiativeOrder.isEmpty()) {
-            return InitiativeResult.InvalidState("Cannot remove creature from empty initiative order")
-        }
+        val validationResult = validateRemoveCreature(currentState, creatureId)
+        if (validationResult != null) return validationResult
         
-        // Validate turn index is within bounds (if turn is active)
-        if (currentState.currentTurn != null) {
-            val turnIndex = currentState.currentTurn.turnIndex
-            if (turnIndex < 0 || turnIndex >= currentState.initiativeOrder.size) {
-                return InitiativeResult.InvalidState("Turn index $turnIndex is out of bounds (0-${currentState.initiativeOrder.size - 1})")
-            }
+        val creatureIndex = currentState.initiativeOrder.indexOfFirst { 
+            it.creatureId == creatureId 
         }
-        val creatureIndex = currentState.initiativeOrder.indexOfFirst { it.creatureId == creatureId }
-        
-        // Creature not found, return error
-        if (creatureIndex < 0) {
-            return InitiativeResult.InvalidState("Creature $creatureId not found in initiative order")
-        }
-        
         val newOrder = currentState.initiativeOrder.filterNot { it.creatureId == creatureId }
         val currentTurnIndex = currentState.currentTurn?.turnIndex ?: 0
         val wasActiveCreature = currentState.currentTurn?.activeCreatureId == creatureId
         
-        // Handle empty order case
+        return handleCreatureRemoval(
+            currentState,
+            newOrder,
+            creatureIndex,
+            currentTurnIndex,
+            wasActiveCreature
+        )
+    }
+    
+    private fun validateRemoveCreature(
+        state: RoundState,
+        creatureId: Long
+    ): InitiativeResult.InvalidState? =
+        when {
+            state.initiativeOrder.isEmpty() -> 
+                InitiativeResult.InvalidState(ERROR_CANNOT_REMOVE)
+            else -> validateTurnIndex(state) ?: validateCreatureExists(state, creatureId)
+        }
+    
+    private fun validateCreatureExists(
+        state: RoundState,
+        creatureId: Long
+    ): InitiativeResult.InvalidState? {
+        val exists = state.initiativeOrder.any { it.creatureId == creatureId }
+        return if (!exists) {
+            InitiativeResult.InvalidState(
+                "Creature $creatureId not found in initiative order"
+            )
+        } else {
+            null
+        }
+    }
+    
+    private fun handleCreatureRemoval(
+        state: RoundState,
+        newOrder: List<InitiativeEntry>,
+        creatureIndex: Int,
+        currentTurnIndex: Int,
+        wasActiveCreature: Boolean
+    ): InitiativeResult<RoundState> {
         return when {
             newOrder.isEmpty() -> InitiativeResult.Success(
-                currentState.copy(
-                    initiativeOrder = newOrder,
-                    currentTurn = null
-                )
+                state.copy(initiativeOrder = newOrder, currentTurn = null)
             )
             wasActiveCreature -> {
-                // Removed creature was active, advance to next turn
-                val stateWithRemovedCreature = currentState.copy(
-                    initiativeOrder = newOrder,
-                    currentTurn = currentState.currentTurn?.copy(
-                        turnIndex = if (creatureIndex < currentTurnIndex) currentTurnIndex - 1 else currentTurnIndex
-                    )
-                )
-                advanceTurn(stateWithRemovedCreature)
-            }
-            else -> {
-                // Adjust turn index if removed creature was before current turn
-                val adjustedTurnIndex = if (creatureIndex < currentTurnIndex) {
+                val adjustedIndex = if (creatureIndex < currentTurnIndex) {
                     currentTurnIndex - 1
                 } else {
                     currentTurnIndex
                 }
-                
+                val stateWithRemoved = state.copy(
+                    initiativeOrder = newOrder,
+                    currentTurn = state.currentTurn?.copy(turnIndex = adjustedIndex)
+                )
+                advanceTurn(stateWithRemoved)
+            }
+            else -> {
+                val adjustedIndex = if (creatureIndex < currentTurnIndex) {
+                    currentTurnIndex - 1
+                } else {
+                    currentTurnIndex
+                }
                 InitiativeResult.Success(
-                    currentState.copy(
+                    state.copy(
                         initiativeOrder = newOrder,
-                        currentTurn = currentState.currentTurn?.copy(turnIndex = adjustedTurnIndex)
+                        currentTurn = state.currentTurn?.copy(turnIndex = adjustedIndex)
                     )
                 )
             }
@@ -347,25 +422,10 @@ class InitiativeTracker {
         currentState: RoundState,
         creatureId: Long
     ): InitiativeResult<RoundState> {
-        // Validate initiative order is not empty
-        if (currentState.initiativeOrder.isEmpty()) {
-            return InitiativeResult.InvalidState("Cannot delay turn with empty initiative order")
-        }
+        val validationResult = validateDelayTurn(currentState, creatureId)
+        if (validationResult != null) return validationResult
         
-        // Validate turn index is within bounds (if turn is active)
-        if (currentState.currentTurn != null) {
-            val turnIndex = currentState.currentTurn.turnIndex
-            if (turnIndex < 0 || turnIndex >= currentState.initiativeOrder.size) {
-                return InitiativeResult.InvalidState("Turn index $turnIndex is out of bounds (0-${currentState.initiativeOrder.size - 1})")
-            }
-        }
-        val creatureEntry = currentState.initiativeOrder.find { it.creatureId == creatureId }
-        
-        // Creature not found, return error
-        if (creatureEntry == null) {
-            return InitiativeResult.InvalidState("Creature $creatureId not found in initiative order")
-        }
-        
+        val creatureEntry = currentState.initiativeOrder.find { it.creatureId == creatureId }!!
         val newOrder = currentState.initiativeOrder.filterNot { it.creatureId == creatureId }
         val newDelayedCreatures = currentState.delayedCreatures + (creatureId to creatureEntry)
         
@@ -374,7 +434,6 @@ class InitiativeTracker {
             delayedCreatures = newDelayedCreatures
         )
         
-        // If the delayed creature was active, advance to next turn; otherwise return state with delay
         val wasActiveCreature = currentState.currentTurn?.activeCreatureId == creatureId
         return if (wasActiveCreature) {
             advanceTurn(stateWithDelay)
@@ -382,6 +441,16 @@ class InitiativeTracker {
             InitiativeResult.Success(stateWithDelay)
         }
     }
+    
+    private fun validateDelayTurn(
+        state: RoundState,
+        creatureId: Long
+    ): InitiativeResult.InvalidState? =
+        when {
+            state.initiativeOrder.isEmpty() -> 
+                InitiativeResult.InvalidState(ERROR_CANNOT_DELAY)
+            else -> validateTurnIndex(state) ?: validateCreatureExists(state, creatureId)
+        }
     
     /**
      * Inserts a delayed creature at the current initiative position.
@@ -407,28 +476,16 @@ class InitiativeTracker {
         creatureId: Long,
         newInitiative: Int
     ): InitiativeResult<RoundState> {
-        // Validate creature exists in delayed creatures map
-        val delayedEntry = currentState.delayedCreatures[creatureId]
-            ?: return InitiativeResult.InvalidState("Creature $creatureId not found in delayed creatures")
+        val validationResult = validateResumeDelayedTurn(currentState, creatureId)
+        if (validationResult != null) return validationResult
         
-        // Validate turn index is within bounds (if turn is active)
-        if (currentState.currentTurn != null) {
-            val turnIndex = currentState.currentTurn.turnIndex
-            if (turnIndex < 0 || turnIndex >= currentState.initiativeOrder.size) {
-                return InitiativeResult.InvalidState("Turn index $turnIndex is out of bounds (0-${currentState.initiativeOrder.size - 1})")
-            }
-        }
-        
-        // Create new entry with updated initiative
+        val delayedEntry = currentState.delayedCreatures[creatureId]!!
         val newEntry = delayedEntry.copy(
             total = newInitiative,
             roll = newInitiative - delayedEntry.modifier
         )
         
-        // Remove from delayed creatures
         val newDelayedCreatures = currentState.delayedCreatures - creatureId
-        
-        // Insert at current position (after current turn index)
         val currentTurnIndex = currentState.currentTurn?.turnIndex ?: 0
         val insertPosition = currentTurnIndex + 1
         
@@ -442,5 +499,18 @@ class InitiativeTracker {
                 delayedCreatures = newDelayedCreatures
             )
         )
+    }
+    
+    private fun validateResumeDelayedTurn(
+        state: RoundState,
+        creatureId: Long
+    ): InitiativeResult.InvalidState? {
+        if (creatureId !in state.delayedCreatures) {
+            return InitiativeResult.InvalidState(
+                "Creature $creatureId not found in delayed creatures"
+            )
+        }
+        
+        return validateTurnIndex(state)
     }
 }

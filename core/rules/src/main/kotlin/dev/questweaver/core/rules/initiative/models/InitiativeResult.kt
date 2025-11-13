@@ -16,8 +16,9 @@ package dev.questweaver.core.rules.initiative.models
  */
 sealed interface InitiativeResult<out T> {
     /**
-     * Operation succeeded with a value.
+     * Operation succeeded with a result value.
      *
+     * @param T The type of the successful result value
      * @property value The successful result value
      */
     data class Success<T>(val value: T) : InitiativeResult<T>
