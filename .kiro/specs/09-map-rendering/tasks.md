@@ -42,7 +42,9 @@
   - Implement viewport culling to only render visible cells
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 6.3, 6.4_
 
-- [ ] 5. Implement token rendering
+- [x] 5. Implement token rendering
+
+
   - Create `TokenRenderer.kt` with DrawScope extension functions
   - Implement `drawTokens()` rendering circular tokens at creature positions
   - Use allegiance-based colors: friendly (blue), enemy (red), neutral (yellow)
@@ -52,7 +54,9 @@
   - Scale token size to 80% of cell size
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
 
-- [ ] 6. Implement movement path rendering
+- [x] 6. Implement movement path rendering
+
+
   - Create `PathRenderer.kt` with DrawScope extension functions
   - Implement `drawMovementPath()` connecting path positions with lines
   - Use semi-transparent yellow color for path visibility
@@ -61,7 +65,9 @@
   - Render path above grid but below tokens
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 7. Implement range overlay rendering
+- [x] 7. Implement range overlay rendering
+
+
   - Create `OverlayRenderer.kt` with DrawScope extension functions
   - Implement `drawRangeOverlay()` highlighting positions within range
   - Use semi-transparent colors: movement (blue), weapon (red), spell (magenta)
@@ -69,7 +75,10 @@
   - Render overlay above grid but below paths
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 8. Implement AoE overlay rendering
+- [x] 8. Implement AoE overlay rendering
+
+
+
   - Add `drawAoEOverlay()` to OverlayRenderer
   - Render affected positions with semi-transparent red (alpha 0.4)
   - Support sphere, cube, and cone template visualizations
@@ -77,14 +86,18 @@
   - Add directional indicator for cone templates if needed
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 9. Implement selection highlight rendering
+- [x] 9. Implement selection highlight rendering
+
+
   - Add `drawSelectionHighlight()` function
   - Draw white border around selected cell with 3px stroke
   - Render selection above all other layers
   - Update highlight when selected position changes
   - _Requirements: 7.5_
 
-- [ ] 10. Create main TacticalMapCanvas Composable
+- [x] 10. Create main TacticalMapCanvas Composable
+
+
   - Create `TacticalMapCanvas.kt` in ui package
   - Implement Canvas Composable with fillMaxSize modifier
   - Call rendering functions in correct layer order: grid, range, AoE, path, tokens, selection
@@ -92,7 +105,9 @@
   - Keep Composable stateless with state hoisting
   - _Requirements: 1.5, 8.2, 8.5_
 
-- [ ] 11. Implement tap gesture handling
+- [x] 11. Implement tap gesture handling
+
+
   - Add pointerInput modifier with detectTapGestures
   - Convert tap screen coordinates to GridPos using screenToGrid()
   - Emit MapIntent.CellTapped with selected position
@@ -100,7 +115,10 @@
   - Provide visual feedback for tapped cells
   - _Requirements: 7.1, 7.2, 7.5_
 
-- [ ] 12. Implement pan and zoom gestures
+- [x] 12. Implement pan and zoom gestures
+
+
+
   - Add pointerInput modifier with detectTransformGestures
   - Emit MapIntent.Pan with delta offset for camera movement
   - Emit MapIntent.Zoom with scale factor for zoom changes
