@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.questweaver.domain.map.geometry.AoETemplate
 import dev.questweaver.domain.map.geometry.DistanceCalculator
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.domain.map.geometry.MapGrid
 import dev.questweaver.domain.map.pathfinding.Pathfinder
 import dev.questweaver.domain.map.pathfinding.ReachabilityCalculator
-import dev.questweaver.domain.values.GridPos
 import dev.questweaver.feature.map.ui.AoEOverlayData
 import dev.questweaver.feature.map.ui.MapIntent
 import dev.questweaver.feature.map.ui.MapRenderState
@@ -114,9 +114,8 @@ class MapViewModel(
      */
     fun showMovementRange(origin: GridPos, movementBudget: Int) {
         viewModelScope.launch {
-            val geometryOrigin = origin.toGeometryGridPos()
             val reachable = reachabilityCalculator.findReachablePositions(
-                start = geometryOrigin,
+                start = origin,
                 movementBudget = movementBudget,
                 grid = _state.value.grid
             )
@@ -125,7 +124,7 @@ class MapViewModel(
                 it.copy(
                     rangeOverlay = RangeOverlayData(
                         origin = origin,
-                        positions = reachable.map { it.toValuesGridPos() }.toSet(),
+                        positions = reachable.toSet(),
                         rangeType = RangeType.MOVEMENT
                     )
                 )
@@ -142,9 +141,8 @@ class MapViewModel(
      */
     fun showWeaponRange(origin: GridPos, rangeInFeet: Int) {
         viewModelScope.launch {
-            val geometryOrigin = origin.toGeometryGridPos()
             val positions = DistanceCalculator.positionsWithinRange(
-                center = geometryOrigin,
+                center = origin,
                 rangeInFeet = rangeInFeet,
                 grid = _state.value.grid
             )
@@ -153,7 +151,7 @@ class MapViewModel(
                 it.copy(
                     rangeOverlay = RangeOverlayData(
                         origin = origin,
-                        positions = positions.map { it.toValuesGridPos() }.toSet(),
+                        positions = positions.toSet(),
                         rangeType = RangeType.WEAPON
                     )
                 )
@@ -171,9 +169,8 @@ class MapViewModel(
      */
     fun showSpellRange(origin: GridPos, rangeInFeet: Int) {
         viewModelScope.launch {
-            val geometryOrigin = origin.toGeometryGridPos()
             val positions = DistanceCalculator.positionsWithinRange(
-                center = geometryOrigin,
+                center = origin,
                 rangeInFeet = rangeInFeet,
                 grid = _state.value.grid
             )
@@ -182,7 +179,7 @@ class MapViewModel(
                 it.copy(
                     rangeOverlay = RangeOverlayData(
                         origin = origin,
-                        positions = positions.map { it.toValuesGridPos() }.toSet(),
+                        positions = positions.toSet(),
                         rangeType = RangeType.SPELL
                     )
                 )
@@ -199,9 +196,8 @@ class MapViewModel(
      */
     fun showAoEPreview(template: AoETemplate, origin: GridPos) {
         viewModelScope.launch {
-            val geometryOrigin = origin.toGeometryGridPos()
             val affected = template.affectedPositions(
-                origin = geometryOrigin,
+                origin = origin,
                 grid = _state.value.grid
             )
             
@@ -210,7 +206,7 @@ class MapViewModel(
                     aoeOverlay = AoEOverlayData(
                         template = template,
                         origin = origin,
-                        affectedPositions = affected.map { it.toValuesGridPos() }.toSet()
+                        affectedPositions = affected.toSet()
                     )
                 )
             }
@@ -240,18 +236,4 @@ class MapViewModel(
     fun updateGrid(grid: MapGrid) {
         _state.update { it.copy(grid = grid) }
     }
-}
-
-/**
- * Converts a values.GridPos to a map.geometry.GridPos for use with domain geometry functions.
- */
-private fun GridPos.toGeometryGridPos(): dev.questweaver.domain.map.geometry.GridPos {
-    return dev.questweaver.domain.map.geometry.GridPos(x, y)
-}
-
-/**
- * Converts a map.geometry.GridPos to a values.GridPos for use with UI state.
- */
-private fun dev.questweaver.domain.map.geometry.GridPos.toValuesGridPos(): GridPos {
-    return GridPos(x, y)
 }

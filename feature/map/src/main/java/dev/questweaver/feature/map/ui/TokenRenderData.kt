@@ -1,6 +1,6 @@
 package dev.questweaver.feature.map.ui
 
-import dev.questweaver.domain.values.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 
 /**
  * Rendering data for a creature token on the map.

@@ -8,11 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import dev.questweaver.core.domain.map.geometry.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.feature.map.render.drawAoEOverlay
 import dev.questweaver.feature.map.render.drawGrid
 import dev.questweaver.feature.map.render.drawMovementPath

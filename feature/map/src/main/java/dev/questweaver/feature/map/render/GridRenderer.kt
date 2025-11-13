@@ -5,9 +5,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.domain.map.geometry.MapGrid
 import dev.questweaver.domain.map.geometry.TerrainType
-import dev.questweaver.domain.values.GridPos
 import dev.questweaver.feature.map.util.CoordinateConverter
 
 /**

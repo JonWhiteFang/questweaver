@@ -1,7 +1,7 @@
 package dev.questweaver.feature.map.ui
 
 import androidx.compose.ui.geometry.Offset
-import dev.questweaver.domain.values.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 
 /**
  * Sealed interface for map user interactions following MVI pattern.

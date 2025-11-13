@@ -1,8 +1,8 @@
 package dev.questweaver.feature.map.ui
 
 import androidx.compose.ui.geometry.Offset
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.domain.map.geometry.MapGrid
-import dev.questweaver.domain.values.GridPos
 
 /**
  * Immutable state for tactical map rendering.

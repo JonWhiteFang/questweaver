@@ -1,6 +1,6 @@
 package dev.questweaver.feature.map.ui
 
-import dev.questweaver.domain.values.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 
 /**
  * Data for rendering range overlays on the map.
