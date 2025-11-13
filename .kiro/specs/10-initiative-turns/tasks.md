@@ -147,23 +147,34 @@
   - Return empty set (all creatures no longer surprised)
   - _Requirements: 2.4_
 
-- [ ] 6. Implement TurnPhaseManager
-- [ ] 6.1 Create TurnPhaseManager class
+- [x] 6. Implement TurnPhaseManager
+
+
+
+
+
+- [x] 6.1 Create TurnPhaseManager class
+
+
   - Implement startTurn() method creating TurnPhase with all actions available
   - _Requirements: 3.1_
 
-- [ ] 6.2 Implement resource consumption methods
+- [x] 6.2 Implement resource consumption methods
+
   - Implement consumeMovement() reducing movementRemaining
   - Implement consumeAction() setting actionAvailable to false
   - Implement consumeBonusAction() setting bonusActionAvailable to false
   - Implement consumeReaction() setting reactionAvailable to false
   - _Requirements: 3.2, 3.3, 3.4_
 
-- [ ] 6.3 Implement restoreReaction() method
+- [x] 6.3 Implement restoreReaction() method
+
   - Return TurnPhase copy with reactionAvailable set to true
   - _Requirements: 6.3_
 
-- [ ] 6.4 Implement isActionAvailable() method
+
+- [x] 6.4 Implement isActionAvailable() method
+
   - Check appropriate field based on ActionType parameter
   - Return true if action is available, false otherwise
   - _Requirements: 3.1_
