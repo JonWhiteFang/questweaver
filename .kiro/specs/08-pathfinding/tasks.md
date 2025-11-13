@@ -1,6 +1,10 @@
 # Implementation Plan
 
-- [ ] 1. Set up pathfinding module structure
+- [x] 1. Set up pathfinding module structure
+
+
+
+
   - Create `core/domain/map/pathfinding` package
   - Define `PathResult` sealed interface with Success, NoPathFound, ExceedsMovementBudget variants
   - Define `Pathfinder` interface with `findPath()` method signature
