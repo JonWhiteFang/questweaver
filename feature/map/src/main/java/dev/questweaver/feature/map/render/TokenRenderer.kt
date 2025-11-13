@@ -26,34 +26,58 @@ private const val HP_RING_FULL_CIRCLE = 360f
 
 /**
  * Renders creature tokens on the map.
+ * Uses viewport culling to only render visible tokens.
  *
  * @param tokens List of token data to render
  * @param cellSize The size of each cell in pixels
  * @param cameraOffset The camera offset for panning
  * @param zoomLevel The current zoom level
+ * @param canvasSize The size of the canvas for viewport culling
  */
 fun DrawScope.drawTokens(
     tokens: List<TokenRenderData>,
     cellSize: Float,
     cameraOffset: Offset,
-    zoomLevel: Float
+    zoomLevel: Float,
+    canvasSize: androidx.compose.ui.geometry.Size
 ) {
     val scaledCellSize = cellSize * zoomLevel
     val tokenRadius = scaledCellSize * TOKEN_SIZE_RATIO / 2f
     
+    // Calculate viewport for culling
+    val viewport = dev.questweaver.feature.map.render.calculateViewportBounds(
+        canvasSize = canvasSize,
+        cameraOffset = cameraOffset,
+        scaledCellSize = scaledCellSize,
+        gridWidth = Int.MAX_VALUE, // Use large values since we're filtering a list
+        gridHeight = Int.MAX_VALUE
+    )
+    
+    // Only render visible tokens
     tokens.forEach { token ->
-        val center = CoordinateConverter.gridToScreenCenter(
-            token.position,
-            cellSize,
-            cameraOffset,
-            zoomLevel
-        )
-        
-        drawTokenCircle(token, tokenRadius, center)
-        drawHPIndicator(token, scaledCellSize, center)
-        drawBloodiedIndicator(token, tokenRadius, center)
-        drawHPRing(token, tokenRadius, center)
+        // Check if token is within viewport
+        if (isTokenVisible(token, viewport)) {
+            val center = CoordinateConverter.gridToScreenCenter(
+                token.position,
+                cellSize,
+                cameraOffset,
+                zoomLevel
+            )
+            
+            drawTokenCircle(token, tokenRadius, center)
+            drawHPIndicator(token, scaledCellSize, center)
+            drawBloodiedIndicator(token, tokenRadius, center)
+            drawHPRing(token, tokenRadius, center)
+        }
     }
+}
+
+/**
+ * Checks if a token is visible within the viewport bounds.
+ */
+private fun isTokenVisible(token: TokenRenderData, viewport: ViewportBounds): Boolean {
+    return token.position.x >= viewport.startX && token.position.x < viewport.endX &&
+        token.position.y >= viewport.startY && token.position.y < viewport.endY
 }
 
 /**

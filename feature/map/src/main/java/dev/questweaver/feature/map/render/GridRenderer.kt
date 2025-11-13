@@ -15,35 +15,72 @@ import dev.questweaver.feature.map.util.CoordinateConverter
  */
 
 private const val CELL_BORDER_WIDTH = 1f
+private const val VIEWPORT_PADDING = 1
 
 @Suppress("MagicNumber")
 private val DIFFICULT_TERRAIN_COLOR = Color(0xFF8B4513) // Brown
 
 /**
+ * Data class representing the visible viewport bounds for culling.
+ */
+internal data class ViewportBounds(
+    val startX: Int,
+    val endX: Int,
+    val startY: Int,
+    val endY: Int
+)
+
+/**
+ * Calculates the visible viewport bounds for efficient culling.
+ */
+internal fun calculateViewportBounds(
+    canvasSize: Size,
+    cameraOffset: Offset,
+    scaledCellSize: Float,
+    gridWidth: Int,
+    gridHeight: Int
+): ViewportBounds {
+    val startX = ((-cameraOffset.x / scaledCellSize).toInt() - VIEWPORT_PADDING).coerceAtLeast(0)
+    val endX = (((canvasSize.width - cameraOffset.x) / scaledCellSize).toInt() + VIEWPORT_PADDING)
+        .coerceAtMost(gridWidth)
+    val startY = ((-cameraOffset.y / scaledCellSize).toInt() - VIEWPORT_PADDING).coerceAtLeast(0)
+    val endY = (((canvasSize.height - cameraOffset.y) / scaledCellSize).toInt() + VIEWPORT_PADDING)
+        .coerceAtMost(gridHeight)
+    
+    return ViewportBounds(startX, endX, startY, endY)
+}
+
+/**
  * Renders the tactical grid with terrain colors and cell borders.
+ * Uses viewport culling to only render visible cells for optimal performance.
  *
  * @param grid The map grid to render
  * @param cellSize The size of each cell in pixels
  * @param cameraOffset The camera offset for panning
  * @param zoomLevel The current zoom level
+ * @param canvasSize The size of the canvas for viewport culling
  */
 fun DrawScope.drawGrid(
     grid: MapGrid,
     cellSize: Float,
     cameraOffset: Offset,
-    zoomLevel: Float
+    zoomLevel: Float,
+    canvasSize: Size
 ) {
     val scaledCellSize = cellSize * zoomLevel
     
     // Calculate visible range for viewport culling
-    val visibleStartX = ((-cameraOffset.x / scaledCellSize).toInt() - 1).coerceAtLeast(0)
-    val visibleEndX = (((size.width - cameraOffset.x) / scaledCellSize).toInt() + 1).coerceAtMost(grid.width)
-    val visibleStartY = ((-cameraOffset.y / scaledCellSize).toInt() - 1).coerceAtLeast(0)
-    val visibleEndY = (((size.height - cameraOffset.y) / scaledCellSize).toInt() + 1).coerceAtMost(grid.height)
+    val viewport = calculateViewportBounds(
+        canvasSize = canvasSize,
+        cameraOffset = cameraOffset,
+        scaledCellSize = scaledCellSize,
+        gridWidth = grid.width,
+        gridHeight = grid.height
+    )
     
-    // Draw cells with terrain colors
-    for (x in visibleStartX until visibleEndX) {
-        for (y in visibleStartY until visibleEndY) {
+    // Batch draw cells with terrain colors
+    for (x in viewport.startX until viewport.endX) {
+        for (y in viewport.startY until viewport.endY) {
             val pos = GridPos(x, y)
             val cell = grid.getCellProperties(pos)
             val screenPos = CoordinateConverter.gridToScreen(pos, cellSize, cameraOffset, zoomLevel)

@@ -221,7 +221,12 @@
   - Use Android Profiler to analyze overdraw
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 22. Optimize rendering performance
+- [x] 22. Optimize rendering performance
+
+
+
+
+
   - Implement viewport culling to skip off-screen cells
   - Batch similar draw calls (all cells, all tokens)
   - Use remember() for expensive calculations

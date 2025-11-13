@@ -46,7 +46,7 @@ fun TacticalMapCanvas(
 ) {
     val cellSize = remember { 60.dp }
     val density = LocalDensity.current
-    val cellSizePx = with(density) { cellSize.toPx() }
+    val cellSizePx = remember(density) { with(density) { cellSize.toPx() } }
     
     Canvas(
         modifier = modifier
@@ -54,61 +54,75 @@ fun TacticalMapCanvas(
             .handleTapGestures(state, cellSizePx, onIntent)
             .handleTransformGestures(onIntent)
     ) {
-        // Layer 1: Grid and terrain
-        drawGrid(
-            grid = state.grid,
+        renderMapLayers(state, cellSizePx)
+    }
+}
+
+/**
+ * Renders all map layers in the correct order.
+ */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.renderMapLayers(
+    state: MapRenderState,
+    cellSizePx: Float
+) {
+    // Layer 1: Grid and terrain
+    drawGrid(
+        grid = state.grid,
+        cellSize = cellSizePx,
+        cameraOffset = state.cameraOffset,
+        zoomLevel = state.zoomLevel,
+        canvasSize = size
+    )
+    
+    // Layer 2: Range overlay
+    state.rangeOverlay?.let { overlay ->
+        drawRangeOverlay(
+            overlay = overlay,
+            cellSize = cellSizePx,
+            cameraOffset = state.cameraOffset,
+            zoomLevel = state.zoomLevel,
+            canvasSize = size
+        )
+    }
+    
+    // Layer 3: AoE overlay
+    state.aoeOverlay?.let { overlay ->
+        drawAoEOverlay(
+            overlay = overlay,
+            cellSize = cellSizePx,
+            cameraOffset = state.cameraOffset,
+            zoomLevel = state.zoomLevel,
+            canvasSize = size
+        )
+    }
+    
+    // Layer 4: Movement path
+    state.movementPath?.let { path ->
+        drawMovementPath(
+            path = path,
             cellSize = cellSizePx,
             cameraOffset = state.cameraOffset,
             zoomLevel = state.zoomLevel
         )
-        
-        // Layer 2: Range overlay
-        state.rangeOverlay?.let { overlay ->
-            drawRangeOverlay(
-                overlay = overlay,
-                cellSize = cellSizePx,
-                cameraOffset = state.cameraOffset,
-                zoomLevel = state.zoomLevel
-            )
-        }
-        
-        // Layer 3: AoE overlay
-        state.aoeOverlay?.let { overlay ->
-            drawAoEOverlay(
-                overlay = overlay,
-                cellSize = cellSizePx,
-                cameraOffset = state.cameraOffset,
-                zoomLevel = state.zoomLevel
-            )
-        }
-        
-        // Layer 4: Movement path
-        state.movementPath?.let { path ->
-            drawMovementPath(
-                path = path,
-                cellSize = cellSizePx,
-                cameraOffset = state.cameraOffset,
-                zoomLevel = state.zoomLevel
-            )
-        }
-        
-        // Layer 5: Tokens
-        drawTokens(
-            tokens = state.tokens,
+    }
+    
+    // Layer 5: Tokens
+    drawTokens(
+        tokens = state.tokens,
+        cellSize = cellSizePx,
+        cameraOffset = state.cameraOffset,
+        zoomLevel = state.zoomLevel,
+        canvasSize = size
+    )
+    
+    // Layer 6: Selection highlight
+    state.selectedPosition?.let { position ->
+        drawSelectionHighlight(
+            position = position,
             cellSize = cellSizePx,
             cameraOffset = state.cameraOffset,
             zoomLevel = state.zoomLevel
         )
-        
-        // Layer 6: Selection highlight
-        state.selectedPosition?.let { position ->
-            drawSelectionHighlight(
-                position = position,
-                cellSize = cellSizePx,
-                cameraOffset = state.cameraOffset,
-                zoomLevel = state.zoomLevel
-            )
-        }
     }
 }
 
