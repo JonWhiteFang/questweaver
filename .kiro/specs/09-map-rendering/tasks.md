@@ -1,13 +1,17 @@
 # Implementation Plan
 
-- [ ] 1. Set up feature:map module structure
+- [x] 1. Set up feature:map module structure
+
+
   - Create `feature/map` module with Android library configuration
   - Add dependencies: core:domain, Compose UI, Compose Canvas
   - Create package structure: ui/, render/, viewmodel/, util/
   - Add module to settings.gradle.kts and app dependencies
   - _Requirements: 1.5, 8.1_
 
-- [ ] 2. Define MVI state and intent types
+
+- [x] 2. Define MVI state and intent types
+
   - Create `MapRenderState` data class with grid, tokens, overlays, camera, zoom
   - Create `TokenRenderData` data class with creature data and HP visibility logic
   - Create `Allegiance` enum (FRIENDLY, ENEMY, NEUTRAL)
@@ -16,7 +20,9 @@
   - Create `MapIntent` sealed interface with CellTapped, TokenTapped, Pan, Zoom
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 8.2, 8.3_
 
-- [ ] 3. Implement coordinate conversion utilities
+
+- [x] 3. Implement coordinate conversion utilities
+
   - Create `CoordinateConverter` object in util package
   - Implement `gridToScreen()` converting GridPos to screen Offset with zoom and camera
   - Implement `screenToGrid()` converting screen Offset to GridPos with bounds checking
@@ -24,7 +30,10 @@
   - Test coordinate conversion with various zoom levels and camera offsets
   - _Requirements: 7.1, 7.4_
 
-- [ ] 4. Implement grid rendering
+- [x] 4. Implement grid rendering
+
+
+
   - Create `GridRenderer.kt` with DrawScope extension functions
   - Implement `drawGrid()` rendering all cells with terrain colors
   - Use distinct colors: normal (light gray), difficult (brown), impassable (black), obstacle (dark gray)
