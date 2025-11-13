@@ -62,28 +62,36 @@
   - Allow destination to be occupied for attack movement
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 7. Implement path reconstruction
+- [x] 7. Implement path reconstruction
+
+
   - Create `reconstructPath()` method using cameFrom map
   - Build path from destination back to start
   - Reverse path to get start-to-destination order
   - Include both start and destination in returned path
   - _Requirements: 1.1, 1.4_
 
-- [ ] 8. Implement movement budget validation
+- [x] 8. Implement movement budget validation
+
+
   - Add maxCost parameter to findPath() method
   - Check tentative gScore against maxCost during search
   - Skip neighbors that would exceed budget
   - Return ExceedsMovementBudget result when path found but too expensive
   - _Requirements: 4.1, 4.2, 4.4_
 
-- [ ] 9. Implement path validator
+- [x] 9. Implement path validator
+
+
   - Create `PathValidator` object with validation methods
   - Implement `isValidPath()` checking bounds and adjacency
   - Implement `calculatePathCost()` summing cell costs along path
   - Implement `isWithinBudget()` comparing path cost to budget
   - _Requirements: 1.5, 4.1, 4.2_
 
-- [ ] 10. Implement reachability calculator
+- [x] 10. Implement reachability calculator
+
+
   - Create `ReachabilityCalculator` class with BFS-based algorithm
   - Implement `findReachablePositions()` using movement budget
   - Use queue to explore positions within budget
@@ -91,14 +99,19 @@
   - Account for terrain costs when calculating reachability
   - _Requirements: 4.3, 4.4, 4.5_
 
-- [ ] 11. Implement exact cost position finder
+- [x] 11. Implement exact cost position finder
+
+
   - Add `findPositionsAtCost()` method to ReachabilityCalculator
   - Filter reachable positions to those with exact cost match
   - Use pathfinder to verify actual path cost
   - Return set of positions at exact cost
   - _Requirements: 4.3, 4.5_
 
-- [ ] 12. Write unit tests for basic pathfinding
+- [x] 12. Write unit tests for basic pathfinding
+
+
+
   - Test straight line paths (horizontal, vertical, diagonal)
   - Test path around single obstacle
   - Test path around multiple obstacles
