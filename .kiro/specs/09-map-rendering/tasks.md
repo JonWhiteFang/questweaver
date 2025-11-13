@@ -165,7 +165,9 @@
   - Register module in app-level Koin configuration
   - _Requirements: 8.1_
 
-- [ ] 17. Write unit tests for coordinate conversion
+- [x] 17. Write unit tests for coordinate conversion
+
+
   - Test gridToScreen with various zoom levels (0.5x, 1x, 2x, 3x)
   - Test gridToScreen with camera offsets
   - Test screenToGrid with valid positions
@@ -173,7 +175,9 @@
   - Test round-trip conversion (grid → screen → grid)
   - _Requirements: 7.1, 7.4_
 
-- [ ] 18. Write unit tests for MapViewModel
+
+- [x] 18. Write unit tests for MapViewModel
+
   - Test CellTapped intent updates selectedPosition
   - Test Pan intent updates cameraOffset
   - Test Zoom intent updates zoomLevel with clamping
@@ -182,7 +186,10 @@
   - Test state updates are immutable
   - _Requirements: 8.2, 8.3, 8.4_
 
-- [ ] 19. Write unit tests for token rendering logic
+
+- [x] 19. Write unit tests for token rendering logic
+
+
   - Test TokenRenderData.showHP is true for friendly creatures
   - Test TokenRenderData.showHP is false for non-friendly creatures
   - Test isBloodied is true when HP < 50%
