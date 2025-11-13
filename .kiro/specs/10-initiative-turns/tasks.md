@@ -219,7 +219,7 @@
 
 
 
-- [ ] 7.4 Implement removeCreature() method
+- [x] 7.4 Implement removeCreature() method
   - Find and remove creature from initiative order
   - If creature is before current turn, decrement turn index
   - If removed creature was active, advance turn
@@ -230,7 +230,7 @@
   - _Requirements: 4.5_
 
 
-- [ ] 7.5 Implement delayTurn() method
+- [x] 7.5 Implement delayTurn() method
   - Remove creature from current position in initiative order
   - Add creature to delayedCreatures map with original InitiativeEntry
 
@@ -247,13 +247,21 @@
   - Return updated RoundState
   - _Requirements: 7.2, 7.3_
 
-- [ ] 8. Implement InitiativeStateBuilder for event sourcing
-- [ ] 8.1 Create InitiativeStateBuilder class
+- [x] 8. Implement InitiativeStateBuilder for event sourcing
+
+
+
+
+- [x] 8.1 Create InitiativeStateBuilder class
+
+
   - Implement buildState() method accepting list of GameEvents
   - Initialize empty RoundState
   - _Requirements: 8.2, 8.3_
 
-- [ ] 8.2 Implement event handlers for state derivation
+
+- [x] 8.2 Implement event handlers for state derivation
+
   - Implement handleEncounterStarted() setting initial state from event
   - Implement handleRoundStarted() incrementing round number
   - Implement handleTurnStarted() updating current turn
@@ -265,7 +273,10 @@
   - Implement handleCreatureRemoved() removing creature from order
   - _Requirements: 8.2, 8.3_
 
-- [ ] 8.3 Implement exhaustive when expression for event types
+
+- [x] 8.3 Implement exhaustive when expression for event types
+
+
   - Handle all initiative-related events
   - Return unchanged state for non-initiative events
   - _Requirements: 8.2, 8.3_
