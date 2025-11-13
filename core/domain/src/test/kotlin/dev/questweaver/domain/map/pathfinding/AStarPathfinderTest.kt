@@ -458,6 +458,146 @@ class AStarPathfinderTest : FunSpec({
             reachable.contains(GridPos(8, 5)) shouldBe false
         }
     }
+    
+    context("property-based tests for determinism") {
+        
+        test("same inputs produce identical paths across multiple runs") {
+            val grid = createEmptyGrid(20, 20)
+            val start = GridPos(0, 0)
+            val destination = GridPos(15, 15)
+            
+            // Run pathfinding multiple times
+            val results = (1..10).map {
+                pathfinder.findPath(start, destination, grid)
+            }
+            
+            // All results should be identical
+            results.forEach { result ->
+                result.shouldBeInstanceOf<PathResult.Success>()
+            }
+            
+            val firstPath = (results[0] as PathResult.Success).path
+            val firstCost = (results[0] as PathResult.Success).totalCost
+            
+            results.drop(1).forEach { result ->
+                val success = result as PathResult.Success
+                success.path shouldBe firstPath
+                success.totalCost shouldBe firstCost
+            }
+        }
+        
+        test("path is always connected with adjacent steps") {
+            val grid = createEmptyGrid(20, 20)
+            val testCases = listOf(
+                GridPos(0, 0) to GridPos(10, 10),
+                GridPos(5, 5) to GridPos(15, 2),
+                GridPos(0, 19) to GridPos(19, 0),
+                GridPos(10, 10) to GridPos(10, 15)
+            )
+            
+            testCases.forEach { (start, destination) ->
+                val result = pathfinder.findPath(start, destination, grid)
+                
+                if (result is PathResult.Success) {
+                    val path = result.path
+                    
+                    // Verify each step is adjacent to the next
+                    for (i in 0 until path.size - 1) {
+                        val current = path[i]
+                        val next = path[i + 1]
+                        
+                        // Check that next is in current's neighbors
+                        current.neighbors() shouldContain next
+                    }
+                }
+            }
+        }
+        
+        test("path cost matches sum of cell costs") {
+            var grid = createEmptyGrid(20, 20)
+            val difficultProps = dev.questweaver.domain.map.geometry.CellProperties(
+                terrainType = TerrainType.DIFFICULT
+            )
+            
+            // Add some difficult terrain
+            for (x in 5..10) {
+                for (y in 5..10) {
+                    grid = grid.withCellProperties(GridPos(x, y), difficultProps)
+                }
+            }
+            
+            val testCases = listOf(
+                GridPos(0, 0) to GridPos(15, 15),
+                GridPos(3, 3) to GridPos(12, 12),
+                GridPos(0, 10) to GridPos(19, 10)
+            )
+            
+            testCases.forEach { (start, destination) ->
+                val result = pathfinder.findPath(start, destination, grid)
+                
+                if (result is PathResult.Success) {
+                    val path = result.path
+                    val reportedCost = result.totalCost
+                    
+                    // Calculate cost manually
+                    val calculatedCost = PathValidator.calculatePathCost(path, grid)
+                    
+                    calculatedCost shouldBe reportedCost
+                }
+            }
+        }
+        
+        test("all reachable positions are within budget") {
+            val grid = createEmptyGrid(20, 20)
+            val calculator = ReachabilityCalculator(pathfinder)
+            
+            val testCases = listOf(
+                GridPos(10, 10) to 5,
+                GridPos(0, 0) to 10,
+                GridPos(15, 15) to 8
+            )
+            
+            testCases.forEach { (start, budget) ->
+                val reachable = calculator.findReachablePositions(start, budget, grid)
+                
+                // Verify every reachable position is actually within budget
+                reachable.forEach { pos ->
+                    val result = pathfinder.findPath(start, pos, grid)
+                    result.shouldBeInstanceOf<PathResult.Success>()
+                    val success = result as PathResult.Success
+                    success.totalCost shouldBeLessThanOrEqualTo budget
+                }
+            }
+        }
+        
+        test("PathNode comparison is transitive and consistent") {
+            // Create test nodes with various scores
+            val node1 = PathNode(GridPos(0, 0), gScore = 5, fScore = 10)
+            val node2 = PathNode(GridPos(1, 1), gScore = 5, fScore = 10)
+            
+            // Test consistency: comparing same nodes multiple times
+            (node1.compareTo(node2) == node1.compareTo(node2)) shouldBe true
+            
+            // Test transitivity: if a < b and b < c, then a < c
+            val a = PathNode(GridPos(0, 0), gScore = 5, fScore = 10)
+            val b = PathNode(GridPos(1, 1), gScore = 5, fScore = 11)
+            val c = PathNode(GridPos(2, 2), gScore = 5, fScore = 12)
+            
+            (a < b) shouldBe true
+            (b < c) shouldBe true
+            (a < c) shouldBe true
+            
+            // Test tie-breaking by gScore
+            val sameF1 = PathNode(GridPos(0, 0), gScore = 5, fScore = 10)
+            val sameF2 = PathNode(GridPos(1, 1), gScore = 6, fScore = 10)
+            (sameF1 < sameF2) shouldBe true
+            
+            // Test tie-breaking by position
+            val sameG1 = PathNode(GridPos(0, 0), gScore = 5, fScore = 10)
+            val sameG2 = PathNode(GridPos(1, 0), gScore = 5, fScore = 10)
+            (sameG1 < sameG2) shouldBe true
+        }
+    }
 })
 
 /**

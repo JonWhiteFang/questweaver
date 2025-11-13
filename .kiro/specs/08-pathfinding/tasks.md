@@ -168,7 +168,9 @@
   - Test each step moves to adjacent cell
   - _Requirements: 1.1, 1.4, 1.5_
 
-- [ ] 18. Write property-based tests for determinism
+- [x] 18. Write property-based tests for determinism
+
+
   - Test same inputs produce identical paths across multiple runs
   - Test path is always connected (adjacent steps)
   - Test path cost matches sum of cell costs
@@ -176,7 +178,10 @@
   - Test PathNode comparison is transitive and consistent
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 19. Write performance tests
+
+- [x] 19. Write performance tests
+
+
   - Benchmark pathfinding on 50x50 grid (<10ms)
   - Benchmark reachability calculation with 30ft movement (<5ms)
   - Benchmark path validation (<1ms)
