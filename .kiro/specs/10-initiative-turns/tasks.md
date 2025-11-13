@@ -281,13 +281,21 @@
   - Return unchanged state for non-initiative events
   - _Requirements: 8.2, 8.3_
 
-- [ ] 9. Implement sealed result types for error handling
-- [ ] 9.1 Create InitiativeResult sealed interface
+- [x] 9. Implement sealed result types for error handling
+
+
+
+
+- [x] 9.1 Create InitiativeResult sealed interface
+
+
   - Define Success data class with generic value
   - Define InvalidState data class with reason string
   - _Requirements: 8.2_
 
-- [ ] 9.2 Add validation to InitiativeTracker methods
+
+- [x] 9.2 Add validation to InitiativeTracker methods
+
   - Validate initiative order is not empty
   - Validate active creature exists in order
   - Validate turn index is within bounds
