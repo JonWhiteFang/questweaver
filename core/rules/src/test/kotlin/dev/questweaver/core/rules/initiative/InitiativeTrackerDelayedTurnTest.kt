@@ -1,10 +1,12 @@
 package dev.questweaver.core.rules.initiative
 
 import dev.questweaver.core.rules.initiative.models.InitiativeEntry
+import dev.questweaver.core.rules.initiative.models.InitiativeResult
+import dev.questweaver.core.rules.initiative.models.RoundState
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContainKey
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.collections.shouldNotContainKey
+import io.kotest.matchers.maps.shouldContainKey
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
@@ -17,6 +19,17 @@ import io.kotest.matchers.shouldNotBe
  * - Delayed creature maintains new initiative
  * - Round end places delayed creature at end
  */
+
+
+/**
+ * Helper to unwrap InitiativeResult for testing.
+ * Throws if result is InvalidState.
+ */
+private fun <T> InitiativeResult<T>.unwrap(): T = when (this) {
+    is InitiativeResult.Success -> this.value
+    is InitiativeResult.InvalidState -> throw AssertionError("Expected Success but got InvalidState: " + reason)
+}
+
 class InitiativeTrackerDelayedTurnTest : FunSpec({
 
     context("Delaying turns") {
@@ -24,19 +37,19 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Advance to creature 2
-            state = tracker.advanceTurn(state)
+            state = tracker.advanceTurn(state).unwrap()
             state.currentTurn!!.activeCreatureId shouldBe 2L
             
             // Creature 2 delays
-            val newState = tracker.delayTurn(state, 2L)
+            val newState = tracker.delayTurn(state, 2L).unwrap()
             
             newState.initiativeOrder shouldHaveSize 2
             newState.initiativeOrder.map { it.creatureId } shouldBe listOf(1L, 3L)
@@ -47,19 +60,19 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Advance to creature 2
-            state = tracker.advanceTurn(state)
+            state = tracker.advanceTurn(state).unwrap()
             state.currentTurn!!.activeCreatureId shouldBe 2L
             
             // Creature 2 delays
-            val newState = tracker.delayTurn(state, 2L)
+            val newState = tracker.delayTurn(state, 2L).unwrap()
             
             // Should advance to creature 3
             newState.currentTurn!!.activeCreatureId shouldBe 3L
@@ -69,16 +82,16 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
-            state = tracker.advanceTurn(state)
+            var state = tracker.initialize(initialOrder).unwrap()
+            state = tracker.advanceTurn(state).unwrap()
             
             // Creature 2 delays
-            val newState = tracker.delayTurn(state, 2L)
+            val newState = tracker.delayTurn(state, 2L).unwrap()
             
             newState.delayedCreatures shouldContainKey 2L
             val delayedEntry = newState.delayedCreatures[2L]
@@ -91,16 +104,16 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            val state = tracker.initialize(initialOrder)
+            val state = tracker.initialize(initialOrder).unwrap()
             state.currentTurn!!.activeCreatureId shouldBe 1L
             
             // Creature 1 delays
-            val newState = tracker.delayTurn(state, 1L)
+            val newState = tracker.delayTurn(state, 1L).unwrap()
             
             newState.initiativeOrder shouldHaveSize 2
             newState.currentTurn!!.activeCreatureId shouldBe 2L
@@ -111,20 +124,20 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Advance to creature 3
-            state = tracker.advanceTurn(state)
-            state = tracker.advanceTurn(state)
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.advanceTurn(state).unwrap()
             state.currentTurn!!.activeCreatureId shouldBe 3L
             
             // Creature 3 delays
-            val newState = tracker.delayTurn(state, 3L)
+            val newState = tracker.delayTurn(state, 3L).unwrap()
             
             newState.initiativeOrder shouldHaveSize 2
             newState.delayedCreatures shouldContainKey 3L
@@ -139,22 +152,22 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creature 2 delays
-            state = tracker.advanceTurn(state)
-            state = tracker.delayTurn(state, 2L)
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             // Now on creature 3's turn
             state.currentTurn!!.activeCreatureId shouldBe 3L
             
             // Creature 2 resumes with new initiative 10
-            val newState = tracker.resumeDelayedTurn(state, 2L, 10)
+            val newState = tracker.resumeDelayedTurn(state, 2L, 10).unwrap()
             
             newState.delayedCreatures shouldNotContainKey 2L
             newState.initiativeOrder shouldHaveSize 3
@@ -164,17 +177,17 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
-            state = tracker.advanceTurn(state)
-            state = tracker.delayTurn(state, 2L)
+            var state = tracker.initialize(initialOrder).unwrap()
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             // Resume with new initiative 10
-            val newState = tracker.resumeDelayedTurn(state, 2L, 10)
+            val newState = tracker.resumeDelayedTurn(state, 2L, 10).unwrap()
             
             val resumedEntry = newState.initiativeOrder.find { it.creatureId == 2L }
             resumedEntry shouldNotBe null
@@ -185,18 +198,18 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13),
-                InitiativeEntryData(creatureId = 4L, roll = 8, modifier = 0, total = 8)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13),
+                InitiativeEntry(creatureId = 4L, roll = 8, modifier = 0, total = 8)
             )
             
-            var state = tracker.initialize(initialOrder)
-            state = tracker.advanceTurn(state)
-            state = tracker.delayTurn(state, 2L)
+            var state = tracker.initialize(initialOrder).unwrap()
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             // Resume with initiative 11 (should go between 3 and 4)
-            val newState = tracker.resumeDelayedTurn(state, 2L, 11)
+            val newState = tracker.resumeDelayedTurn(state, 2L, 11).unwrap()
             
             val creature2Index = newState.initiativeOrder.indexOfFirst { it.creatureId == 2L }
             val creature3Index = newState.initiativeOrder.indexOfFirst { it.creatureId == 3L }
@@ -210,18 +223,18 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
-            state = tracker.advanceTurn(state)
-            state = tracker.delayTurn(state, 2L)
+            var state = tracker.initialize(initialOrder).unwrap()
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             state.delayedCreatures shouldContainKey 2L
             
-            val newState = tracker.resumeDelayedTurn(state, 2L, 10)
+            val newState = tracker.resumeDelayedTurn(state, 2L, 10).unwrap()
             
             newState.delayedCreatures shouldNotContainKey 2L
         }
@@ -232,19 +245,19 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13),
-                InitiativeEntryData(creatureId = 4L, roll = 8, modifier = 0, total = 8)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13),
+                InitiativeEntry(creatureId = 4L, roll = 8, modifier = 0, total = 8)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creature 1 delays
-            state = tracker.delayTurn(state, 1L)
+            state = tracker.delayTurn(state, 1L).unwrap()
             
             // Creature 2 delays
-            state = tracker.delayTurn(state, 2L)
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             state.delayedCreatures shouldContainKey 1L
             state.delayedCreatures shouldContainKey 2L
@@ -255,22 +268,22 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creatures 1 and 2 delay
-            state = tracker.delayTurn(state, 1L)
-            state = tracker.delayTurn(state, 2L)
+            state = tracker.delayTurn(state, 1L).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             // Creature 2 resumes first with initiative 14
-            state = tracker.resumeDelayedTurn(state, 2L, 14)
+            state = tracker.resumeDelayedTurn(state, 2L, 14).unwrap()
             
             // Creature 1 resumes with initiative 9
-            state = tracker.resumeDelayedTurn(state, 1L, 9)
+            state = tracker.resumeDelayedTurn(state, 1L, 9).unwrap()
             
             // Order should be: 2 (14), 3 (13), 1 (9)
             state.initiativeOrder.map { it.creatureId } shouldBe listOf(2L, 3L, 1L)
@@ -282,19 +295,19 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creature 1 delays
-            state = tracker.delayTurn(state, 1L)
+            state = tracker.delayTurn(state, 1L).unwrap()
             
             // Complete the round
-            state = tracker.advanceTurn(state) // Creature 3
-            state = tracker.advanceTurn(state) // Wrap to round 2, creature 2
+            state = tracker.advanceTurn(state).unwrap() // Creature 3
+            state = tracker.advanceTurn(state).unwrap() // Wrap to round 2, creature 2
             
             state.roundNumber shouldBe 2
             state.delayedCreatures shouldContainKey 1L
@@ -304,22 +317,22 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creature 1 delays
-            state = tracker.delayTurn(state, 1L)
+            state = tracker.delayTurn(state, 1L).unwrap()
             
             // Complete round 1
-            state = tracker.advanceTurn(state) // Wrap to round 2
+            state = tracker.advanceTurn(state).unwrap() // Wrap to round 2
             
             state.roundNumber shouldBe 2
             
             // Creature 1 resumes in round 2
-            state = tracker.resumeDelayedTurn(state, 1L, 16)
+            state = tracker.resumeDelayedTurn(state, 1L, 16).unwrap()
             
             state.delayedCreatures shouldNotContainKey 1L
             state.initiativeOrder shouldHaveSize 2
@@ -331,13 +344,13 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21)
             )
             
-            val state = tracker.initialize(initialOrder)
+            val state = tracker.initialize(initialOrder).unwrap()
             
             // Only creature delays
-            val newState = tracker.delayTurn(state, 1L)
+            val newState = tracker.delayTurn(state, 1L).unwrap()
             
             newState.initiativeOrder shouldHaveSize 0
             newState.delayedCreatures shouldContainKey 1L
@@ -347,14 +360,14 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21)
             )
             
-            var state = tracker.initialize(initialOrder)
-            state = tracker.delayTurn(state, 1L)
+            var state = tracker.initialize(initialOrder).unwrap()
+            state = tracker.delayTurn(state, 1L).unwrap()
             
             // Resume
-            val newState = tracker.resumeDelayedTurn(state, 1L, 15)
+            val newState = tracker.resumeDelayedTurn(state, 1L, 15).unwrap()
             
             newState.initiativeOrder shouldHaveSize 1
             newState.delayedCreatures shouldNotContainKey 1L
@@ -364,23 +377,23 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 20, modifier = 3, total = 23),
-                InitiativeEntryData(creatureId = 2L, roll = 18, modifier = 2, total = 20),
-                InitiativeEntryData(creatureId = 3L, roll = 15, modifier = 1, total = 16),
-                InitiativeEntryData(creatureId = 4L, roll = 12, modifier = 0, total = 12)
+                InitiativeEntry(creatureId = 1L, roll = 20, modifier = 3, total = 23),
+                InitiativeEntry(creatureId = 2L, roll = 18, modifier = 2, total = 20),
+                InitiativeEntry(creatureId = 3L, roll = 15, modifier = 1, total = 16),
+                InitiativeEntry(creatureId = 4L, roll = 12, modifier = 0, total = 12)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creature 2 delays
-            state = tracker.advanceTurn(state)
-            state = tracker.delayTurn(state, 2L)
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             // Advance through remaining creatures
-            state = tracker.advanceTurn(state) // Creature 4
+            state = tracker.advanceTurn(state).unwrap() // Creature 4
             
             // Creature 2 resumes with initiative 11
-            state = tracker.resumeDelayedTurn(state, 2L, 11)
+            state = tracker.resumeDelayedTurn(state, 2L, 11).unwrap()
             
             // Verify order is maintained
             val totals = state.initiativeOrder.map { it.total }
@@ -395,23 +408,23 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13),
-                InitiativeEntryData(creatureId = 4L, roll = 8, modifier = 0, total = 8)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13),
+                InitiativeEntry(creatureId = 4L, roll = 8, modifier = 0, total = 8)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creature 2 delays
-            state = tracker.advanceTurn(state)
-            state = tracker.delayTurn(state, 2L)
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             // Creature 4 is removed
-            state = tracker.removeCreature(state, 4L)
+            state = tracker.removeCreature(state, 4L).unwrap()
             
             // Creature 2 resumes
-            state = tracker.resumeDelayedTurn(state, 2L, 10)
+            state = tracker.resumeDelayedTurn(state, 2L, 10).unwrap()
             
             state.initiativeOrder shouldHaveSize 3
             state.initiativeOrder.map { it.creatureId } shouldBe listOf(1L, 3L, 2L)
@@ -421,23 +434,23 @@ class InitiativeTrackerDelayedTurnTest : FunSpec({
             val tracker = InitiativeTracker()
             
             val initialOrder = listOf(
-                InitiativeEntryData(creatureId = 1L, roll = 18, modifier = 3, total = 21),
-                InitiativeEntryData(creatureId = 2L, roll = 15, modifier = 2, total = 17),
-                InitiativeEntryData(creatureId = 3L, roll = 12, modifier = 1, total = 13)
+                InitiativeEntry(creatureId = 1L, roll = 18, modifier = 3, total = 21),
+                InitiativeEntry(creatureId = 2L, roll = 15, modifier = 2, total = 17),
+                InitiativeEntry(creatureId = 3L, roll = 12, modifier = 1, total = 13)
             )
             
-            var state = tracker.initialize(initialOrder)
+            var state = tracker.initialize(initialOrder).unwrap()
             
             // Creature 2 delays
-            state = tracker.advanceTurn(state)
-            state = tracker.delayTurn(state, 2L)
+            state = tracker.advanceTurn(state).unwrap()
+            state = tracker.delayTurn(state, 2L).unwrap()
             
             // New creature added
-            val newEntry = InitiativeEntryData(creatureId = 4L, roll = 14, modifier = 1, total = 15)
-            state = tracker.addCreature(state, newEntry)
+            val newEntry = InitiativeEntry(creatureId = 4L, roll = 14, modifier = 1, total = 15)
+            state = tracker.addCreature(state, newEntry).unwrap()
             
             // Creature 2 resumes with initiative 11
-            state = tracker.resumeDelayedTurn(state, 2L, 11)
+            state = tracker.resumeDelayedTurn(state, 2L, 11).unwrap()
             
             state.initiativeOrder shouldHaveSize 4
         }

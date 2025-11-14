@@ -104,7 +104,7 @@ class SurpriseHandlerTest : FunSpec({
             
             val surprisedCreatures = setOf(1L, 2L, 3L)
             
-            val afterSurprise = handler.endSurpriseRound(surprisedCreatures)
+            val afterSurprise = handler.endSurpriseRound()
             
             afterSurprise.shouldBeEmpty()
         }
@@ -114,7 +114,7 @@ class SurpriseHandlerTest : FunSpec({
             
             val surprisedCreatures = emptySet<Long>()
             
-            val afterSurprise = handler.endSurpriseRound(surprisedCreatures)
+            val afterSurprise = handler.endSurpriseRound()
             
             afterSurprise.shouldBeEmpty()
         }
@@ -124,7 +124,7 @@ class SurpriseHandlerTest : FunSpec({
             
             val surprisedCreatures = setOf(5L)
             
-            val afterSurprise = handler.endSurpriseRound(surprisedCreatures)
+            val afterSurprise = handler.endSurpriseRound()
             
             afterSurprise.shouldBeEmpty()
         }
@@ -138,7 +138,7 @@ class SurpriseHandlerTest : FunSpec({
             handler.canActInSurpriseRound(1L, surprisedCreatures).shouldBeFalse()
             
             // After ending surprise round
-            val afterSurprise = handler.endSurpriseRound(surprisedCreatures)
+            val afterSurprise = handler.endSurpriseRound()
             handler.canActInSurpriseRound(1L, afterSurprise).shouldBeTrue()
             handler.canActInSurpriseRound(2L, afterSurprise).shouldBeTrue()
             handler.canActInSurpriseRound(3L, afterSurprise).shouldBeTrue()
@@ -162,7 +162,7 @@ class SurpriseHandlerTest : FunSpec({
             handler.canActInSurpriseRound(4L, surprisedCreatures).shouldBeFalse() // Surprised
             
             // Phase 3: End surprise round
-            val afterSurprise = handler.endSurpriseRound(surprisedCreatures)
+            val afterSurprise = handler.endSurpriseRound()
             
             // Phase 4: Verify no more surprise
             handler.hasSurpriseRound(afterSurprise).shouldBeFalse()
@@ -198,7 +198,7 @@ class SurpriseHandlerTest : FunSpec({
             handler.canActInSurpriseRound(8L, surprisedCreatures).shouldBeTrue()
             
             // After surprise round, everyone can act
-            val afterSurprise = handler.endSurpriseRound(surprisedCreatures)
+            val afterSurprise = handler.endSurpriseRound()
             (1L..8L).forEach { creatureId ->
                 handler.canActInSurpriseRound(creatureId, afterSurprise).shouldBeTrue()
             }
