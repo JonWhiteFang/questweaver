@@ -416,8 +416,6 @@ class IntegrationVerificationTest : FunSpec({
                 sessionId = sessionId,
                 timestamp = timestamp + 3,
                 creatureId = 10,
-                fromPos = GridPos(0, 0),
-                toPos = GridPos(5, 0),
                 path = listOf(
                     GridPos(0, 0),
                     GridPos(1, 0),
@@ -426,12 +424,13 @@ class IntegrationVerificationTest : FunSpec({
                     GridPos(4, 0),
                     GridPos(5, 0)
                 ),
-                movementCost = 5
+                movementUsed = 5,
+                movementRemaining = 25
             )
             
-            moveCommitted.fromPos shouldBe GridPos(0, 0)
-            moveCommitted.toPos shouldBe GridPos(5, 0)
-            moveCommitted.movementCost shouldBe 5
+            moveCommitted.path.first() shouldBe GridPos(0, 0)
+            moveCommitted.path.last() shouldBe GridPos(5, 0)
+            moveCommitted.movementUsed shouldBe 5
             
             // Attack
             val attackResolved = AttackResolved(
@@ -559,7 +558,7 @@ class IntegrationVerificationTest : FunSpec({
                 DamageApplied(1, 1006, 2, DiceRoll(8, 1, 0, 5), 5, 10, 5),
                 ConditionApplied(1, 1007, 2, Condition.PRONE, null),
                 ConditionRemoved(1, 1008, 2, Condition.PRONE),
-                MoveCommitted(1, 1009, 1, GridPos(0, 0), GridPos(5, 0), listOf(GridPos(0, 0), GridPos(5, 0)), 5)
+                MoveCommitted(1, 1009, 1, listOf(GridPos(0, 0), GridPos(5, 0)), 5, 25)
             )
             
             // Exhaustive when expression - compiler enforces all cases
@@ -580,6 +579,13 @@ class IntegrationVerificationTest : FunSpec({
                     is DelayedTurnResumed -> "DelayedTurnResumed"
                     is CreatureAddedToCombat -> "CreatureAddedToCombat"
                     is CreatureRemovedFromCombat -> "CreatureRemovedFromCombat"
+                    is dev.questweaver.domain.events.BonusActionTaken -> "BonusActionTaken"
+                    is dev.questweaver.domain.events.CreatureDefeated -> "CreatureDefeated"
+                    is dev.questweaver.domain.events.DisengageAction -> "DisengageAction"
+                    is dev.questweaver.domain.events.DodgeAction -> "DodgeAction"
+                    is dev.questweaver.domain.events.HelpAction -> "HelpAction"
+                    is dev.questweaver.domain.events.ReadyAction -> "ReadyAction"
+                    is dev.questweaver.domain.events.SpellCast -> "SpellCast"
                     // No else branch needed - sealed interface ensures exhaustiveness
                 }
             }
@@ -607,7 +613,7 @@ class IntegrationVerificationTest : FunSpec({
                 ),
                 RoundStarted(1, 1001, 1, 1),
                 TurnStarted(1, 1002, 1, 1),
-                MoveCommitted(1, 1003, 1, GridPos(0, 0), GridPos(5, 5), listOf(GridPos(0, 0), GridPos(5, 5)), 5),
+                MoveCommitted(1, 1003, 1, listOf(GridPos(0, 0), GridPos(5, 5)), 5, 25),
                 AttackResolved(1, 1004, 1, 2, DiceRoll(20, 1, 5, 20), 15, true, true),
                 DamageApplied(1, 1005, 2, DiceRoll(8, 2, 3, 15), 15, 20, 5),
                 ConditionApplied(1, 1006, 2, Condition.STUNNED, 1),

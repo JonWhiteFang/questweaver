@@ -53,13 +53,12 @@ class GameEventTest : FunSpec({
                 sessionId = 1L,
                 timestamp = 3000L,
                 creatureId = 1L,
-                fromPos = GridPos(0, 0),
-                toPos = GridPos(5, 5),
                 path = listOf(GridPos(0, 0), GridPos(1, 1), GridPos(5, 5)),
-                movementCost = 15
+                movementUsed = 15,
+                movementRemaining = 15
             )
             
-            event.movementCost shouldBe 15
+            event.movementUsed shouldBe 15
         }
     }
 
@@ -209,15 +208,14 @@ class GameEventTest : FunSpec({
                 sessionId = 1L,
                 timestamp = 10000L,
                 creatureId = 1L,
-                fromPos = GridPos(0, 0),
-                toPos = GridPos(5, 5),
                 path = listOf(
                     GridPos(0, 0),
                     GridPos(1, 1),
                     GridPos(2, 2),
                     GridPos(5, 5)
                 ),
-                movementCost = 20
+                movementUsed = 20,
+                movementRemaining = 10
             )
             
             val serialized = json.encodeToString<GameEvent>(original)
@@ -239,7 +237,7 @@ class GameEventTest : FunSpec({
                 DamageApplied(1L, 7000L, 2L, DiceRoll(8, 1, 0, 5), 5, 20, 15),
                 ConditionApplied(1L, 8000L, 2L, Condition.STUNNED, null),
                 ConditionRemoved(1L, 9000L, 2L, Condition.STUNNED),
-                MoveCommitted(1L, 10000L, 1L, GridPos(0, 0), GridPos(5, 5), listOf(), 15)
+                MoveCommitted(1L, 10000L, 1L, listOf(GridPos(0, 0), GridPos(5, 5)), 15, 15)
             )
             
             // This when expression is exhaustive - compiler enforces all cases
@@ -260,6 +258,13 @@ class GameEventTest : FunSpec({
                     is DelayedTurnResumed -> "delayed_turn_resumed"
                     is CreatureAddedToCombat -> "creature_added_to_combat"
                     is CreatureRemovedFromCombat -> "creature_removed_from_combat"
+                    is BonusActionTaken -> "bonus_action_taken"
+                    is CreatureDefeated -> "creature_defeated"
+                    is DisengageAction -> "disengage_action"
+                    is DodgeAction -> "dodge_action"
+                    is HelpAction -> "help_action"
+                    is ReadyAction -> "ready_action"
+                    is SpellCast -> "spell_cast"
                     // No else branch needed - exhaustive
                 }
             }

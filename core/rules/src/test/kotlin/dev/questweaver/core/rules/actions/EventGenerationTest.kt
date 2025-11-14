@@ -195,8 +195,6 @@ class EventGenerationTest : FunSpec({
                 critical = false
             )
             
-            val afterTime = System.currentTimeMillis()
-            
             event.timestamp shouldBeGreaterThan 0L
             event.timestamp shouldBeGreaterThan beforeTime - 1000 // Allow 1s tolerance
         }
@@ -483,7 +481,7 @@ class EventGenerationTest : FunSpec({
                 critical = false
             )
             
-            val moveEvent = MoveCommitted(
+            MoveCommitted(
                 sessionId = 1L,
                 timestamp = 1699564800000L,
                 creatureId = 1L,
@@ -492,7 +490,7 @@ class EventGenerationTest : FunSpec({
                 movementRemaining = 25
             )
             
-            val spellEvent = SpellCast(
+            SpellCast(
                 sessionId = 1L,
                 timestamp = 1699564800000L,
                 casterId = 1L,
@@ -520,8 +518,6 @@ class EventGenerationTest : FunSpec({
                 DodgeAction(1L, System.currentTimeMillis(), 1L),
                 DisengageAction(1L, System.currentTimeMillis(), 1L)
             )
-            
-            val afterTime = System.currentTimeMillis()
             
             events.forEach { event ->
                 event.timestamp shouldBeGreaterThan 0L

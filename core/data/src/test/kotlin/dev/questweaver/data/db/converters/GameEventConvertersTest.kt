@@ -166,10 +166,9 @@ class GameEventConvertersTest : FunSpec({
                 sessionId = 1L,
                 timestamp = 1000L,
                 creatureId = 10L,
-                fromPos = GridPos(0, 0),
-                toPos = GridPos(5, 5),
                 path = listOf(GridPos(0, 0), GridPos(1, 1), GridPos(5, 5)),
-                movementCost = 5
+                movementUsed = 5,
+                movementRemaining = 25
             )
             
             val json = converters.fromGameEvent(event)
@@ -183,10 +182,9 @@ class GameEventConvertersTest : FunSpec({
                 sessionId = 1L,
                 timestamp = 1000L,
                 creatureId = 10L,
-                fromPos = GridPos(0, 0),
-                toPos = GridPos(3, 3),
                 path = listOf(GridPos(0, 0), GridPos(1, 1), GridPos(2, 2), GridPos(3, 3)),
-                movementCost = 3
+                movementUsed = 3,
+                movementRemaining = 27
             )
             
             val json = converters.fromGameEvent(event)
@@ -340,7 +338,7 @@ class GameEventConvertersTest : FunSpec({
                     DiceRoll(diceType = 20, count = 1, modifier = 5, result = 20),
                     18, true, false
                 ),
-                MoveCommitted(1L, 2000L, 10L, GridPos(0, 0), GridPos(5, 5), emptyList(), 5),
+                MoveCommitted(1L, 2000L, 10L, listOf(GridPos(0, 0), GridPos(5, 5)), 5, 25),
                 EncounterStarted(1L, 3000L, 100L, emptyList(), emptyList())
             )
             
@@ -466,7 +464,7 @@ class GameEventConvertersTest : FunSpec({
                 ),
                 ConditionApplied(1L, 1000L, 20L, Condition.PRONE, null),
                 ConditionRemoved(1L, 1000L, 20L, Condition.PRONE),
-                MoveCommitted(1L, 1000L, 10L, GridPos(0, 0), GridPos(5, 5), emptyList(), 5),
+                MoveCommitted(1L, 1000L, 10L, listOf(GridPos(0, 0), GridPos(5, 5)), 5, 25),
                 EncounterStarted(1L, 1000L, 100L, emptyList(), emptyList()),
                 RoundStarted(1L, 1000L, 100L, 1),
                 TurnStarted(1L, 1000L, 100L, 10L),
