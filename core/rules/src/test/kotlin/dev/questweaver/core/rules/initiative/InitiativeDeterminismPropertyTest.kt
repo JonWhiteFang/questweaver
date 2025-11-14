@@ -1,6 +1,8 @@
 package dev.questweaver.core.rules.initiative
 
 import dev.questweaver.core.rules.initiative.models.InitiativeEntry
+import dev.questweaver.core.rules.initiative.models.InitiativeResult
+import dev.questweaver.core.rules.initiative.models.RoundState
 import dev.questweaver.domain.dice.DiceRoller
 import dev.questweaver.domain.events.EncounterStarted
 import dev.questweaver.domain.events.InitiativeEntryData
@@ -8,6 +10,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.list
@@ -31,12 +34,12 @@ class InitiativeDeterminismPropertyTest : FunSpec({
             checkAll(
                 Arb.long(),
                 Arb.map(
-                    Arb.long(1..100),
+                    Arb.long(1L..100L),
                     Arb.int(-5..10),
                     minSize = 2,
                     maxSize = 10
                 )
-            ) { seed, creatures ->
+            ) { seed: Long, creatures: Map<Long, Int> ->
                 val roller1 = InitiativeRoller(DiceRoller(seed))
                 val order1 = roller1.rollInitiativeForAll(creatures)
                 
@@ -51,12 +54,12 @@ class InitiativeDeterminismPropertyTest : FunSpec({
             checkAll(
                 Arb.long(),
                 Arb.map(
-                    Arb.long(1..100),
+                    Arb.long(1L..100L),
                     Arb.int(-5..10),
                     minSize = 2,
                     maxSize = 10
                 )
-            ) { seed, creatures ->
+            ) { seed: Long, creatures: Map<Long, Int> ->
                 val roller = InitiativeRoller(DiceRoller(seed))
                 val order = roller.rollInitiativeForAll(creatures)
                 
@@ -86,12 +89,12 @@ class InitiativeDeterminismPropertyTest : FunSpec({
                 Arb.long(),
                 Arb.long(),
                 Arb.map(
-                    Arb.long(1..10),
+                    Arb.long(1L..10L),
                     Arb.int(0..3),
                     minSize = 3,
                     maxSize = 5
                 )
-            ) { seed1, seed2, creatures ->
+            ) { seed1: Long, seed2: Long, creatures: Map<Long, Int> ->
                 if (seed1 != seed2) {
                     val roller1 = InitiativeRoller(DiceRoller(seed1))
                     val order1 = roller1.rollInitiativeForAll(creatures)
@@ -115,22 +118,27 @@ class InitiativeDeterminismPropertyTest : FunSpec({
                 Arb.list(Arb.int(1..20), 2..10)
             ) { initiatives ->
                 val entries = initiatives.mapIndexed { i, init ->
-                    InitiativeEntryData(i.toLong(), init, 0, init)
+                    InitiativeEntry(i.toLong(), init, 0, init)
                 }
                 
                 val tracker = InitiativeTracker()
-                var state = tracker.initialize(entries)
+                val initResult = tracker.initialize(entries)
+                initResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                var state = (initResult as InitiativeResult.Success).value
                 
-                val firstCreatureId = state.currentTurn!!.activeCreatureId
+                val firstCreatureId = (state as RoundState).currentTurn!!.activeCreatureId
                 
                 // Advance through all creatures
+                var currentState = state
                 repeat(entries.size) {
-                    state = tracker.advanceTurn(state)
+                    val advanceResult = tracker.advanceTurn(currentState)
+                    advanceResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                    currentState = (advanceResult as InitiativeResult.Success<RoundState>).value
                 }
                 
                 // Should be back to first creature in new round
-                state.currentTurn!!.activeCreatureId shouldBe firstCreatureId
-                state.roundNumber shouldBe 2
+                currentState.currentTurn!!.activeCreatureId shouldBe firstCreatureId
+                currentState.roundNumber shouldBe 2
             }
         }
 
@@ -139,28 +147,36 @@ class InitiativeDeterminismPropertyTest : FunSpec({
                 Arb.list(Arb.int(1..20), 2..8)
             ) { initiatives ->
                 val entries = initiatives.mapIndexed { i, init ->
-                    InitiativeEntryData(i.toLong(), init, 0, init)
+                    InitiativeEntry(i.toLong(), init, 0, init)
                 }
                 
                 val tracker = InitiativeTracker()
-                var state = tracker.initialize(entries)
+                val initResult = tracker.initialize(entries)
+                initResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                var state = (initResult as InitiativeResult.Success<RoundState>).value
                 
                 // Collect order in round 1
                 val round1Order = mutableListOf<Long>()
                 round1Order.add(state.currentTurn!!.activeCreatureId)
                 repeat(entries.size - 1) {
-                    state = tracker.advanceTurn(state)
+                    val advanceResult = tracker.advanceTurn(state)
+                    advanceResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                    state = (advanceResult as InitiativeResult.Success<RoundState>).value
                     round1Order.add(state.currentTurn!!.activeCreatureId)
                 }
                 
                 // Advance to round 2
-                state = tracker.advanceTurn(state)
+                val advanceResult = tracker.advanceTurn(state)
+                advanceResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                state = (advanceResult as InitiativeResult.Success<RoundState>).value
                 
                 // Collect order in round 2
                 val round2Order = mutableListOf<Long>()
                 round2Order.add(state.currentTurn!!.activeCreatureId)
                 repeat(entries.size - 1) {
-                    state = tracker.advanceTurn(state)
+                    val nextResult = tracker.advanceTurn(state)
+                    nextResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                    state = (nextResult as InitiativeResult.Success<RoundState>).value
                     round2Order.add(state.currentTurn!!.activeCreatureId)
                 }
                 
@@ -174,17 +190,21 @@ class InitiativeDeterminismPropertyTest : FunSpec({
                 Arb.list(Arb.int(1..20), 2..5)
             ) { initiatives ->
                 val entries = initiatives.mapIndexed { i, init ->
-                    InitiativeEntryData(i.toLong(), init, 0, init)
+                    InitiativeEntry(i.toLong(), init, 0, init)
                 }
                 
                 val tracker = InitiativeTracker()
-                var state = tracker.initialize(entries)
+                val initResult = tracker.initialize(entries)
+                initResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                var state = (initResult as InitiativeResult.Success<RoundState>).value
                 
                 var previousRound = state.roundNumber
                 
                 // Advance through multiple rounds
                 repeat(entries.size * 3) {
-                    state = tracker.advanceTurn(state)
+                    val advanceResult = tracker.advanceTurn(state)
+                    advanceResult.shouldBeInstanceOf<InitiativeResult.Success<*>>()
+                    state = (advanceResult as InitiativeResult.Success<RoundState>).value
                     
                     // Round should never decrease
                     state.roundNumber shouldBeGreaterThanOrEqualTo previousRound
@@ -202,7 +222,7 @@ class InitiativeDeterminismPropertyTest : FunSpec({
                     Arb.int(-5..10),
                     2..8
                 )
-            ) { seed, modifiers ->
+            ) { seed: Long, modifiers: List<Int> ->
                 val creatures = modifiers.mapIndexed { i, mod -> 
                     (i + 1).toLong() to mod 
                 }.toMap()
@@ -241,7 +261,7 @@ class InitiativeDeterminismPropertyTest : FunSpec({
             checkAll(
                 Arb.long(),
                 Arb.list(Arb.int(-3..5), 2..5)
-            ) { seed, modifiers ->
+            ) { seed: Long, modifiers: List<Int> ->
                 val creatures = modifiers.mapIndexed { i, mod -> 
                     (i + 1).toLong() to mod 
                 }.toMap()
@@ -280,7 +300,7 @@ class InitiativeDeterminismPropertyTest : FunSpec({
             checkAll(
                 Arb.long(),
                 Arb.list(Arb.int(-5..10), 2..10)
-            ) { seed, modifiers ->
+            ) { seed: Long, modifiers: List<Int> ->
                 val creatures = modifiers.mapIndexed { i, mod -> 
                     (i + 1).toLong() to mod 
                 }.toMap()
@@ -301,7 +321,7 @@ class InitiativeDeterminismPropertyTest : FunSpec({
         }
 
         test("initiative tiebreaker is consistent") {
-            checkAll(Arb.long()) { seed ->
+            checkAll(Arb.long()) { seed: Long ->
                 // Create creatures with same modifier
                 val creatures = mapOf(
                     1L to 2,
@@ -332,7 +352,7 @@ class InitiativeDeterminismPropertyTest : FunSpec({
             checkAll(
                 Arb.long(),
                 Arb.list(Arb.int(-5..10), 1..15)
-            ) { seed, modifiers ->
+            ) { seed: Long, modifiers: List<Int> ->
                 val creatures = modifiers.mapIndexed { i, mod -> 
                     (i + 1).toLong() to mod 
                 }.toMap()
@@ -348,7 +368,7 @@ class InitiativeDeterminismPropertyTest : FunSpec({
             checkAll(
                 Arb.long(),
                 Arb.list(Arb.int(-5..10), 2..10)
-            ) { seed, modifiers ->
+            ) { seed: Long, modifiers: List<Int> ->
                 val creatures = modifiers.mapIndexed { i, mod -> 
                     (i + 1).toLong() to mod 
                 }.toMap()
@@ -367,7 +387,7 @@ class InitiativeDeterminismPropertyTest : FunSpec({
             checkAll(
                 Arb.long(),
                 Arb.list(Arb.int(-5..10), 2..10)
-            ) { seed, modifiers ->
+            ) { seed: Long, modifiers: List<Int> ->
                 val creatures = modifiers.mapIndexed { i, mod -> 
                     (i + 1).toLong() to mod 
                 }.toMap()
