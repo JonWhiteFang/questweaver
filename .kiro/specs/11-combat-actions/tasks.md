@@ -1,69 +1,48 @@
 # Implementation Plan
 
 - [x] 1. Set up module structure and core data models
-
-
   - Create package structure in `core/rules/actions/`: root level, `models/`, and `validation/` subdirectories
   - Add dependencies on `05-combat-rules`, `06-action-validation`, and `10-initiative-turns` in `core/rules/build.gradle.kts`
   - Verify module compiles with no Android dependencies
   - _Requirements: 9.5_
 
 - [x] 2. Implement sealed action types
-
-
 - [x] 2.1 Create CombatAction sealed interface
   - Define base interface with actorId property
   - _Requirements: 1.1, 2.1, 3.1, 4.1, 5.1, 7.1_
 
-
 - [x] 2.2 Create Attack action data class
-
   - Define fields: actorId, targetId, weaponId, attackBonus, damageDice, damageModifier, damageType
   - _Requirements: 1.1, 1.5_
 
 - [x] 2.3 Create Move action data class
-
-
   - Define fields: actorId, path, isDash
   - _Requirements: 2.1, 2.5_
 
 - [x] 2.4 Create CastSpell action data class
-
-
-
   - Define fields: actorId, spellId, spellLevel, targets, spellEffect, isBonusAction
   - _Requirements: 3.1, 3.5_
 
 - [x] 2.5 Create special action data classes
-
-
   - Create Dodge, Disengage, Help, Ready action data classes
   - Define Help with targetId and helpType fields
   - Define Ready with preparedAction and trigger fields
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
 - [x] 2.6 Create Reaction action data class
-
-
   - Define fields: actorId, reactionType, targetId
   - _Requirements: 5.1, 5.3_
 
 - [x] 3. Implement supporting enums and sealed types
-
-
-
 - [x] 3.1 Create HelpType enum
   - Define values: Attack, AbilityCheck
   - _Requirements: 7.3_
 
-
 - [x] 3.2 Create ReactionType enum
   - Define values: OpportunityAttack, ReadiedAction, Shield, Counterspell, Other
-
   - _Requirements: 5.1, 5.4_
 
 - [x] 3.3 Create SpellEffect sealed interface
-
   - Define Attack, Save, and Utility data classes
   - _Requirements: 3.2, 3.3_
 
@@ -72,25 +51,17 @@
   - _Requirements: 5.2, 5.5_
 
 - [x] 4. Implement action context and result types
-
-
-
-
 - [x] 4.1 Create ActionContext data class
   - Define fields: sessionId, roundNumber, turnPhase, creatures, mapGrid, activeConditions, readiedActions
   - _Requirements: 8.1_
 
-
 - [x] 4.2 Create ReadiedAction data class
   - Define fields: creatureId, action, trigger
-
   - _Requirements: 7.4, 7.5_
 
 - [x] 4.3 Create ActionResult sealed interface
-
   - Define Success, Failure, and RequiresChoice data classes
   - _Requirements: 8.2, 8.3, 8.4_
-
 
 - [x] 4.4 Create ActionOption data class
   - Define fields: id, description, action
@@ -101,51 +72,37 @@
   - _Requirements: 8.2_
 
 - [x] 5. Implement event data classes
-
-
-
 - [x] 5.1 Create AttackResolved event
-
   - Define fields: sessionId, timestamp, attackerId, targetId, attackRoll, attackBonus, targetAC, hit, isCritical, damage, damageType
   - Extend GameEvent sealed interface
   - _Requirements: 1.3, 9.2_
-
 
 - [x] 5.2 Create MoveCommitted event
   - Define fields: sessionId, timestamp, creatureId, path, movementUsed, movementRemaining
   - _Requirements: 2.4, 9.2_
 
-
 - [x] 5.3 Create SpellCast event
   - Define fields: sessionId, timestamp, casterId, spellId, spellLevel, slotConsumed, targets, outcomes
   - Create SpellOutcome data class with targetId, attackRoll, saveRoll, success, damage, damageType
-
   - _Requirements: 3.4, 9.2_
 
 - [x] 5.4 Create BonusActionTaken event
-
   - Define fields: sessionId, timestamp, creatureId, actionType
   - _Requirements: 4.5, 9.2_
 
 - [x] 5.5 Create special action events
-
   - Create DodgeAction, DisengageAction, HelpAction, ReadyAction events
   - Each with sessionId, timestamp, and action-specific fields
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 9.2_
 
 - [x] 5.6 Create CreatureDefeated event
-
-
   - Define fields: sessionId, timestamp, creatureId, defeatedBy
   - _Requirements: 1.3, 9.2_
 
-
 - [x] 6. Implement ActionValidator
-
 - [x] 6.1 Create ActionValidator class with ActionValidationSystem dependency
   - Define constructor accepting ActionValidationSystem
   - _Requirements: 8.1_
-
 
 - [x] 6.2 Implement validate() method
   - Check action phase availability (action, bonus action, reaction)
@@ -153,18 +110,13 @@
   - Check range and line-of-effect
   - Check target validity
   - Check condition restrictions
-
-
   - Return ValidationResult (Valid, Invalid, RequiresChoice)
   - _Requirements: 8.1, 8.2, 8.3_
 
 - [x] 7. Implement AttackActionHandler
-
 - [x] 7.1 Create AttackActionHandler class with dependencies
-
   - Accept AttackResolver and DamageCalculator in constructor
   - _Requirements: 1.1, 9.1_
-
 
 - [x] 7.2 Implement handleAttack() method
   - Get attacker and target creatures from context
@@ -177,7 +129,6 @@
   - Return list of events
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-
 - [x] 7.3 Implement handleMultiAttack() method
   - Call handleAttack() for each attack in the list
   - Collect all events from all attacks
@@ -185,15 +136,9 @@
   - _Requirements: 1.5_
 
 - [x] 8. Implement MovementActionHandler
-
-
-
 - [x] 8.1 Create MovementActionHandler class with dependencies
-
-
   - Accept Pathfinder and ReactionHandler in constructor
   - _Requirements: 2.1, 9.1_
-
 
 - [x] 8.2 Implement handleMovement() method
   - Validate path using pathfinder
@@ -206,7 +151,6 @@
   - Return list of events (movement + any opportunity attacks)
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-
 - [x] 8.3 Implement handleDash() method
   - Double movement speed for current turn
   - Mark action phase as consumed
@@ -214,12 +158,17 @@
   - Return list of events
   - _Requirements: 2.5_
 
-- [ ] 9. Implement SpellActionHandler
-- [ ] 9.1 Create SpellActionHandler class with dependencies
+- [x] 9. Implement SpellActionHandler
+
+
+
+- [x] 9.1 Create SpellActionHandler class with dependencies
+
   - Accept AttackResolver, SavingThrowResolver, and DamageCalculator in constructor
   - _Requirements: 3.1, 9.1_
 
-- [ ] 9.2 Implement handleSpellCast() method
+
+- [x] 9.2 Implement handleSpellCast() method
   - Validate spell slot availability
   - Check bonus action spell restriction (if applicable)
   - Determine spell effect type (attack, save, utility)
@@ -228,53 +177,67 @@
   - Consume spell slot
   - Generate SpellCast event with outcomes
   - Return list of events
+
+
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 10. Implement SpecialActionHandler
-- [ ] 10.1 Create SpecialActionHandler class
+- [x] 10. Implement SpecialActionHandler
+
+- [x] 10.1 Create SpecialActionHandler class
+
   - No external dependencies needed
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 10.2 Implement handleDodge() method
+- [x] 10.2 Implement handleDodge() method
+
   - Apply Dodging condition until start of next turn
   - Mark action phase as consumed
   - Generate DodgeAction event
   - Return list of events
   - _Requirements: 7.1_
 
-- [ ] 10.3 Implement handleDisengage() method
+- [x] 10.3 Implement handleDisengage() method
+
   - Apply Disengaged condition for remainder of turn
   - Mark action phase as consumed
   - Generate DisengageAction event
   - Return list of events
   - _Requirements: 7.2_
 
-- [ ] 10.4 Implement handleHelp() method
+- [x] 10.4 Implement handleHelp() method
+
   - Grant advantage on next ability check or attack roll for target
   - Mark action phase as consumed
   - Generate HelpAction event
   - Return list of events
   - _Requirements: 7.3_
 
-- [ ] 10.5 Implement handleReady() method
+- [x] 10.5 Implement handleReady() method
+
   - Store prepared action and trigger condition in context
   - Mark action phase as consumed
   - Generate ReadyAction event
   - Return list of events
   - _Requirements: 7.4, 7.5_
 
-- [ ] 11. Implement ReactionHandler
-- [ ] 11.1 Create ReactionHandler class with dependencies
+- [x] 11. Implement ReactionHandler
+
+
+- [x] 11.1 Create ReactionHandler class with dependencies
+
+
   - Accept AttackActionHandler in constructor
   - _Requirements: 5.1, 9.1_
 
-- [ ] 11.2 Implement identifyReactors() method
+- [x] 11.2 Implement identifyReactors() method
+
   - Based on trigger type, identify creatures that can react
   - Check if creatures have reactions available
   - Return list of creature IDs in initiative order
   - _Requirements: 5.2_
 
-- [ ] 11.3 Implement handleReaction() method
+
+- [x] 11.3 Implement handleReaction() method
   - Validate reaction is available
   - Process reaction based on type (opportunity attack, readied action, etc.)
   - Mark reaction as consumed
@@ -282,20 +245,27 @@
   - Return list of events
   - _Requirements: 5.1, 5.3, 5.4, 5.5_
 
-- [ ] 11.4 Implement opportunity attack logic
+
+- [x] 11.4 Implement opportunity attack logic
   - Check if reacting creature has reaction available
   - Check if reacting creature has melee weapon equipped
   - Check if triggering creature moved out of reach
+
+
   - Use AttackActionHandler to process attack
   - Return attack events
   - _Requirements: 5.4_
 
-- [ ] 12. Implement ActionProcessor
-- [ ] 12.1 Create ActionProcessor class with all handler dependencies
+- [x] 12. Implement ActionProcessor
+
+
+- [x] 12.1 Create ActionProcessor class with all handler dependencies
+
   - Accept AttackActionHandler, MovementActionHandler, SpellActionHandler, SpecialActionHandler, ReactionHandler, ActionValidator in constructor
   - _Requirements: 9.1_
 
-- [ ] 12.2 Implement processAction() method
+- [x] 12.2 Implement processAction() method
+
   - Validate action using ActionValidator
   - If validation fails, return ActionResult.Failure
   - If validation requires choice, return ActionResult.RequiresChoice
@@ -304,7 +274,8 @@
   - Return ActionResult.Success with events
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 9.1_
 
-- [ ] 12.3 Implement action routing logic
+
+- [x] 12.3 Implement action routing logic
   - Route Attack actions to AttackActionHandler
   - Route Move actions to MovementActionHandler
   - Route CastSpell actions to SpellActionHandler

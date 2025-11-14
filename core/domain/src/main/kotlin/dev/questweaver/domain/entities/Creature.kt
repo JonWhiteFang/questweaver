@@ -53,4 +53,29 @@ data class Creature(
      */
     val isBloodied: Boolean 
         get() = hitPointsCurrent <= hitPointsMax / 2
+    
+    /**
+     * Returns the creature's spell attack bonus.
+     * Calculated as proficiency bonus + spellcasting ability modifier.
+     * TODO: Determine spellcasting ability from class/creature type.
+     */
+    val spellAttackBonus: Int
+        get() = proficiencyBonus + abilities.intModifier
+    
+    /**
+     * Returns the creature's saving throw modifier for a given ability.
+     *
+     * @param abilityType The ability type for the saving throw
+     * @return The modifier to add to the saving throw roll
+     */
+    fun getSavingThrowModifier(abilityType: dev.questweaver.domain.values.AbilityType): Int {
+        return when (abilityType) {
+            dev.questweaver.domain.values.AbilityType.Strength -> abilities.strModifier
+            dev.questweaver.domain.values.AbilityType.Dexterity -> abilities.dexModifier
+            dev.questweaver.domain.values.AbilityType.Constitution -> abilities.conModifier
+            dev.questweaver.domain.values.AbilityType.Intelligence -> abilities.intModifier
+            dev.questweaver.domain.values.AbilityType.Wisdom -> abilities.wisModifier
+            dev.questweaver.domain.values.AbilityType.Charisma -> abilities.chaModifier
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package dev.questweaver.core.rules.actions.models
 
+import dev.questweaver.domain.values.AbilityType
 import dev.questweaver.domain.values.GridPos
 import kotlinx.serialization.Serializable
 
@@ -87,29 +88,26 @@ data class Dash(
 @Serializable
 sealed interface SpellEffect {
     @Serializable
-    data class Attack(val targets: List<Long>) : SpellEffect
+    data class Attack(
+        val targets: List<Long>,
+        val damageDice: String,
+        val damageModifier: Int,
+        val damageType: DamageType?
+    ) : SpellEffect
     
     @Serializable
     data class Save(
         val dc: Int,
         val abilityType: AbilityType,
-        val targets: List<Long>
+        val targets: List<Long>,
+        val damageDice: String?,
+        val damageModifier: Int?,
+        val damageType: DamageType?,
+        val halfDamageOnSave: Boolean
     ) : SpellEffect
     
     @Serializable
     data class Utility(val effect: String) : SpellEffect
-}
-
-/**
- * Enum representing ability types for saving throws.
- */
-enum class AbilityType {
-    Strength,
-    Dexterity,
-    Constitution,
-    Intelligence,
-    Wisdom,
-    Charisma
 }
 
 /**

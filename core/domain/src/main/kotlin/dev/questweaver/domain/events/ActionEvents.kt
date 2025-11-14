@@ -76,15 +76,3 @@ enum class ReactionType {
     Counterspell,
     Other
 }
-
-/**
- * Event emitted when a creature uses a reaction.
- */
-@Serializable
-data class ReactionUsed(
-    override val sessionId: Long,
-    override val timestamp: Long,
-    val creatureId: Long,
-    val reactionType: ReactionType,
-    val triggerId: Long?
-) : GameEvent
