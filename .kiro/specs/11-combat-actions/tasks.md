@@ -284,7 +284,13 @@
   - Use exhaustive when expression for sealed types
   - _Requirements: 9.1_
 
-- [ ] 13. Add Koin dependency injection module
+- [x] 13. Add Koin dependency injection module
+
+
+
+
+
+
   - Create ActionsModule.kt in core/rules/di/ package
   - Define factory binding for ActionValidator with ActionValidationSystem dependency
   - Define factory binding for AttackActionHandler with AttackResolver and DamageCalculator dependencies
