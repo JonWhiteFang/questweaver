@@ -70,8 +70,15 @@ enum class DamageType {
 @Serializable
 data class Move(
     override val actorId: Long,
-    val path: List<GridPos>,
-    val isDash: Boolean = false
+    val path: List<GridPos>
+) : CombatAction
+
+/**
+ * Dash action - double movement speed for the turn.
+ */
+@Serializable
+data class Dash(
+    override val actorId: Long
 ) : CombatAction
 
 /**

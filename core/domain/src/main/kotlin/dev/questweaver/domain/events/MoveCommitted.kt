@@ -5,15 +5,14 @@ import kotlinx.serialization.Serializable
 
 /**
  * Event emitted when a creature completes a movement action.
- * Captures the full path taken and movement cost.
+ * Captures the full path taken, movement used, and remaining movement.
  */
 @Serializable
 data class MoveCommitted(
     override val sessionId: Long,
     override val timestamp: Long,
     val creatureId: Long,
-    val fromPos: GridPos,
-    val toPos: GridPos,
     val path: List<GridPos>,
-    val movementCost: Int
+    val movementUsed: Int,
+    val movementRemaining: Int
 ) : GameEvent

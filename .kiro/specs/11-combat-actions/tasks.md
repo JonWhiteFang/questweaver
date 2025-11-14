@@ -100,54 +100,73 @@
   - Define InvalidAction, InsufficientResources, OutOfRange, NoLineOfEffect, ActionNotAvailable data classes
   - _Requirements: 8.2_
 
-- [ ] 5. Implement event data classes
-- [ ] 5.1 Create AttackResolved event
+- [x] 5. Implement event data classes
+
+
+
+- [x] 5.1 Create AttackResolved event
+
   - Define fields: sessionId, timestamp, attackerId, targetId, attackRoll, attackBonus, targetAC, hit, isCritical, damage, damageType
   - Extend GameEvent sealed interface
   - _Requirements: 1.3, 9.2_
 
-- [ ] 5.2 Create MoveCommitted event
+
+- [x] 5.2 Create MoveCommitted event
   - Define fields: sessionId, timestamp, creatureId, path, movementUsed, movementRemaining
   - _Requirements: 2.4, 9.2_
 
-- [ ] 5.3 Create SpellCast event
+
+- [x] 5.3 Create SpellCast event
   - Define fields: sessionId, timestamp, casterId, spellId, spellLevel, slotConsumed, targets, outcomes
   - Create SpellOutcome data class with targetId, attackRoll, saveRoll, success, damage, damageType
+
   - _Requirements: 3.4, 9.2_
 
-- [ ] 5.4 Create BonusActionTaken event
+- [x] 5.4 Create BonusActionTaken event
+
   - Define fields: sessionId, timestamp, creatureId, actionType
   - _Requirements: 4.5, 9.2_
 
-- [ ] 5.5 Create special action events
+- [x] 5.5 Create special action events
+
   - Create DodgeAction, DisengageAction, HelpAction, ReadyAction events
   - Each with sessionId, timestamp, and action-specific fields
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 9.2_
 
-- [ ] 5.6 Create CreatureDefeated event
+- [x] 5.6 Create CreatureDefeated event
+
+
   - Define fields: sessionId, timestamp, creatureId, defeatedBy
   - _Requirements: 1.3, 9.2_
 
-- [ ] 6. Implement ActionValidator
-- [ ] 6.1 Create ActionValidator class with ActionValidationSystem dependency
+
+- [x] 6. Implement ActionValidator
+
+- [x] 6.1 Create ActionValidator class with ActionValidationSystem dependency
   - Define constructor accepting ActionValidationSystem
   - _Requirements: 8.1_
 
-- [ ] 6.2 Implement validate() method
+
+- [x] 6.2 Implement validate() method
   - Check action phase availability (action, bonus action, reaction)
   - Check resource availability (spell slots, movement)
   - Check range and line-of-effect
   - Check target validity
   - Check condition restrictions
+
+
   - Return ValidationResult (Valid, Invalid, RequiresChoice)
   - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 7. Implement AttackActionHandler
-- [ ] 7.1 Create AttackActionHandler class with dependencies
+- [x] 7. Implement AttackActionHandler
+
+- [x] 7.1 Create AttackActionHandler class with dependencies
+
   - Accept AttackResolver and DamageCalculator in constructor
   - _Requirements: 1.1, 9.1_
 
-- [ ] 7.2 Implement handleAttack() method
+
+- [x] 7.2 Implement handleAttack() method
   - Get attacker and target creatures from context
   - Calculate attack bonus and target AC
   - Determine roll modifiers from conditions
@@ -158,18 +177,25 @@
   - Return list of events
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 7.3 Implement handleMultiAttack() method
+
+- [x] 7.3 Implement handleMultiAttack() method
   - Call handleAttack() for each attack in the list
   - Collect all events from all attacks
   - Return combined list of events
   - _Requirements: 1.5_
 
-- [ ] 8. Implement MovementActionHandler
-- [ ] 8.1 Create MovementActionHandler class with dependencies
+- [x] 8. Implement MovementActionHandler
+
+
+
+- [x] 8.1 Create MovementActionHandler class with dependencies
+
+
   - Accept Pathfinder and ReactionHandler in constructor
   - _Requirements: 2.1, 9.1_
 
-- [ ] 8.2 Implement handleMovement() method
+
+- [x] 8.2 Implement handleMovement() method
   - Validate path using pathfinder
   - Calculate movement cost (difficult terrain, etc.)
   - Check if movement remaining is sufficient
@@ -180,7 +206,8 @@
   - Return list of events (movement + any opportunity attacks)
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 8.3 Implement handleDash() method
+
+- [x] 8.3 Implement handleDash() method
   - Double movement speed for current turn
   - Mark action phase as consumed
   - Generate DashAction event

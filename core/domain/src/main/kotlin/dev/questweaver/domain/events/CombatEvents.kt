@@ -57,3 +57,20 @@ data class ConditionRemoved(
     val targetId: Long,
     val condition: Condition
 ) : GameEvent
+
+/**
+ * Event emitted when a creature is defeated (HP reaches 0).
+ *
+ * @property sessionId The session this event belongs to
+ * @property timestamp Unix timestamp in milliseconds when the event occurred
+ * @property creatureId The ID of the creature that was defeated
+ * @property defeatedBy The ID of the creature that dealt the defeating blow,
+ *                      or null if defeated by environmental damage
+ */
+@Serializable
+data class CreatureDefeated(
+    override val sessionId: Long,
+    override val timestamp: Long,
+    val creatureId: Long,
+    val defeatedBy: Long?
+) : GameEvent
