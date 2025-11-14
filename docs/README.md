@@ -18,6 +18,7 @@ Developer guides and coding standards
 - [Coding Standards](development/coding-standards.md) - Code style and conventions
 - [Build & Test](development/build-and-test.md) - Build commands and testing guidelines
 - [Koin DI Patterns](development/koin-di-patterns.md) - Dependency injection patterns
+- [Compose Performance](development/compose-performance.md) - Jetpack Compose optimization guidelines
 - [Quick Reference](development/quick-reference.md) - Fast lookup for common patterns
 
 ### 📦 Product

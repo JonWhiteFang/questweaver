@@ -12,7 +12,7 @@ inclusion: always
 **Architecture**: Clean Architecture + MVI + Event Sourcing  
 **DI**: Koin 3.5.6 (pure Kotlin DSL)  
 **Async**: Coroutines 1.8.1 + Flow for reactive state  
-**Database**: Room 2.6.1 + SQLCipher 4.5.5 (encrypted)  
+**Database**: Room 2.6.1 + SQLCipher 4.5.4 (encrypted)  
 **Network**: Retrofit 2.11.0 + OkHttp 4.12.0  
 **Serialization**: kotlinx-serialization 1.6.3  
 **Testing**: kotest 5.9.1 + MockK 1.13.10

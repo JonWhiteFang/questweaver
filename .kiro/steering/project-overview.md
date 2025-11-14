@@ -33,7 +33,7 @@ When implementing features, these constraints are non-negotiable:
 - **UI:** Jetpack Compose + Material3 (Canvas for map rendering)
 - **DI:** Koin 3.5.6 (pure Kotlin DSL)
 - **Async:** Coroutines 1.8.1 + Flow
-- **Database:** Room 2.6.1 + SQLCipher 4.5.5
+- **Database:** Room 2.6.1 + SQLCipher 4.5.4
 - **Network:** Retrofit 2.11.0 + OkHttp 4.12.0
 - **Serialization:** kotlinx-serialization 1.6.3
 - **AI On-device:** ONNX Runtime 1.16.3

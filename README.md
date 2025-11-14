@@ -11,7 +11,7 @@ QuestWeaver is a single-player tactical RPG where one human player controls thei
 - **Architecture**: Clean Architecture + MVI + Event Sourcing
 - **Build System**: Gradle 9.2.0 with Kotlin DSL
 - **UI Framework**: Jetpack Compose + Material3
-- **Database**: Room 2.6.1 + SQLCipher 4.5.5 (encrypted)
+- **Database**: Room 2.6.1 + SQLCipher 4.5.4 (encrypted)
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ Before you begin, ensure you have the following installed:
 
 ### Optional
 
-- **Gradle**: 8.5+ (project includes wrapper, but system-wide install is optional)
+- **Gradle**: 9.2+ (project includes wrapper, but system-wide install is optional)
 - **Git**: For version control
 
 ### System Requirements

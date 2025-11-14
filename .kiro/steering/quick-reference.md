@@ -260,7 +260,7 @@ All versions in `gradle/libs.versions.toml` - single source of truth
 - **Language**: Kotlin 1.9.24, JVM 17
 - **UI**: Compose BOM 2024.06.00 + Material3
 - **DI**: Koin 3.5.6
-- **Database**: Room 2.6.1 + SQLCipher 4.5.5
+- **Database**: Room 2.6.1 + SQLCipher 4.5.4
 - **Network**: Retrofit 2.11.0 + OkHttp 4.12.0
 - **Serialization**: kotlinx-serialization 1.6.3
 - **Testing**: kotest 5.9.1 + MockK 1.13.10
