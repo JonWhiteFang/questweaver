@@ -32,7 +32,6 @@ class InitiativeTracker {
         
         private const val ERROR_EMPTY_ORDER = "Initiative order cannot be empty"
         private const val ERROR_CANNOT_ADVANCE = "Cannot advance turn with empty initiative order"
-        private const val ERROR_CANNOT_ADD = "Cannot add creature to empty initiative order"
         private const val ERROR_CANNOT_REMOVE = "Cannot remove creature from empty initiative order"
         private const val ERROR_CANNOT_DELAY = "Cannot delay turn with empty initiative order"
         
@@ -371,60 +370,70 @@ class InitiativeTracker {
             newOrder.isEmpty() -> InitiativeResult.Success(
                 state.copy(initiativeOrder = newOrder, currentTurn = null)
             )
-            wasActiveCreature -> {
-                // Active creature was removed - advance to next creature
-                // The next creature is at the same index (since we removed current)
-                val nextIndex = currentTurnIndex.coerceAtMost(newOrder.size - 1)
-                
-                // Check if we need to wrap to next round
-                val (finalIndex, newRound, newIsSurprise, newSurprised) = if (nextIndex >= newOrder.size) {
-                    val nextRound = state.roundNumber + 1
-                    val (round, isSurprise, surprised) = if (state.isSurpriseRound) {
-                        Triple(1, false, emptySet<Long>())
-                    } else {
-                        Triple(nextRound, false, emptySet<Long>())
-                    }
-                    Tuple4(0, round, isSurprise, surprised)
-                } else {
-                    Tuple4(nextIndex, state.roundNumber, state.isSurpriseRound, state.surprisedCreatures)
-                }
-                
-                val nextCreature = newOrder[finalIndex]
-                val newTurnState = TurnState(
-                    activeCreatureId = nextCreature.creatureId,
-                    turnPhase = TurnPhase(
-                        creatureId = nextCreature.creatureId,
-                        movementRemaining = DEFAULT_MOVEMENT_SPEED,
-                        actionAvailable = true,
-                        bonusActionAvailable = true,
-                        reactionAvailable = true
-                    ),
-                    turnIndex = finalIndex
-                )
-                
-                InitiativeResult.Success(
-                    state.copy(
-                        roundNumber = newRound,
-                        isSurpriseRound = newIsSurprise,
-                        surprisedCreatures = newSurprised,
-                        initiativeOrder = newOrder,
-                        currentTurn = newTurnState
-                    )
-                )
+            wasActiveCreature -> 
+                handleActiveCreatureRemoval(state, newOrder, currentTurnIndex)
+            else -> 
+                handleNonActiveCreatureRemoval(state, newOrder, creatureIndex, currentTurnIndex)
+        }
+    }
+    
+    private fun handleActiveCreatureRemoval(
+        state: RoundState,
+        newOrder: List<InitiativeEntry>,
+        currentTurnIndex: Int
+    ): InitiativeResult<RoundState> {
+        val nextIndex = currentTurnIndex.coerceAtMost(newOrder.size - 1)
+        val needsWrap = nextIndex >= newOrder.size
+        
+        val turnData = calculateRemovalTurnData(state, needsWrap, nextIndex)
+        val nextCreature = newOrder[turnData.a]
+        val newTurnState = createTurnState(nextCreature, turnData.a)
+        
+        return InitiativeResult.Success(
+            state.copy(
+                roundNumber = turnData.b,
+                isSurpriseRound = turnData.c,
+                surprisedCreatures = turnData.d,
+                initiativeOrder = newOrder,
+                currentTurn = newTurnState
+            )
+        )
+    }
+    
+    private fun handleNonActiveCreatureRemoval(
+        state: RoundState,
+        newOrder: List<InitiativeEntry>,
+        creatureIndex: Int,
+        currentTurnIndex: Int
+    ): InitiativeResult<RoundState> {
+        val adjustedIndex = if (creatureIndex < currentTurnIndex) {
+            currentTurnIndex - 1
+        } else {
+            currentTurnIndex
+        }
+        return InitiativeResult.Success(
+            state.copy(
+                initiativeOrder = newOrder,
+                currentTurn = state.currentTurn?.copy(turnIndex = adjustedIndex)
+            )
+        )
+    }
+    
+    private fun calculateRemovalTurnData(
+        state: RoundState,
+        needsWrap: Boolean,
+        nextIndex: Int
+    ): Tuple4<Int, Int, Boolean, Set<Long>> {
+        return if (needsWrap) {
+            val nextRound = state.roundNumber + 1
+            val (round, isSurprise, surprised) = if (state.isSurpriseRound) {
+                Triple(1, false, emptySet<Long>())
+            } else {
+                Triple(nextRound, false, emptySet<Long>())
             }
-            else -> {
-                val adjustedIndex = if (creatureIndex < currentTurnIndex) {
-                    currentTurnIndex - 1
-                } else {
-                    currentTurnIndex
-                }
-                InitiativeResult.Success(
-                    state.copy(
-                        initiativeOrder = newOrder,
-                        currentTurn = state.currentTurn?.copy(turnIndex = adjustedIndex)
-                    )
-                )
-            }
+            Tuple4(0, round, isSurprise, surprised)
+        } else {
+            Tuple4(nextIndex, state.roundNumber, state.isSurpriseRound, state.surprisedCreatures)
         }
     }
     
@@ -459,75 +468,116 @@ class InitiativeTracker {
         
         val wasActiveCreature = currentState.currentTurn?.activeCreatureId == creatureId
         
-        return if (wasActiveCreature && newOrder.isNotEmpty()) {
-            // Active creature is delaying - set next creature as active
-            // The next creature is at the same index (since we removed current)
-            val currentTurnIndex = currentState.currentTurn?.turnIndex ?: 0
-            
-            // Check if we're at the end of the order (need to wrap to next round)
-            val needsWrap = currentTurnIndex >= newOrder.size
-            
-            val (finalIndex, newRound, newIsSurprise, newSurprised) = if (needsWrap) {
-                val nextRound = currentState.roundNumber + 1
-                val (round, isSurprise, surprised) = if (currentState.isSurpriseRound) {
-                    Triple(1, false, emptySet<Long>())
-                } else {
-                    Triple(nextRound, false, emptySet<Long>())
-                }
-                Tuple4(0, round, isSurprise, surprised)
-            } else {
-                Tuple4(currentTurnIndex, currentState.roundNumber, currentState.isSurpriseRound, currentState.surprisedCreatures)
-            }
-            
-            val nextCreature = newOrder[finalIndex]
-            val newTurnState = TurnState(
-                activeCreatureId = nextCreature.creatureId,
-                turnPhase = TurnPhase(
-                    creatureId = nextCreature.creatureId,
-                    movementRemaining = DEFAULT_MOVEMENT_SPEED,
-                    actionAvailable = true,
-                    bonusActionAvailable = true,
-                    reactionAvailable = true
-                ),
-                turnIndex = finalIndex
-            )
-            
-            InitiativeResult.Success(
-                currentState.copy(
-                    roundNumber = newRound,
-                    isSurpriseRound = newIsSurprise,
-                    surprisedCreatures = newSurprised,
-                    initiativeOrder = newOrder,
-                    delayedCreatures = newDelayedCreatures,
-                    currentTurn = newTurnState
+        return when {
+            wasActiveCreature && newOrder.isNotEmpty() -> 
+                handleActiveCreatureDelay(currentState, newOrder, newDelayedCreatures)
+            wasActiveCreature && newOrder.isEmpty() -> 
+                handleLastCreatureDelay(currentState, newOrder, newDelayedCreatures)
+            else -> 
+                handleNonActiveCreatureDelay(
+                    currentState,
+                    newOrder,
+                    newDelayedCreatures,
+                    creatureIndex
                 )
+        }
+    }
+    
+    private fun handleActiveCreatureDelay(
+        state: RoundState,
+        newOrder: List<InitiativeEntry>,
+        newDelayedCreatures: Map<Long, InitiativeEntry>
+    ): InitiativeResult<RoundState> {
+        val currentTurnIndex = state.currentTurn?.turnIndex ?: 0
+        val needsWrap = currentTurnIndex >= newOrder.size
+        
+        val turnData = calculateDelayTurnData(state, needsWrap, currentTurnIndex)
+        val nextCreature = newOrder[turnData.a]
+        val newTurnState = createTurnState(nextCreature, turnData.a)
+        
+        return InitiativeResult.Success(
+            state.copy(
+                roundNumber = turnData.b,
+                isSurpriseRound = turnData.c,
+                surprisedCreatures = turnData.d,
+                initiativeOrder = newOrder,
+                delayedCreatures = newDelayedCreatures,
+                currentTurn = newTurnState
             )
-        } else if (wasActiveCreature && newOrder.isEmpty()) {
-            // Only creature left is delaying - no current turn
-            InitiativeResult.Success(
-                currentState.copy(
-                    initiativeOrder = newOrder,
-                    delayedCreatures = newDelayedCreatures,
-                    currentTurn = null
-                )
+        )
+    }
+    
+    private fun handleLastCreatureDelay(
+        state: RoundState,
+        newOrder: List<InitiativeEntry>,
+        newDelayedCreatures: Map<Long, InitiativeEntry>
+    ): InitiativeResult<RoundState> {
+        return InitiativeResult.Success(
+            state.copy(
+                initiativeOrder = newOrder,
+                delayedCreatures = newDelayedCreatures,
+                currentTurn = null
             )
+        )
+    }
+    
+    private fun handleNonActiveCreatureDelay(
+        state: RoundState,
+        newOrder: List<InitiativeEntry>,
+        newDelayedCreatures: Map<Long, InitiativeEntry>,
+        creatureIndex: Int
+    ): InitiativeResult<RoundState> {
+        val currentTurnIndex = state.currentTurn?.turnIndex ?: 0
+        val adjustedIndex = if (creatureIndex < currentTurnIndex) {
+            currentTurnIndex - 1
         } else {
-            // Non-active creature is delaying - just adjust turn index if needed
-            val currentTurnIndex = currentState.currentTurn?.turnIndex ?: 0
-            val adjustedIndex = if (creatureIndex < currentTurnIndex) {
-                currentTurnIndex - 1
+            currentTurnIndex
+        }
+        
+        return InitiativeResult.Success(
+            state.copy(
+                initiativeOrder = newOrder,
+                delayedCreatures = newDelayedCreatures,
+                currentTurn = state.currentTurn?.copy(turnIndex = adjustedIndex)
+            )
+        )
+    }
+    
+    private fun calculateDelayTurnData(
+        state: RoundState,
+        needsWrap: Boolean,
+        currentTurnIndex: Int
+    ): Tuple4<Int, Int, Boolean, Set<Long>> {
+        return if (needsWrap) {
+            val nextRound = state.roundNumber + 1
+            val (round, isSurprise, surprised) = if (state.isSurpriseRound) {
+                Triple(1, false, emptySet<Long>())
             } else {
-                currentTurnIndex
+                Triple(nextRound, false, emptySet<Long>())
             }
-            
-            InitiativeResult.Success(
-                currentState.copy(
-                    initiativeOrder = newOrder,
-                    delayedCreatures = newDelayedCreatures,
-                    currentTurn = currentState.currentTurn?.copy(turnIndex = adjustedIndex)
-                )
+            Tuple4(0, round, isSurprise, surprised)
+        } else {
+            Tuple4(
+                currentTurnIndex,
+                state.roundNumber,
+                state.isSurpriseRound,
+                state.surprisedCreatures
             )
         }
+    }
+    
+    private fun createTurnState(creature: InitiativeEntry, index: Int): TurnState {
+        return TurnState(
+            activeCreatureId = creature.creatureId,
+            turnPhase = TurnPhase(
+                creatureId = creature.creatureId,
+                movementRemaining = DEFAULT_MOVEMENT_SPEED,
+                actionAvailable = true,
+                bonusActionAvailable = true,
+                reactionAvailable = true
+            ),
+            turnIndex = index
+        )
     }
     
     private data class Tuple4<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
