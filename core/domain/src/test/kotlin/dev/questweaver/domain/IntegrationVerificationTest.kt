@@ -601,7 +601,10 @@ class IntegrationVerificationTest : FunSpec({
         
         test("should serialize and deserialize all event types") {
             val events: List<GameEvent> = listOf(
-                EncounterStarted(1, 1000, 1, listOf(1, 2), listOf(InitiativeEntryData(1, 18, 4, 22), InitiativeEntryData(2, 15, 2, 17))),
+                EncounterStarted(
+                    1, 1000, 1, listOf(1, 2),
+                    listOf(InitiativeEntryData(1, 18, 4, 22), InitiativeEntryData(2, 15, 2, 17))
+                ),
                 RoundStarted(1, 1001, 1, 1),
                 TurnStarted(1, 1002, 1, 1),
                 MoveCommitted(1, 1003, 1, GridPos(0, 0), GridPos(5, 5), listOf(GridPos(0, 0), GridPos(5, 5)), 5),

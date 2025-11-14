@@ -223,12 +223,9 @@ class InitiativeRollerTest : FunSpec({
             val order2 = roller2.rollInitiativeForAll(creatures)
             
             // With different seeds, at least one roll should be different
-            val allSame = order1.zip(order2).all { (e1, e2) -> 
-                e1.roll == e2.roll 
-            }
-            
             // It's extremely unlikely (but possible) that all rolls are the same
             // This test just verifies the mechanism works
+            order1.size shouldBe order2.size
         }
     }
 

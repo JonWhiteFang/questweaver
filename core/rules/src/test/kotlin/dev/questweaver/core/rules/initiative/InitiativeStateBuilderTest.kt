@@ -1,7 +1,17 @@
 package dev.questweaver.core.rules.initiative
 
 import dev.questweaver.core.rules.initiative.models.InitiativeEntry
-import dev.questweaver.domain.events.*
+import dev.questweaver.domain.events.CreatureAddedToCombat
+import dev.questweaver.domain.events.CreatureRemovedFromCombat
+import dev.questweaver.domain.events.DelayedTurnResumed
+import dev.questweaver.domain.events.EncounterStarted
+import dev.questweaver.domain.events.InitiativeEntryData
+import dev.questweaver.domain.events.MoveCommitted
+import dev.questweaver.domain.events.ReactionUsed
+import dev.questweaver.domain.events.RoundStarted
+import dev.questweaver.domain.events.TurnDelayed
+import dev.questweaver.domain.events.TurnEnded
+import dev.questweaver.domain.events.TurnStarted
 import dev.questweaver.domain.values.GridPos
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -431,9 +441,15 @@ class InitiativeStateBuilderTest : FunSpec({
                     ),
                     surprisedCreatures = emptySet()
                 ),
-                MoveCommitted(sessionId, timestamp + 1000, 1L, GridPos(0, 0), GridPos(5, 5), listOf(GridPos(0, 0), GridPos(5, 5)), 5),
+                MoveCommitted(
+                    sessionId, timestamp + 1000, 1L, GridPos(0, 0), GridPos(5, 5),
+                    listOf(GridPos(0, 0), GridPos(5, 5)), 5
+                ),
                 TurnStarted(sessionId, timestamp + 2000, encounterId, 1L, 1, 0),
-                MoveCommitted(sessionId, timestamp + 3000, 1L, GridPos(5, 5), GridPos(10, 10), listOf(GridPos(5, 5), GridPos(10, 10)), 5),
+                MoveCommitted(
+                    sessionId, timestamp + 3000, 1L, GridPos(5, 5), GridPos(10, 10),
+                    listOf(GridPos(5, 5), GridPos(10, 10)), 5
+                ),
                 TurnEnded(sessionId, timestamp + 4000, encounterId, 1L, 1)
             )
             

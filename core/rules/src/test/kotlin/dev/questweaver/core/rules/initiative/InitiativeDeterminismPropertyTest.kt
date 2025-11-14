@@ -101,12 +101,9 @@ class InitiativeDeterminismPropertyTest : FunSpec({
                     
                     // With different seeds, at least one roll should be different
                     // (This is probabilistic - there's a tiny chance they're the same)
-                    val allSame = order1.zip(order2).all { (e1, e2) -> 
-                        e1.roll == e2.roll 
-                    }
-                    
                     // We just verify the mechanism works - not asserting difference
                     // because it's probabilistically possible (though unlikely) to be same
+                    order1.size shouldBe order2.size
                 }
             }
         }
