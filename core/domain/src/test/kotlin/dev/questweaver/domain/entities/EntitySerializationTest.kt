@@ -114,9 +114,9 @@ class EntitySerializationTest : FunSpec({
                 activeCreatureId = 10,
                 participants = listOf(10, 20, 30),
                 initiativeOrder = listOf(
-                    InitiativeEntry(10, 18),
-                    InitiativeEntry(20, 15),
-                    InitiativeEntry(30, 12)
+                    InitiativeEntryData(10, 18, 0, 18),
+                    InitiativeEntryData(20, 15, 0, 15),
+                    InitiativeEntryData(30, 12, 0, 12)
                 ),
                 status = EncounterStatus.IN_PROGRESS
             )
@@ -135,7 +135,7 @@ class EntitySerializationTest : FunSpec({
                 currentRound = 1,
                 activeCreatureId = null,
                 participants = listOf(10),
-                initiativeOrder = listOf(InitiativeEntry(10, 18)),
+                initiativeOrder = listOf(InitiativeEntryData(10, 18, 0, 18)),
                 status = EncounterStatus.VICTORY
             )
             
@@ -182,7 +182,7 @@ class EntitySerializationTest : FunSpec({
     
     context("InitiativeEntry serialization") {
         test("should serialize and deserialize InitiativeEntry") {
-            val entry = InitiativeEntry(creatureId = 10, initiative = 18)
+            val entry = InitiativeEntryData(creatureId = 10, roll = 18, modifier = 0, total = 18)
             
             val serialized = json.encodeToString(entry)
             val deserialized = json.decodeFromString<InitiativeEntry>(serialized)

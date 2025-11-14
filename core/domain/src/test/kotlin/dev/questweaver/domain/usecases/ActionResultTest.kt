@@ -1,6 +1,6 @@
 package dev.questweaver.domain.usecases
 
-import dev.questweaver.domain.entities.InitiativeEntry
+import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.events.EncounterStarted
 import dev.questweaver.domain.events.GameEvent
 import dev.questweaver.domain.events.TurnEnded
@@ -21,7 +21,7 @@ class ActionResultTest : FunSpec({
                     timestamp = 1000L,
                     encounterId = 10L,
                     participants = listOf(1L, 2L),
-                    initiativeOrder = listOf(InitiativeEntry(1L, 15))
+                    initiativeOrder = listOf(InitiativeEntryData(1L, 15, 2, 17))
                 ),
                 TurnEnded(
                     sessionId = 1L,
@@ -71,7 +71,7 @@ class ActionResultTest : FunSpec({
             val results: List<ActionResult> = listOf(
                 ActionResult.Success(
                     listOf(
-                        EncounterStarted(1L, 1000L, 10L, listOf(1L), listOf(InitiativeEntry(1L, 15)))
+                        EncounterStarted(1L, 1000L, 10L, listOf(1L), listOf(InitiativeEntryData(1L, 15, 2, 17)))
                     )
                 ),
                 ActionResult.Failure("Invalid action"),
@@ -99,7 +99,7 @@ class ActionResultTest : FunSpec({
         test("exhaustive when can extract values from each subtype") {
             val successResult: ActionResult = ActionResult.Success(
                 listOf(
-                    EncounterStarted(1L, 1000L, 10L, listOf(1L), listOf(InitiativeEntry(1L, 15)))
+                    EncounterStarted(1L, 1000L, 10L, listOf(1L), listOf(InitiativeEntryData(1L, 15, 2, 17)))
                 )
             )
             val failureResult: ActionResult = ActionResult.Failure("Action failed")

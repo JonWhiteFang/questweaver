@@ -1,5 +1,6 @@
 package dev.questweaver.domain.entities
 
+import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.values.EncounterStatus
 import kotlinx.serialization.Serializable
 
@@ -23,7 +24,7 @@ data class Encounter(
     val currentRound: Int,
     val activeCreatureId: Long?,
     val participants: List<Long>,
-    val initiativeOrder: List<InitiativeEntry>,
+    val initiativeOrder: List<InitiativeEntryData>,
     val status: EncounterStatus = EncounterStatus.IN_PROGRESS
 ) {
     init {
@@ -49,14 +50,4 @@ data class Encounter(
     }
 }
 
-/**
- * Represents a creature's initiative value in an encounter.
- *
- * @property creatureId ID of the creature
- * @property initiative The initiative value rolled for this creature
- */
-@Serializable
-data class InitiativeEntry(
-    val creatureId: Long,
-    val initiative: Int
-)
+

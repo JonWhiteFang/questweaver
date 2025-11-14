@@ -316,8 +316,12 @@
   - Define factory binding for InitiativeStateBuilder
   - _Requirements: 8.1_
 
-- [ ] 11. Write comprehensive unit tests
-- [ ] 11.1 Write InitiativeRoller tests
+- [-] 11. Write comprehensive unit tests
+
+
+- [x] 11.1 Write InitiativeRoller tests
+
+
   - Test initiative = d20 + Dexterity modifier
   - Test multiple creatures sorted correctly (highest first)
   - Test ties broken by Dexterity modifier
@@ -325,21 +329,27 @@
   - Test deterministic with same seed
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 8.4_
 
-- [ ] 11.2 Write InitiativeTracker turn advancement tests
+
+- [x] 11.2 Write InitiativeTracker turn advancement tests
+
   - Test turn advances to next creature
   - Test last creature wraps to first and increments round
   - Test round counter increments correctly
   - Test turn index resets to 0 at round start
   - _Requirements: 4.1, 5.5_
 
-- [ ] 11.3 Write SurpriseHandler tests
+
+
+- [x] 11.3 Write SurpriseHandler tests
   - Test surprise round occurs when creatures are surprised
   - Test surprised creatures cannot act in surprise round
   - Test non-surprised creatures can act in surprise round
   - Test surprise condition removed after surprise round
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 11.4 Write TurnPhaseManager tests
+
+- [x] 11.4 Write TurnPhaseManager tests
+
   - Test all actions available at turn start
   - Test actions consumed correctly
   - Test cannot consume action twice
@@ -347,35 +357,44 @@
   - Test movement tracks remaining distance
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 6.3_
 
-- [ ] 11.5 Write InitiativeTracker creature lifecycle tests
+- [x] 11.5 Write InitiativeTracker creature lifecycle tests
+
+
   - Test add creature inserts at correct position
   - Test remove creature maintains turn order
   - Test remove active creature advances turn
   - Test remove creature before current turn adjusts index
   - _Requirements: 4.4, 4.5_
 
-- [ ] 11.6 Write InitiativeTracker delayed turn tests
+
+- [x] 11.6 Write InitiativeTracker delayed turn tests
+
   - Test delay removes creature from order
   - Test resume inserts at current position
   - Test delayed creature maintains new initiative
   - Test round end places delayed creature at end
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 11.7 Write InitiativeStateBuilder event sourcing tests
+- [x] 11.7 Write InitiativeStateBuilder event sourcing tests
+
+
   - Test state derived from events matches original
   - Test replay produces identical state
   - Test all events handled exhaustively
   - Test non-initiative events don't affect state
   - _Requirements: 8.2, 8.3_
 
-- [ ] 11.8 Write property-based determinism tests
+- [x] 11.8 Write property-based determinism tests
+
+
   - Test initiative with same seed produces same order
   - Test turn advancement eventually returns to first creature
   - Test event replay produces identical state
   - Test initiative order is always sorted correctly
   - _Requirements: 8.1, 8.4_
 
-- [ ] 11.9 Write property-based invariant tests
+- [x] 11.9 Write property-based invariant tests
+
   - Test turn index always within bounds
   - Test active creature always exists in order
   - Test round number never decreases

@@ -1,6 +1,6 @@
 package dev.questweaver.domain.events
 
-import dev.questweaver.domain.entities.InitiativeEntry
+import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.values.Condition
 import dev.questweaver.domain.values.DiceRoll
 import dev.questweaver.domain.values.EncounterStatus
@@ -22,8 +22,8 @@ class GameEventTest : FunSpec({
                 encounterId = 10L,
                 participants = listOf(1L, 2L),
                 initiativeOrder = listOf(
-                    InitiativeEntry(1L, 15),
-                    InitiativeEntry(2L, 12)
+                    InitiativeEntryData(1L, 15, 2, 17),
+                    InitiativeEntryData(2L, 12, 1, 13)
                 )
             )
             
@@ -71,9 +71,9 @@ class GameEventTest : FunSpec({
                 encounterId = 10L,
                 participants = listOf(1L, 2L, 3L),
                 initiativeOrder = listOf(
-                    InitiativeEntry(1L, 18),
-                    InitiativeEntry(2L, 15),
-                    InitiativeEntry(3L, 12)
+                    InitiativeEntryData(1L, 18, 4, 22),
+                    InitiativeEntryData(2L, 15, 2, 17),
+                    InitiativeEntryData(3L, 12, 1, 13)
                 )
             )
             
@@ -230,7 +230,7 @@ class GameEventTest : FunSpec({
     context("exhaustive when expressions") {
         test("sealed interface enables exhaustive when without else") {
             val events: List<GameEvent> = listOf(
-                EncounterStarted(1L, 1000L, 10L, listOf(1L), listOf(InitiativeEntry(1L, 15))),
+                EncounterStarted(1L, 1000L, 10L, listOf(1L), listOf(InitiativeEntryData(1L, 15, 2, 17))),
                 RoundStarted(1L, 2000L, 10L, 1),
                 TurnStarted(1L, 3000L, 10L, 1L),
                 TurnEnded(1L, 4000L, 10L, 1L),
@@ -255,6 +255,11 @@ class GameEventTest : FunSpec({
                     is ConditionApplied -> "condition_applied"
                     is ConditionRemoved -> "condition_removed"
                     is MoveCommitted -> "move_committed"
+                    is ReactionUsed -> "reaction_used"
+                    is TurnDelayed -> "turn_delayed"
+                    is DelayedTurnResumed -> "delayed_turn_resumed"
+                    is CreatureAddedToCombat -> "creature_added_to_combat"
+                    is CreatureRemovedFromCombat -> "creature_removed_from_combat"
                     // No else branch needed - exhaustive
                 }
             }

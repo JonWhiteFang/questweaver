@@ -4,7 +4,7 @@ import dev.questweaver.domain.entities.Campaign
 import dev.questweaver.domain.entities.CampaignSettings
 import dev.questweaver.domain.entities.Creature
 import dev.questweaver.domain.entities.Encounter
-import dev.questweaver.domain.entities.InitiativeEntry
+import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.entities.MapGrid
 import dev.questweaver.domain.events.AttackResolved
 import dev.questweaver.domain.events.ConditionApplied
@@ -106,9 +106,9 @@ class IntegrationVerificationTest : FunSpec({
                 activeCreatureId = 10,
                 participants = listOf(10, 1, 2),
                 initiativeOrder = listOf(
-                    InitiativeEntry(10, 18),
-                    InitiativeEntry(1, 15),
-                    InitiativeEntry(2, 12)
+                    InitiativeEntryData(10, 18, 4, 22),
+                    InitiativeEntryData(1, 15, 2, 17),
+                    InitiativeEntryData(2, 12, 1, 13)
                 ),
                 status = EncounterStatus.IN_PROGRESS
             )
@@ -200,8 +200,8 @@ class IntegrationVerificationTest : FunSpec({
                 activeCreatureId = 10,
                 participants = listOf(10, 20),
                 initiativeOrder = listOf(
-                    InitiativeEntry(10, 18),
-                    InitiativeEntry(20, 15)
+                    InitiativeEntryData(10, 18, 4, 22),
+                    InitiativeEntryData(20, 15, 2, 17)
                 )
             )
             
@@ -295,10 +295,10 @@ class IntegrationVerificationTest : FunSpec({
                 activeCreatureId = 5,
                 participants = listOf(5, 1, 2, 3),
                 initiativeOrder = listOf(
-                    InitiativeEntry(5, 20),
-                    InitiativeEntry(1, 18),
-                    InitiativeEntry(2, 15),
-                    InitiativeEntry(3, 10)
+                    InitiativeEntryData(5, 20, 3, 23),
+                    InitiativeEntryData(1, 18, 2, 20),
+                    InitiativeEntryData(2, 15, 2, 17),
+                    InitiativeEntryData(3, 10, 1, 11)
                 ),
                 status = EncounterStatus.IN_PROGRESS
             )
@@ -377,9 +377,9 @@ class IntegrationVerificationTest : FunSpec({
                 encounterId = 1,
                 participants = listOf(10, 1, 2),
                 initiativeOrder = listOf(
-                    InitiativeEntry(10, 18),
-                    InitiativeEntry(1, 15),
-                    InitiativeEntry(2, 12)
+                    InitiativeEntryData(10, 18, 4, 22),
+                    InitiativeEntryData(1, 15, 2, 17),
+                    InitiativeEntryData(2, 12, 1, 13)
                 )
             )
             
@@ -545,7 +545,7 @@ class IntegrationVerificationTest : FunSpec({
         
         test("should verify exhaustive when expressions compile") {
             val events: List<GameEvent> = listOf(
-                EncounterStarted(1, 1000, 1, listOf(1), listOf(InitiativeEntry(1, 10))),
+                EncounterStarted(1, 1000, 1, listOf(1), listOf(InitiativeEntryData(1, 10, 0, 10))),
                 RoundStarted(1, 1001, 1, 1),
                 TurnStarted(1, 1002, 1, 1),
                 TurnEnded(1, 1003, 1, 1),
@@ -570,6 +570,11 @@ class IntegrationVerificationTest : FunSpec({
                     is ConditionApplied -> "ConditionApplied"
                     is ConditionRemoved -> "ConditionRemoved"
                     is MoveCommitted -> "MoveCommitted"
+                    is ReactionUsed -> "ReactionUsed"
+                    is TurnDelayed -> "TurnDelayed"
+                    is DelayedTurnResumed -> "DelayedTurnResumed"
+                    is CreatureAddedToCombat -> "CreatureAddedToCombat"
+                    is CreatureRemovedFromCombat -> "CreatureRemovedFromCombat"
                     // No else branch needed - sealed interface ensures exhaustiveness
                 }
             }
@@ -591,7 +596,7 @@ class IntegrationVerificationTest : FunSpec({
         
         test("should serialize and deserialize all event types") {
             val events: List<GameEvent> = listOf(
-                EncounterStarted(1, 1000, 1, listOf(1, 2), listOf(InitiativeEntry(1, 18), InitiativeEntry(2, 15))),
+                EncounterStarted(1, 1000, 1, listOf(1, 2), listOf(InitiativeEntryData(1, 18, 4, 22), InitiativeEntryData(2, 15, 2, 17))),
                 RoundStarted(1, 1001, 1, 1),
                 TurnStarted(1, 1002, 1, 1),
                 MoveCommitted(1, 1003, 1, GridPos(0, 0), GridPos(5, 5), listOf(GridPos(0, 0), GridPos(5, 5)), 5),
@@ -883,8 +888,8 @@ class IntegrationVerificationTest : FunSpec({
                 activeCreatureId = 10,
                 participants = listOf(10, 20),
                 initiativeOrder = listOf(
-                    InitiativeEntry(10, 18),
-                    InitiativeEntry(20, 15)
+                    InitiativeEntryData(10, 18, 4, 22),
+                    InitiativeEntryData(20, 15, 2, 17)
                 )
             )
             
@@ -912,7 +917,7 @@ class IntegrationVerificationTest : FunSpec({
                 currentRound = 1,
                 activeCreatureId = 30,
                 participants = listOf(30),
-                initiativeOrder = listOf(InitiativeEntry(30, 15))
+                initiativeOrder = listOf(InitiativeEntryData(30, 15, 2, 17))
             )
             mockEncounterRepository.insert(encounter2)
             

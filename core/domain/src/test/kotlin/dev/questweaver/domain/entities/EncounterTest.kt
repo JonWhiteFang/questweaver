@@ -19,9 +19,9 @@ class EncounterTest : FunSpec({
                 activeCreatureId = 10,
                 participants = listOf(10, 20, 30),
                 initiativeOrder = listOf(
-                    InitiativeEntry(10, 18),
-                    InitiativeEntry(20, 15),
-                    InitiativeEntry(30, 12)
+                    InitiativeEntryData(10, 18, 0, 18),
+                    InitiativeEntryData(20, 15, 0, 15),
+                    InitiativeEntryData(30, 12, 0, 12)
                 )
             )
             
@@ -44,8 +44,8 @@ class EncounterTest : FunSpec({
                     activeCreatureId = null,
                     participants = listOf(10, 20),
                     initiativeOrder = listOf(
-                        InitiativeEntry(10, 18),
-                        InitiativeEntry(20, 15)
+                        InitiativeEntryData(10, 18, 0, 18),
+                        InitiativeEntryData(20, 15, 0, 15)
                     )
                 )
             }
@@ -59,7 +59,7 @@ class EncounterTest : FunSpec({
                 currentRound = 5,
                 activeCreatureId = null,
                 participants = listOf(10),
-                initiativeOrder = listOf(InitiativeEntry(10, 18)),
+                initiativeOrder = listOf(InitiativeEntryData(10, 18, 0, 18)),
                 status = EncounterStatus.VICTORY
             )
             
@@ -75,7 +75,7 @@ class EncounterTest : FunSpec({
                     currentRound = 1,
                     activeCreatureId = 10,
                     participants = listOf(10),
-                    initiativeOrder = listOf(InitiativeEntry(10, 18))
+                    initiativeOrder = listOf(InitiativeEntryData(10, 18, 0, 18))
                 )
             }
         }
@@ -89,7 +89,7 @@ class EncounterTest : FunSpec({
                     currentRound = 1,
                     activeCreatureId = 10,
                     participants = listOf(10),
-                    initiativeOrder = listOf(InitiativeEntry(10, 18))
+                    initiativeOrder = listOf(InitiativeEntryData(10, 18, 0, 18))
                 )
             }
         }
@@ -103,7 +103,7 @@ class EncounterTest : FunSpec({
                     currentRound = 1,
                     activeCreatureId = 10,
                     participants = listOf(10),
-                    initiativeOrder = listOf(InitiativeEntry(10, 18))
+                    initiativeOrder = listOf(InitiativeEntryData(10, 18, 0, 18))
                 )
             }
         }
@@ -117,7 +117,7 @@ class EncounterTest : FunSpec({
                     currentRound = 0,
                     activeCreatureId = 10,
                     participants = listOf(10),
-                    initiativeOrder = listOf(InitiativeEntry(10, 18))
+                    initiativeOrder = listOf(InitiativeEntryData(10, 18, 0, 18))
                 )
             }
         }
@@ -146,8 +146,8 @@ class EncounterTest : FunSpec({
                     activeCreatureId = 99,
                     participants = listOf(10, 20),
                     initiativeOrder = listOf(
-                        InitiativeEntry(10, 18),
-                        InitiativeEntry(20, 15)
+                        InitiativeEntryData(10, 18, 0, 18),
+                        InitiativeEntryData(20, 15, 0, 15)
                     )
                 )
             }
@@ -166,8 +166,8 @@ class EncounterTest : FunSpec({
                     activeCreatureId = 10,
                     participants = listOf(10, 20, 30),
                     initiativeOrder = listOf(
-                        InitiativeEntry(10, 18),
-                        InitiativeEntry(20, 15)
+                        InitiativeEntryData(10, 18, 0, 18),
+                        InitiativeEntryData(20, 15, 0, 15)
                     )
                 )
             }
@@ -185,9 +185,9 @@ class EncounterTest : FunSpec({
                     activeCreatureId = 10,
                     participants = listOf(10, 20),
                     initiativeOrder = listOf(
-                        InitiativeEntry(10, 18),
-                        InitiativeEntry(20, 15),
-                        InitiativeEntry(30, 12)
+                        InitiativeEntryData(10, 18, 0, 18),
+                        InitiativeEntryData(20, 15, 0, 15),
+                        InitiativeEntryData(30, 12, 0, 12)
                     )
                 )
             }
@@ -205,8 +205,8 @@ class EncounterTest : FunSpec({
                     activeCreatureId = 10,
                     participants = listOf(10, 20),
                     initiativeOrder = listOf(
-                        InitiativeEntry(10, 18),
-                        InitiativeEntry(10, 15)
+                        InitiativeEntryData(10, 18, 0, 18),
+                        InitiativeEntryData(10, 15, 0, 15)
                     )
                 )
             }
@@ -217,14 +217,14 @@ class EncounterTest : FunSpec({
     
     context("InitiativeEntry") {
         test("should create InitiativeEntry with valid values") {
-            val entry = InitiativeEntry(creatureId = 10, initiative = 18)
+            val entry = InitiativeEntryData(creatureId = 10, roll = 18, modifier = 0, total = 18)
             
             entry.creatureId shouldBe 10
             entry.initiative shouldBe 18
         }
         
         test("should create InitiativeEntry with negative initiative") {
-            val entry = InitiativeEntry(creatureId = 10, initiative = -5)
+            val entry = InitiativeEntryData(creatureId = 10, roll = -5, modifier = 0, total = -5)
             
             entry.initiative shouldBe -5
         }
@@ -240,8 +240,8 @@ class EncounterTest : FunSpec({
                 activeCreatureId = 20,
                 participants = listOf(10, 20),
                 initiativeOrder = listOf(
-                    InitiativeEntry(10, 18),
-                    InitiativeEntry(20, 15)
+                    InitiativeEntryData(10, 18, 0, 18),
+                    InitiativeEntryData(20, 15, 0, 15)
                 )
             )
             
