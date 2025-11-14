@@ -1,5 +1,6 @@
 package dev.questweaver.domain.entities
 
+import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.values.EncounterStatus
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -220,13 +221,13 @@ class EncounterTest : FunSpec({
             val entry = InitiativeEntryData(creatureId = 10, roll = 18, modifier = 0, total = 18)
             
             entry.creatureId shouldBe 10
-            entry.initiative shouldBe 18
+            entry.total shouldBe 18
         }
         
         test("should create InitiativeEntry with negative initiative") {
             val entry = InitiativeEntryData(creatureId = 10, roll = -5, modifier = 0, total = -5)
             
-            entry.initiative shouldBe -5
+            entry.total shouldBe -5
         }
     }
     

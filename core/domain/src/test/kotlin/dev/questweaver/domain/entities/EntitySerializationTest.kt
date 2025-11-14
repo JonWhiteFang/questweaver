@@ -1,5 +1,6 @@
 package dev.questweaver.domain.entities
 
+import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.values.Abilities
 import dev.questweaver.domain.values.Condition
 import dev.questweaver.domain.values.ContentRating
@@ -185,7 +186,7 @@ class EntitySerializationTest : FunSpec({
             val entry = InitiativeEntryData(creatureId = 10, roll = 18, modifier = 0, total = 18)
             
             val serialized = json.encodeToString(entry)
-            val deserialized = json.decodeFromString<InitiativeEntry>(serialized)
+            val deserialized = json.decodeFromString<InitiativeEntryData>(serialized)
             
             deserialized shouldBe entry
         }

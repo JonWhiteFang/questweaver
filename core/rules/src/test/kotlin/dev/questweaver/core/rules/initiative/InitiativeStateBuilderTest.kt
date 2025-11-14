@@ -2,10 +2,13 @@ package dev.questweaver.core.rules.initiative
 
 import dev.questweaver.core.rules.initiative.models.InitiativeEntry
 import dev.questweaver.domain.events.*
+import dev.questweaver.domain.values.GridPos
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainKey
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.maps.shouldBeEmpty as mapShouldBeEmpty
+import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
@@ -376,7 +379,7 @@ class InitiativeStateBuilderTest : FunSpec({
             // Verify final state
             state.roundNumber shouldBe 1
             state.initiativeOrder shouldHaveSize 3
-            state.delayedCreatures.shouldBeEmpty()
+            state.delayedCreatures.mapShouldBeEmpty()
         }
     }
 
@@ -400,10 +403,9 @@ class InitiativeStateBuilderTest : FunSpec({
                     sessionId = sessionId,
                     timestamp = timestamp + 1000,
                     creatureId = 1L,
-                    fromX = 0,
-                    fromY = 0,
-                    toX = 5,
-                    toY = 5,
+                    fromPos = GridPos(0, 0),
+                    toPos = GridPos(5, 5),
+                    path = listOf(GridPos(0, 0), GridPos(5, 5)),
                     movementCost = 5
                 )
             )
@@ -429,9 +431,9 @@ class InitiativeStateBuilderTest : FunSpec({
                     ),
                     surprisedCreatures = emptySet()
                 ),
-                MoveCommitted(sessionId, timestamp + 1000, 1L, 0, 0, 5, 5, 5),
+                MoveCommitted(sessionId, timestamp + 1000, 1L, GridPos(0, 0), GridPos(5, 5), listOf(GridPos(0, 0), GridPos(5, 5)), 5),
                 TurnStarted(sessionId, timestamp + 2000, encounterId, 1L, 1, 0),
-                MoveCommitted(sessionId, timestamp + 3000, 1L, 5, 5, 10, 10, 5),
+                MoveCommitted(sessionId, timestamp + 3000, 1L, GridPos(5, 5), GridPos(10, 10), listOf(GridPos(5, 5), GridPos(10, 10)), 5),
                 TurnEnded(sessionId, timestamp + 4000, encounterId, 1L, 1)
             )
             
@@ -451,7 +453,7 @@ class InitiativeStateBuilderTest : FunSpec({
             state.roundNumber shouldBe 0
             state.initiativeOrder.shouldBeEmpty()
             state.surprisedCreatures.shouldBeEmpty()
-            state.delayedCreatures.shouldBeEmpty()
+            state.delayedCreatures.mapShouldBeEmpty()
             state.currentTurn shouldBe null
         }
 
