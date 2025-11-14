@@ -96,13 +96,13 @@ class TurnPhaseManagerTest : FunSpec({
             phase.movementRemaining shouldBe 15
         }
 
-        test("movement can go negative (dash, difficult terrain handled elsewhere)") {
+        test("movement clamped to zero (cannot go negative)") {
             val manager = TurnPhaseManager()
             
             val phase = manager.startTurn(1L, 30)
             val phase2 = manager.consumeMovement(phase, 40)
             
-            phase2.movementRemaining shouldBe -10
+            phase2.movementRemaining shouldBe 0
         }
     }
 

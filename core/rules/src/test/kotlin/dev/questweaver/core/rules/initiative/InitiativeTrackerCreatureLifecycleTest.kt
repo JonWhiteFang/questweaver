@@ -9,6 +9,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
  * Helper to unwrap InitiativeResult for testing.
@@ -356,7 +357,7 @@ class InitiativeTrackerCreatureLifecycleTest : FunSpec({
             
             // This should fail validation - empty order not allowed
             val emptyResult = tracker.initialize(emptyList())
-            emptyResult shouldBe InitiativeResult.InvalidState::class
+            emptyResult.shouldBeInstanceOf<InitiativeResult.InvalidState>()
         }
 
         test("add multiple creatures with same initiative") {
@@ -391,7 +392,7 @@ class InitiativeTrackerCreatureLifecycleTest : FunSpec({
             
             // Try to remove creature that doesn't exist - should return InvalidState
             val result = tracker.removeCreature(state, 999L)
-            result shouldBe InitiativeResult.InvalidState::class
+            result.shouldBeInstanceOf<InitiativeResult.InvalidState>()
         }
     }
 })

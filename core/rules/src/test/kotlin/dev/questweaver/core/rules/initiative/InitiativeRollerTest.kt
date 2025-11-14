@@ -274,7 +274,7 @@ class InitiativeRollerTest : FunSpec({
                 (current.total > next.total || 
                  (current.total == next.total && current.modifier > next.modifier) ||
                  (current.total == next.total && current.modifier == next.modifier && 
-                  current.creatureId < next.creatureId)) shouldBe true
+                  current.creatureId > next.creatureId)) shouldBe true
             }
         }
     }

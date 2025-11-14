@@ -47,11 +47,11 @@ class TurnPhaseManager {
      * Consumes movement from the current turn.
      *
      * Reduces the remaining movement by the specified amount.
-     * Movement cannot go below zero.
+     * Movement is clamped to 0 minimum (cannot go negative).
      *
      * @param currentPhase Current turn phase state
      * @param movementUsed Amount of movement consumed in feet
-     * @return Updated TurnPhase with reduced movement
+     * @return Updated TurnPhase with reduced movement (minimum 0)
      */
     fun consumeMovement(
         currentPhase: TurnPhase,

@@ -27,7 +27,7 @@ data class InitiativeEntry(
      * Sort order (descending):
      * 1. Total initiative score (higher acts first)
      * 2. Dexterity modifier (higher wins ties)
-     * 3. Creature ID (deterministic tiebreaker)
+     * 3. Creature ID (higher wins remaining ties - deterministic)
      *
      * @param other The entry to compare against
      * @return Negative if this entry should come before other, positive if after, zero if equal
@@ -37,7 +37,7 @@ data class InitiativeEntry(
             this, other,
             { -it.total },        // Descending: higher total first
             { -it.modifier },     // Descending: higher modifier first
-            { it.creatureId }     // Ascending: lower ID first (deterministic)
+            { -it.creatureId }    // Descending: higher ID first (deterministic)
         )
     }
 }
