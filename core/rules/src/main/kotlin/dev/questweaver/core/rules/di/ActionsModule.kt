@@ -155,7 +155,6 @@ val actionsModule = module {
             movementHandler = get(),
             spellHandler = get(),
             specialHandler = get(),
-            reactionHandler = get(),
             validator = get()
         )
     }

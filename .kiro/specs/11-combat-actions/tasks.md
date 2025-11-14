@@ -301,76 +301,112 @@
   - Define factory binding for ActionProcessor with all handler dependencies
   - _Requirements: 9.1_
 
-- [ ] 14. Write comprehensive unit tests
-- [ ] 14.1 Write AttackActionHandler tests
-  - Test attack hits and misses based on AC
-  - Test critical hits double damage dice
-  - Test damage applied to target HP
-  - Test multiple attacks processed correctly
-  - Test conditions affect attack rolls
-  - Test CreatureDefeated event generated when HP reaches 0
-  - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+- [x] 14. Write comprehensive unit tests
 
-- [ ] 14.2 Write MovementActionHandler tests
-  - Test movement consumes correct amount
-  - Test difficult terrain doubles cost
-  - Test opportunity attacks triggered correctly
-  - Test Dash action doubles movement
-  - Test Disengage prevents opportunity attacks
-  - Test MoveCommitted event contains correct path and remaining movement
-  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 14.3 Write SpellActionHandler tests
-  - Test spell slots consumed correctly
-  - Test spell attacks resolved correctly
-  - Test saving throws resolved correctly
-  - Test bonus action spell restriction enforced
-  - Test area-of-effect targets multiple creatures
-  - Test SpellCast event contains all outcomes
-  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 14.4 Write SpecialActionHandler tests
-  - Test Dodge applies condition until next turn
-  - Test Disengage prevents opportunity attacks
-  - Test Help grants advantage on next roll
-  - Test Ready action stores and triggers correctly
-  - Test all special actions consume action phase
-  - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 14.5 Write ReactionHandler tests
-  - Test opportunity attacks trigger on movement
-  - Test reactions consume reaction resource
-  - Test multiple reactions resolved in initiative order
-  - Test readied actions execute on trigger
-  - Test identifyReactors returns correct creatures
-  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [x] 14.1 Write AttackActionHandler tests
 
-- [ ] 14.6 Write ActionValidator tests
-  - Test invalid actions rejected with reason
-  - Test resource checks prevent illegal actions
-  - Test range checks enforce distance limits
-  - Test turn phase checks enforce action economy
-  - Test condition restrictions prevent actions
-  - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 14.7 Write ActionProcessor integration tests
-  - Test complete attack sequence generates correct events
-  - Test movement with opportunity attacks generates all events
-  - Test spell casting with multiple targets generates outcomes
-  - Test action validation failures return appropriate results
-  - Test exhaustive when expression handles all action types
-  - _Requirements: 9.1, 9.2, 9.3, 9.4_
+    - Test attack hits and misses based on AC
 
-- [ ] 14.8 Write event generation tests
-  - Test all actions generate appropriate events
-  - Test events contain complete outcome information
-  - Test events are immutable and serializable
-  - Test event timestamps are set correctly
-  - _Requirements: 9.2_
+    - Test critical hits double damage dice
+    - Test damage applied to target HP
+    - Test multiple attacks processed correctly
+    - Test conditions affect attack rolls
+    - Test CreatureDefeated event generated when HP reaches 0
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 14.9 Write property-based tests
-  - Test attack damage never exceeds maximum possible
-  - Test movement cost never exceeds available movement
-  - Test spell slot consumption never goes negative
-  - Test action phase consumption is idempotent
-  - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 14.2 Write MovementActionHandler tests
+
+
+
+    - Test movement consumes correct amount
+    - Test difficult terrain doubles cost
+    - Test opportunity attacks triggered correctly
+    - Test Dash action doubles movement
+    - Test Disengage prevents opportunity attacks
+    - Test MoveCommitted event contains correct path and remaining movement
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+
+  - [x] 14.3 Write SpellActionHandler tests
+
+
+
+    - Test spell slots consumed correctly
+    - Test spell attacks resolved correctly
+    - Test saving throws resolved correctly
+    - Test bonus action spell restriction enforced
+    - Test area-of-effect targets multiple creatures
+    - Test SpellCast event contains all outcomes
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+
+  - [x] 14.4 Write SpecialActionHandler tests
+
+
+
+
+    - Test Dodge applies condition until next turn
+    - Test Disengage prevents opportunity attacks
+    - Test Help grants advantage on next roll
+    - Test Ready action stores and triggers correctly
+    - Test all special actions consume action phase
+    - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
+
+  - [x] 14.5 Write ReactionHandler tests
+
+
+
+    - Test opportunity attacks trigger on movement
+    - Test reactions consume reaction resource
+    - Test multiple reactions resolved in initiative order
+    - Test readied actions execute on trigger
+    - Test identifyReactors returns correct creatures
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+
+  - [x] 14.6 Write ActionValidator tests
+
+
+
+
+    - Test invalid actions rejected with reason
+    - Test resource checks prevent illegal actions
+    - Test range checks enforce distance limits
+    - Test turn phase checks enforce action economy
+    - Test condition restrictions prevent actions
+    - _Requirements: 8.1, 8.2, 8.3_
+
+  - [x] 14.7 Write ActionProcessor integration tests
+
+
+
+
+    - Test complete attack sequence generates correct events
+    - Test movement with opportunity attacks generates all events
+    - Test spell casting with multiple targets generates outcomes
+    - Test action validation failures return appropriate results
+    - Test exhaustive when expression handles all action types
+    - _Requirements: 9.1, 9.2, 9.3, 9.4_
+
+  - [x] 14.8 Write event generation tests
+
+
+
+
+    - Test all actions generate appropriate events
+    - Test events contain complete outcome information
+    - Test events are immutable and serializable
+    - Test event timestamps are set correctly
+    - _Requirements: 9.2_
+
+  - [x] 14.9 Write property-based tests
+
+
+
+
+    - Test attack damage never exceeds maximum possible
+    - Test movement cost never exceeds available movement
+    - Test spell slot consumption never goes negative
+    - Test action phase consumption is idempotent
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_

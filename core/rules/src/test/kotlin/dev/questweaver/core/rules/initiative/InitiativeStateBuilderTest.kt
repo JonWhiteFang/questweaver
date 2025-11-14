@@ -413,10 +413,9 @@ class InitiativeStateBuilderTest : FunSpec({
                     sessionId = sessionId,
                     timestamp = timestamp + 1000,
                     creatureId = 1L,
-                    fromPos = GridPos(0, 0),
-                    toPos = GridPos(5, 5),
                     path = listOf(GridPos(0, 0), GridPos(5, 5)),
-                    movementCost = 5
+                    movementUsed = 5,
+                    movementRemaining = 25
                 )
             )
             
@@ -442,13 +441,13 @@ class InitiativeStateBuilderTest : FunSpec({
                     surprisedCreatures = emptySet()
                 ),
                 MoveCommitted(
-                    sessionId, timestamp + 1000, 1L, GridPos(0, 0), GridPos(5, 5),
-                    listOf(GridPos(0, 0), GridPos(5, 5)), 5
+                    sessionId, timestamp + 1000, 1L,
+                    listOf(GridPos(0, 0), GridPos(5, 5)), 5, 25
                 ),
                 TurnStarted(sessionId, timestamp + 2000, encounterId, 1L, 1, 0),
                 MoveCommitted(
-                    sessionId, timestamp + 3000, 1L, GridPos(5, 5), GridPos(10, 10),
-                    listOf(GridPos(5, 5), GridPos(10, 10)), 5
+                    sessionId, timestamp + 3000, 1L,
+                    listOf(GridPos(5, 5), GridPos(10, 10)), 5, 20
                 ),
                 TurnEnded(sessionId, timestamp + 4000, encounterId, 1L, 1)
             )
