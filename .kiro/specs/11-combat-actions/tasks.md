@@ -1,73 +1,102 @@
 # Implementation Plan
 
-- [ ] 1. Set up module structure and core data models
+- [x] 1. Set up module structure and core data models
+
+
   - Create package structure in `core/rules/actions/`: root level, `models/`, and `validation/` subdirectories
   - Add dependencies on `05-combat-rules`, `06-action-validation`, and `10-initiative-turns` in `core/rules/build.gradle.kts`
   - Verify module compiles with no Android dependencies
   - _Requirements: 9.5_
 
-- [ ] 2. Implement sealed action types
-- [ ] 2.1 Create CombatAction sealed interface
+- [x] 2. Implement sealed action types
+
+
+- [x] 2.1 Create CombatAction sealed interface
   - Define base interface with actorId property
   - _Requirements: 1.1, 2.1, 3.1, 4.1, 5.1, 7.1_
 
-- [ ] 2.2 Create Attack action data class
+
+- [x] 2.2 Create Attack action data class
+
   - Define fields: actorId, targetId, weaponId, attackBonus, damageDice, damageModifier, damageType
   - _Requirements: 1.1, 1.5_
 
-- [ ] 2.3 Create Move action data class
+- [x] 2.3 Create Move action data class
+
+
   - Define fields: actorId, path, isDash
   - _Requirements: 2.1, 2.5_
 
-- [ ] 2.4 Create CastSpell action data class
+- [x] 2.4 Create CastSpell action data class
+
+
+
   - Define fields: actorId, spellId, spellLevel, targets, spellEffect, isBonusAction
   - _Requirements: 3.1, 3.5_
 
-- [ ] 2.5 Create special action data classes
+- [x] 2.5 Create special action data classes
+
+
   - Create Dodge, Disengage, Help, Ready action data classes
   - Define Help with targetId and helpType fields
   - Define Ready with preparedAction and trigger fields
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 2.6 Create Reaction action data class
+- [x] 2.6 Create Reaction action data class
+
+
   - Define fields: actorId, reactionType, targetId
   - _Requirements: 5.1, 5.3_
 
-- [ ] 3. Implement supporting enums and sealed types
-- [ ] 3.1 Create HelpType enum
+- [x] 3. Implement supporting enums and sealed types
+
+
+
+- [x] 3.1 Create HelpType enum
   - Define values: Attack, AbilityCheck
   - _Requirements: 7.3_
 
-- [ ] 3.2 Create ReactionType enum
+
+- [x] 3.2 Create ReactionType enum
   - Define values: OpportunityAttack, ReadiedAction, Shield, Counterspell, Other
+
   - _Requirements: 5.1, 5.4_
 
-- [ ] 3.3 Create SpellEffect sealed interface
+- [x] 3.3 Create SpellEffect sealed interface
+
   - Define Attack, Save, and Utility data classes
   - _Requirements: 3.2, 3.3_
 
-- [ ] 3.4 Create ReactionTrigger sealed interface
+- [x] 3.4 Create ReactionTrigger sealed interface
   - Define CreatureMoved, SpellCast, AttackMade, TriggerConditionMet data classes
   - _Requirements: 5.2, 5.5_
 
-- [ ] 4. Implement action context and result types
-- [ ] 4.1 Create ActionContext data class
+- [x] 4. Implement action context and result types
+
+
+
+
+- [x] 4.1 Create ActionContext data class
   - Define fields: sessionId, roundNumber, turnPhase, creatures, mapGrid, activeConditions, readiedActions
   - _Requirements: 8.1_
 
-- [ ] 4.2 Create ReadiedAction data class
+
+- [x] 4.2 Create ReadiedAction data class
   - Define fields: creatureId, action, trigger
+
   - _Requirements: 7.4, 7.5_
 
-- [ ] 4.3 Create ActionResult sealed interface
+- [x] 4.3 Create ActionResult sealed interface
+
   - Define Success, Failure, and RequiresChoice data classes
   - _Requirements: 8.2, 8.3, 8.4_
 
-- [ ] 4.4 Create ActionOption data class
+
+- [x] 4.4 Create ActionOption data class
   - Define fields: id, description, action
   - _Requirements: 8.3_
 
-- [ ] 4.5 Create ActionError sealed interface
+- [x] 4.5 Create ActionError sealed interface
   - Define InvalidAction, InsufficientResources, OutOfRange, NoLineOfEffect, ActionNotAvailable data classes
   - _Requirements: 8.2_
 
