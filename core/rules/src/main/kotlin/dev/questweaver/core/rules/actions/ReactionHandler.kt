@@ -14,6 +14,11 @@ import dev.questweaver.domain.values.GridPos
 class ReactionHandler(
     private val attackHandler: AttackActionHandler
 ) {
+    companion object {
+        private const val MELEE_RANGE_FEET = 5
+        private const val FEET_PER_SQUARE = 5
+        private const val PLACEHOLDER_ENCOUNTER_ID = 0L
+    }
     /**
      * Processes a reaction.
      *
@@ -73,7 +78,7 @@ class ReactionHandler(
             dev.questweaver.domain.events.ReactionUsed(
                 sessionId = context.sessionId,
                 timestamp = System.currentTimeMillis(),
-                encounterId = 0L, // TODO: Get from context
+                encounterId = PLACEHOLDER_ENCOUNTER_ID,
                 creatureId = reaction.actorId,
                 reactionType = reaction.reactionType.name,
                 trigger = trigger.toString()
@@ -94,69 +99,91 @@ class ReactionHandler(
         trigger: ReactionTrigger,
         context: ActionContext
     ): List<Long> {
+        return when (trigger) {
+            is ReactionTrigger.CreatureMoved -> findOpportunityAttackers(trigger, context)
+            is ReactionTrigger.SpellCast -> findCounterspellers(trigger, context)
+            is ReactionTrigger.AttackMade -> findDefensiveReactors(trigger, context)
+            is ReactionTrigger.TriggerConditionMet -> findReadiedActionReactors(trigger, context)
+        }
+    }
+    
+    private fun findOpportunityAttackers(
+        trigger: ReactionTrigger.CreatureMoved,
+        context: ActionContext
+    ): List<Long> {
+        if (!context.creatures.containsKey(trigger.creatureId)) {
+            return emptyList()
+        }
+        
         val reactors = mutableListOf<Long>()
         
-        when (trigger) {
-            is ReactionTrigger.CreatureMoved -> {
-                // Find creatures that can make opportunity attacks
-                val movingCreature = context.creatures[trigger.creatureId]
-                if (movingCreature != null) {
-                    // Check each creature to see if they can react
-                    for ((creatureId, creature) in context.creatures) {
-                        if (creatureId == trigger.creatureId) continue
-                        
-                        // Check if creature has reaction available
-                        // TODO: Query turn phase manager for reaction availability
-                        
-                        // Check if creature is within melee range of the from position
-                        val distance = calculateDistance(creature.position, trigger.fromPos)
-                        if (distance <= 5) { // 5 feet = 1 square for melee
-                            reactors.add(creatureId)
-                        }
-                    }
-                }
-            }
+        for ((creatureId, creature) in context.creatures) {
+            if (creatureId == trigger.creatureId) continue
             
-            is ReactionTrigger.SpellCast -> {
-                // Find creatures that can counterspell
-                for ((creatureId, creature) in context.creatures) {
-                    if (creatureId == trigger.casterId) continue
-                    
-                    // Check if creature has reaction available
-                    // TODO: Query turn phase manager for reaction availability
-                    
-                    // Check if creature has counterspell prepared
-                    // TODO: Check creature's spell list
-                }
-            }
+            // Check if creature has reaction available
+            // TODO: Query turn phase manager for reaction availability
             
-            is ReactionTrigger.AttackMade -> {
-                // Find creatures that can use Shield or other defensive reactions
-                val target = context.creatures[trigger.targetId]
-                if (target != null) {
-                    // Check if target has reaction available
-                    // TODO: Query turn phase manager for reaction availability
-                    
-                    // Check if target has defensive reactions available
-                    // TODO: Check creature's spell list and abilities
-                }
-            }
-            
-            is ReactionTrigger.TriggerConditionMet -> {
-                // Find creatures with readied actions matching this trigger
-                for ((creatureId, readiedAction) in context.readiedActions) {
-                    // Simple string matching for trigger condition
-                    // TODO: Implement more sophisticated trigger matching
-                    if (readiedAction.trigger.contains(trigger.condition, ignoreCase = true)) {
-                        reactors.add(creatureId)
-                    }
-                }
+            // Check if creature is within melee range of the from position
+            val distance = calculateDistance(creature.position, trigger.fromPos)
+            if (distance <= MELEE_RANGE_FEET) {
+                reactors.add(creatureId)
             }
         }
         
-        // Sort by initiative order (highest first)
-        // TODO: Get initiative order from turn phase manager
-        // For now, just return the list as-is
+        return reactors
+    }
+    
+    private fun findCounterspellers(
+        trigger: ReactionTrigger.SpellCast,
+        context: ActionContext
+    ): List<Long> {
+        val reactors = mutableListOf<Long>()
+        
+        for ((creatureId, _) in context.creatures) {
+            if (creatureId == trigger.casterId) continue
+            
+            // Check if creature has reaction available
+            // TODO: Query turn phase manager for reaction availability
+            
+            // Check if creature has counterspell prepared
+            // TODO: Check creature's spell list
+        }
+        
+        return reactors
+    }
+    
+    private fun findDefensiveReactors(
+        trigger: ReactionTrigger.AttackMade,
+        context: ActionContext
+    ): List<Long> {
+        if (!context.creatures.containsKey(trigger.targetId)) {
+            return emptyList()
+        }
+        
+        val reactors = mutableListOf<Long>()
+        
+        // Check if target has reaction available
+        // TODO: Query turn phase manager for reaction availability
+        
+        // Check if target has defensive reactions available
+        // TODO: Check creature's spell list and abilities
+        
+        return reactors
+    }
+    
+    private fun findReadiedActionReactors(
+        trigger: ReactionTrigger.TriggerConditionMet,
+        context: ActionContext
+    ): List<Long> {
+        val reactors = mutableListOf<Long>()
+        
+        for ((creatureId, readiedAction) in context.readiedActions) {
+            // Simple string matching for trigger condition
+            // TODO: Implement more sophisticated trigger matching
+            if (readiedAction.trigger.contains(trigger.condition, ignoreCase = true)) {
+                reactors.add(creatureId)
+            }
+        }
         
         return reactors
     }
@@ -180,31 +207,38 @@ class ReactionHandler(
         // TODO: Query turn phase manager
         
         // Check if reacting creature has melee weapon equipped
-        val reactor = context.creatures[reactorId]
-            ?: return emptyList()
+        val reactor = context.creatures[reactorId] ?: return emptyList()
         
         // TODO: Get weapon from creature's equipment
         // For now, assume a basic melee attack
         
-        // Check if triggering creature moved out of reach
-        val distance = calculateDistance(reactor.position, trigger.toPos)
-        if (distance > 5) { // Moved out of 5-foot reach
-            // Create attack action
-            val attack = Attack(
-                actorId = reactorId,
-                targetId = targetId,
-                weaponId = null,
-                attackBonus = reactor.proficiencyBonus + reactor.abilities.strModifier,
-                damageDice = "1d8",
-                damageModifier = reactor.abilities.strModifier,
-                damageType = dev.questweaver.core.rules.actions.models.DamageType.Slashing
-            )
-            
-            // Use AttackActionHandler to process attack
-            return attackHandler.handleAttack(attack, context)
+        // Check if triggering creature moved out of reach and process attack
+        return if (isOutOfReach(reactor.position, trigger.toPos)) {
+            val attack = createOpportunityAttack(reactor, targetId)
+            attackHandler.handleAttack(attack, context)
+        } else {
+            emptyList()
         }
-        
-        return emptyList()
+    }
+    
+    private fun isOutOfReach(reactorPos: GridPos, targetPos: GridPos): Boolean {
+        val distance = calculateDistance(reactorPos, targetPos)
+        return distance > MELEE_RANGE_FEET
+    }
+    
+    private fun createOpportunityAttack(
+        reactor: dev.questweaver.domain.entities.Creature,
+        targetId: Long
+    ): Attack {
+        return Attack(
+            actorId = reactor.id,
+            targetId = targetId,
+            weaponId = null,
+            attackBonus = reactor.proficiencyBonus + reactor.abilities.strModifier,
+            damageDice = "1d8",
+            damageModifier = reactor.abilities.strModifier,
+            damageType = dev.questweaver.core.rules.actions.models.DamageType.Slashing
+        )
     }
     
     /**
@@ -217,7 +251,7 @@ class ReactionHandler(
     private fun calculateDistance(pos1: GridPos, pos2: GridPos): Int {
         val dx = kotlin.math.abs(pos1.x - pos2.x)
         val dy = kotlin.math.abs(pos1.y - pos2.y)
-        return kotlin.math.max(dx, dy) * 5 // 5 feet per square
+        return kotlin.math.max(dx, dy) * FEET_PER_SQUARE
     }
 }
 

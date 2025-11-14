@@ -85,9 +85,10 @@ class SpecialActionHandler {
         action: Help,
         context: ActionContext
     ): List<GameEvent> {
-        // Validate target is an ally
-        val target = context.creatures[action.targetId]
-            ?: throw IllegalArgumentException("Target not found: ${action.targetId}")
+        // Validate target exists
+        require(context.creatures.containsKey(action.targetId)) {
+            "Target not found: ${action.targetId}"
+        }
         
         // Grant advantage on next roll
         // TODO: Track advantage grant in encounter state

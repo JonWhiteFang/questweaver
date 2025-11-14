@@ -14,6 +14,7 @@ import dev.questweaver.core.rules.actions.models.Reaction
 import dev.questweaver.core.rules.actions.models.Ready
 import dev.questweaver.core.rules.actions.validation.ActionValidator
 import dev.questweaver.core.rules.actions.validation.ValidationResult
+import dev.questweaver.domain.events.GameEvent
 
 /**
  * Main coordinator that routes actions to appropriate handlers.
@@ -24,7 +25,6 @@ class ActionProcessor(
     private val movementHandler: MovementActionHandler,
     private val spellHandler: SpellActionHandler,
     private val specialHandler: SpecialActionHandler,
-    private val reactionHandler: ReactionHandler,
     private val validator: ActionValidator
 ) {
     /**
@@ -40,44 +40,43 @@ class ActionProcessor(
     ): ActionResult {
         // Validate action using ActionValidator
         val validationResult = validator.validate(action, context)
-        
-        // If validation fails, return ActionResult.Failure
-        when (validationResult) {
-            is ValidationResult.Invalid -> {
-                return ActionResult.Failure(validationResult.reason)
-            }
-            is ValidationResult.RequiresChoice -> {
-                return ActionResult.RequiresChoice(validationResult.options)
-            }
-            is ValidationResult.Valid -> {
-                // Continue to action execution
-            }
+        if (validationResult !is ValidationResult.Valid) {
+            return handleValidationFailure(validationResult)
         }
         
         // Route to appropriate handler based on action type
-        val events = try {
-            when (action) {
-                is Attack -> attackHandler.handleAttack(action, context)
-                is Move -> movementHandler.handleMovement(action, context)
-                is Dash -> movementHandler.handleDash(action, context)
-                is CastSpell -> spellHandler.handleSpellCast(action, context)
-                is Dodge -> specialHandler.handleDodge(action, context)
-                is Disengage -> specialHandler.handleDisengage(action, context)
-                is Help -> specialHandler.handleHelp(action, context)
-                is Ready -> specialHandler.handleReady(action, context)
-                is Reaction -> {
-                    // Reactions require a trigger, which should be provided separately
-                    // For now, return an error
-                    return ActionResult.Failure("Reactions must be processed with a trigger")
-                }
-            }
+        return try {
+            val events = routeActionToHandler(action, context)
+            ActionResult.Success(events)
         } catch (e: IllegalArgumentException) {
-            return ActionResult.Failure(e.message ?: "Invalid action")
-        } catch (e: Exception) {
-            return ActionResult.Failure("Action processing failed: ${e.message}")
+            ActionResult.Failure(e.message ?: "Invalid action")
+        } catch (e: IllegalStateException) {
+            ActionResult.Failure(e.message ?: "Action processing failed")
         }
-        
-        // Return ActionResult.Success with events
-        return ActionResult.Success(events)
+    }
+    
+    private fun handleValidationFailure(validationResult: ValidationResult): ActionResult {
+        return when (validationResult) {
+            is ValidationResult.Invalid -> ActionResult.Failure(validationResult.reason)
+            is ValidationResult.RequiresChoice -> ActionResult.RequiresChoice(validationResult.options)
+            is ValidationResult.Valid -> error("Should not reach here")
+        }
+    }
+    
+    private suspend fun routeActionToHandler(
+        action: CombatAction,
+        context: ActionContext
+    ): List<GameEvent> {
+        return when (action) {
+            is Attack -> attackHandler.handleAttack(action, context)
+            is Move -> movementHandler.handleMovement(action, context)
+            is Dash -> movementHandler.handleDash(action, context)
+            is CastSpell -> spellHandler.handleSpellCast(action, context)
+            is Dodge -> specialHandler.handleDodge(action, context)
+            is Disengage -> specialHandler.handleDisengage(action, context)
+            is Help -> specialHandler.handleHelp(action, context)
+            is Ready -> specialHandler.handleReady(action, context)
+            is Reaction -> throw IllegalArgumentException("Reactions must be processed with a trigger")
+        }
     }
 }

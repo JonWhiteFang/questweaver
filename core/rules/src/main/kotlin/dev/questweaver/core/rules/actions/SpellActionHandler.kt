@@ -50,140 +50,165 @@ class SpellActionHandler(
         action: CastSpell,
         context: ActionContext
     ): List<GameEvent> {
-        val events = mutableListOf<GameEvent>()
-        val outcomes = mutableListOf<SpellOutcome>()
+        val caster = validateCaster(action.actorId, context)
+        validateBonusActionRestriction(action)
         
-        // Validate spell slot availability
-        val caster = context.creatures[action.actorId]
-            ?: throw IllegalArgumentException("Caster not found: ${action.actorId}")
-        
-        // TODO: Check spell slot availability from caster's spell slots
-        
-        // Check bonus action spell restriction (if applicable)
-        if (action.isBonusAction) {
-            // TODO: Enforce restriction that only cantrips can be cast as actions on the same turn
-            // This requires tracking whether an action spell was already cast this turn
-        }
-        
-        // Determine spell effect type and process accordingly
-        when (val effect = action.spellEffect) {
-            is SpellEffect.Attack -> {
-                // Process spell attacks for each target
-                for (targetId in effect.targets) {
-                    val target = context.creatures[targetId]
-                        ?: continue
-                    
-                    // Use AttackResolver for spell attack
-                    val attackOutcome = attackResolver.resolveAttack(
-                        attackBonus = caster.spellAttackBonus,
-                        targetAC = target.armorClass,
-                        seed = context.sessionId + context.roundNumber + targetId
-                    )
-                    
-                    // Calculate damage if hit
-                    val damageResult = if (attackOutcome.hit) {
-                        damageCalculator.calculateDamage(
-                            damageDice = effect.damageDice,
-                            modifier = effect.damageModifier,
-                            isCritical = attackOutcome.critical,
-                            seed = context.sessionId + context.roundNumber + targetId + 1
-                        )
-                    } else {
-                        null
-                    }
-                    
-                    outcomes.add(
-                        SpellOutcome(
-                            targetId = targetId,
-                            attackRoll = attackOutcome.roll,
-                            saveRoll = null,
-                            success = attackOutcome.hit,
-                            damage = damageResult?.totalDamage,
-                            damageType = effect.damageType?.name
-                        )
-                    )
-                }
-            }
-            
-            is SpellEffect.Save -> {
-                // Process saving throws for each target
-                for (targetId in effect.targets) {
-                    val target = context.creatures[targetId]
-                        ?: continue
-                    
-                    // Get target's saving throw modifier
-                    val saveModifier = target.getSavingThrowModifier(effect.abilityType)
-                    
-                    // Use SavingThrowResolver for save
-                    val saveOutcome = savingThrowResolver.resolveSave(
-                        dc = effect.dc,
-                        abilityType = effect.abilityType,
-                        creatureModifier = saveModifier,
-                        seed = context.sessionId + context.roundNumber + targetId
-                    )
-                    
-                    // Calculate damage based on save result
-                    val damageResult = if (effect.damageDice != null) {
-                        val damage = damageCalculator.calculateDamage(
-                            damageDice = effect.damageDice,
-                            modifier = effect.damageModifier ?: 0,
-                            isCritical = false,
-                            seed = context.sessionId + context.roundNumber + targetId + 1
-                        )
-                        
-                        // Half damage on successful save if applicable
-                        if (saveOutcome.success && effect.halfDamageOnSave) {
-                            DamageResult(damage.roll, damage.totalDamage / 2)
-                        } else if (!saveOutcome.success) {
-                            damage
-                        } else {
-                            null
-                        }
-                    } else {
-                        null
-                    }
-                    
-                    outcomes.add(
-                        SpellOutcome(
-                            targetId = targetId,
-                            attackRoll = null,
-                            saveRoll = DiceRoll(
-                                diceType = 20,
-                                count = 1,
-                                modifier = saveModifier,
-                                result = saveOutcome.roll
-                            ),
-                            success = saveOutcome.success,
-                            damage = damageResult?.totalDamage,
-                            damageType = effect.damageType?.name
-                        )
-                    )
-                }
-            }
-            
-            is SpellEffect.Utility -> {
-                // Utility spells don't have attack or save outcomes
-                // Just record that the spell was cast
-            }
-        }
+        val outcomes = processSpellEffect(action.spellEffect, caster, context)
         
         // Consume spell slot
         // TODO: Track spell slot consumption in caster's resources
         
-        // Generate SpellCast event with outcomes
-        events.add(
-            SpellCast(
-                sessionId = context.sessionId,
-                timestamp = System.currentTimeMillis(),
-                casterId = action.actorId,
-                spellId = action.spellId,
-                spellLevel = action.spellLevel,
-                slotConsumed = action.spellLevel,
-                targets = action.targets,
-                outcomes = outcomes
-            )
+        return listOf(createSpellCastEvent(action, context, outcomes))
+    }
+    
+    private fun validateCaster(casterId: Long, context: ActionContext): Creature {
+        return context.creatures[casterId]
+            ?: throw IllegalArgumentException("Caster not found: $casterId")
+    }
+    
+    private fun validateBonusActionRestriction(action: CastSpell) {
+        if (action.isBonusAction) {
+            // TODO: Enforce restriction that only cantrips can be cast as actions on the same turn
+            // This requires tracking whether an action spell was already cast this turn
+        }
+    }
+    
+    private suspend fun processSpellEffect(
+        effect: SpellEffect,
+        caster: Creature,
+        context: ActionContext
+    ): List<SpellOutcome> {
+        return when (effect) {
+            is SpellEffect.Attack -> processAttackSpell(effect, caster, context)
+            is SpellEffect.Save -> processSaveSpell(effect, context)
+            is SpellEffect.Utility -> emptyList()
+        }
+    }
+    
+    private suspend fun processAttackSpell(
+        effect: SpellEffect.Attack,
+        caster: Creature,
+        context: ActionContext
+    ): List<SpellOutcome> {
+        return effect.targets.mapNotNull { targetId ->
+            val target = context.creatures[targetId] ?: return@mapNotNull null
+            processAttackAgainstTarget(effect, caster, target, targetId, context)
+        }
+    }
+    
+    private suspend fun processAttackAgainstTarget(
+        effect: SpellEffect.Attack,
+        caster: Creature,
+        target: Creature,
+        targetId: Long,
+        context: ActionContext
+    ): SpellOutcome {
+        val attackOutcome = attackResolver.resolveAttack(
+            attackBonus = caster.spellAttackBonus,
+            targetAC = target.armorClass,
+            seed = context.sessionId + context.roundNumber + targetId
         )
         
-        return events
+        val damageResult = if (attackOutcome.hit) {
+            damageCalculator.calculateDamage(
+                damageDice = effect.damageDice,
+                modifier = effect.damageModifier,
+                isCritical = attackOutcome.critical,
+                seed = context.sessionId + context.roundNumber + targetId + 1
+            )
+        } else {
+            null
+        }
+        
+        return SpellOutcome(
+            targetId = targetId,
+            attackRoll = attackOutcome.roll,
+            saveRoll = null,
+            success = attackOutcome.hit,
+            damage = damageResult?.totalDamage,
+            damageType = effect.damageType?.name
+        )
+    }
+    
+    private suspend fun processSaveSpell(
+        effect: SpellEffect.Save,
+        context: ActionContext
+    ): List<SpellOutcome> {
+        return effect.targets.mapNotNull { targetId ->
+            val target = context.creatures[targetId] ?: return@mapNotNull null
+            processSaveAgainstTarget(effect, target, targetId, context)
+        }
+    }
+    
+    private suspend fun processSaveAgainstTarget(
+        effect: SpellEffect.Save,
+        target: Creature,
+        targetId: Long,
+        context: ActionContext
+    ): SpellOutcome {
+        val saveModifier = target.getSavingThrowModifier(effect.abilityType)
+        
+        val saveOutcome = savingThrowResolver.resolveSave(
+            dc = effect.dc,
+            abilityType = effect.abilityType,
+            creatureModifier = saveModifier,
+            seed = context.sessionId + context.roundNumber + targetId
+        )
+        
+        val damageResult = calculateSaveDamage(effect, saveOutcome, targetId, context)
+        
+        return SpellOutcome(
+            targetId = targetId,
+            attackRoll = null,
+            saveRoll = DiceRoll(
+                diceType = 20,
+                count = 1,
+                modifier = saveModifier,
+                result = saveOutcome.roll
+            ),
+            success = saveOutcome.success,
+            damage = damageResult?.totalDamage,
+            damageType = effect.damageType?.name
+        )
+    }
+    
+    private suspend fun calculateSaveDamage(
+        effect: SpellEffect.Save,
+        saveOutcome: SaveOutcome,
+        targetId: Long,
+        context: ActionContext
+    ): DamageResult? {
+        val damageDice = effect.damageDice ?: return null
+        
+        val damage = damageCalculator.calculateDamage(
+            damageDice = damageDice,
+            modifier = effect.damageModifier ?: 0,
+            isCritical = false,
+            seed = context.sessionId + context.roundNumber + targetId + 1
+        )
+        
+        return when {
+            saveOutcome.success && effect.halfDamageOnSave -> 
+                DamageResult(damage.roll, damage.totalDamage / 2)
+            !saveOutcome.success -> damage
+            else -> null
+        }
+    }
+    
+    private fun createSpellCastEvent(
+        action: CastSpell,
+        context: ActionContext,
+        outcomes: List<SpellOutcome>
+    ): SpellCast {
+        return SpellCast(
+            sessionId = context.sessionId,
+            timestamp = System.currentTimeMillis(),
+            casterId = action.actorId,
+            spellId = action.spellId,
+            spellLevel = action.spellLevel,
+            slotConsumed = action.spellLevel,
+            targets = action.targets,
+            outcomes = outcomes
+        )
     }
 }
