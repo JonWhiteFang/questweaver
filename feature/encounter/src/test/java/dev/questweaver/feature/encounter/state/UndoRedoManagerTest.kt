@@ -63,13 +63,17 @@ class UndoRedoManagerTest : FunSpec({
                 val events = listOf(event1, event2)
                 coEvery { eventRepository.forSession(sessionId) } returns events
                 
+                // Update event count before undo
+                undoRedoManager.updateEventCount(events)
+                
                 // Act
                 val updatedEvents = undoRedoManager.undo(sessionId)
                 
                 // Assert
                 updatedEvents shouldHaveSize 1
                 updatedEvents[0] shouldBe event1
-                undoRedoManager.canUndo() shouldBe true
+                undoRedoManager.canUndo() shouldBe true  // Still have 1 event, can undo to 0
+                undoRedoManager.canRedo() shouldBe true  // Event2 is in redo stack
             }
         }
         
@@ -88,13 +92,13 @@ class UndoRedoManagerTest : FunSpec({
             }
         }
         
-        test("canUndo returns true when undo available") {
+        test("canUndo returns true when multiple events available") {
             runTest {
                 // Arrange
                 val sessionId = 1L
                 val timestamp = System.currentTimeMillis()
                 
-                val event = EncounterStarted(
+                val event1 = EncounterStarted(
                     sessionId = sessionId,
                     timestamp = timestamp,
                     encounterId = sessionId,
@@ -103,13 +107,25 @@ class UndoRedoManagerTest : FunSpec({
                     surprisedCreatures = emptySet()
                 )
                 
-                coEvery { eventRepository.forSession(sessionId) } returns listOf(event)
+                val event2 = AttackResolved(
+                    sessionId = sessionId,
+                    timestamp = timestamp + 1,
+                    attackerId = 1L,
+                    targetId = 2L,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
+                    hit = true,
+                    critical = false
+                )
                 
-                // Act
-                undoRedoManager.undo(sessionId)
+                val events = listOf(event1, event2)
+                coEvery { eventRepository.forSession(sessionId) } returns events
+                
+                // Update event count
+                undoRedoManager.updateEventCount(events)
                 
                 // Assert
-                undoRedoManager.canUndo() shouldBe true
+                undoRedoManager.canUndo() shouldBe true  // Have 2 events, can undo
             }
         }
         
@@ -148,9 +164,11 @@ class UndoRedoManagerTest : FunSpec({
                     critical = false
                 )
                 
-                coEvery { eventRepository.forSession(sessionId) } returns listOf(event1, event2) andThen listOf(event1, event2)
+                val events = listOf(event1, event2)
+                coEvery { eventRepository.forSession(sessionId) } returns events andThen events
                 
-                // First undo
+                // Update event count and undo
+                undoRedoManager.updateEventCount(events)
                 undoRedoManager.undo(sessionId)
                 
                 // Act - redo
@@ -168,7 +186,7 @@ class UndoRedoManagerTest : FunSpec({
                 val sessionId = 1L
                 val timestamp = System.currentTimeMillis()
                 
-                val event = EncounterStarted(
+                val event1 = EncounterStarted(
                     sessionId = sessionId,
                     timestamp = timestamp,
                     encounterId = sessionId,
@@ -177,15 +195,26 @@ class UndoRedoManagerTest : FunSpec({
                     surprisedCreatures = emptySet()
                 )
                 
-                coEvery { eventRepository.forSession(sessionId) } returns listOf(event)
+                val event2 = AttackResolved(
+                    sessionId = sessionId,
+                    timestamp = timestamp + 1,
+                    attackerId = 1L,
+                    targetId = 2L,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
+                    hit = true,
+                    critical = false
+                )
                 
-                // Undo first to enable redo
+                val events = listOf(event1, event2)
+                coEvery { eventRepository.forSession(sessionId) } returns events
+                
+                // Update event count and undo to populate redo stack
+                undoRedoManager.updateEventCount(events)
                 undoRedoManager.undo(sessionId)
                 
                 // Assert
-                // Note: Current implementation doesn't populate redo stack correctly
-                // This is a known limitation in the implementation
-                undoRedoManager.canRedo() shouldBe false
+                undoRedoManager.canRedo() shouldBe true  // Event2 is in redo stack
             }
         }
         
@@ -303,7 +332,7 @@ class UndoRedoManagerTest : FunSpec({
             }
         }
         
-        test("redo cleared on undo") {
+        test("redo populated on undo") {
             runTest {
                 // Arrange
                 val sessionId = 1L
@@ -329,13 +358,17 @@ class UndoRedoManagerTest : FunSpec({
                     critical = false
                 )
                 
-                coEvery { eventRepository.forSession(sessionId) } returns listOf(event1, event2)
+                val events = listOf(event1, event2)
+                coEvery { eventRepository.forSession(sessionId) } returns events
                 
-                // Act - undo (which clears redo stack)
+                // Update event count
+                undoRedoManager.updateEventCount(events)
+                
+                // Act - undo (which populates redo stack)
                 undoRedoManager.undo(sessionId)
                 
                 // Assert
-                undoRedoManager.canRedo() shouldBe false
+                undoRedoManager.canRedo() shouldBe true  // Event2 is now in redo stack
             }
         }
     }
@@ -347,25 +380,50 @@ class UndoRedoManagerTest : FunSpec({
                 val sessionId = 1L
                 val timestamp = System.currentTimeMillis()
                 
-                val events = (1..3).map { i ->
-                    AttackResolved(
-                        sessionId = sessionId,
-                        timestamp = timestamp + i,
-                        attackerId = 1L,
-                        targetId = 2L,
-                        attackRoll = DiceRoll(20, 1, 2, 15),
-                        targetAC = 13,
-                        hit = true,
-                        critical = false
-                    )
-                }
+                val event1 = AttackResolved(
+                    sessionId = sessionId,
+                    timestamp = timestamp + 1,
+                    attackerId = 1L,
+                    targetId = 2L,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
+                    hit = true,
+                    critical = false
+                )
+                
+                val event2 = AttackResolved(
+                    sessionId = sessionId,
+                    timestamp = timestamp + 2,
+                    attackerId = 1L,
+                    targetId = 2L,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
+                    hit = true,
+                    critical = false
+                )
+                
+                val event3 = AttackResolved(
+                    sessionId = sessionId,
+                    timestamp = timestamp + 3,
+                    attackerId = 1L,
+                    targetId = 2L,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
+                    hit = true,
+                    critical = false
+                )
+                
+                val events = listOf(event1, event2, event3)
                 
                 // Setup mock to return appropriate event lists
                 coEvery { eventRepository.forSession(sessionId) } returns events andThen 
-                    events.take(2) andThen 
-                    events.take(1) andThen
-                    events.take(2) andThen
-                    events
+                    events andThen  // After first undo
+                    events andThen  // After second undo
+                    events andThen  // After first redo
+                    events          // After second redo
+                
+                // Update initial event count
+                undoRedoManager.updateEventCount(events)
                 
                 // Act - undo 2 times
                 val after1Undo = undoRedoManager.undo(sessionId)
@@ -378,8 +436,8 @@ class UndoRedoManagerTest : FunSpec({
                 // Assert
                 after1Undo shouldHaveSize 2
                 after2Undos shouldHaveSize 1
-                after1Redo shouldHaveSize 2
-                after2Redos shouldHaveSize 3
+                after1Redo shouldHaveSize 2  // Restored event2
+                after2Redos shouldHaveSize 3  // Restored event3
             }
         }
         
@@ -400,11 +458,16 @@ class UndoRedoManagerTest : FunSpec({
                 
                 coEvery { eventRepository.forSession(sessionId) } returns listOf(event)
                 
+                // Update event count
+                undoRedoManager.updateEventCount(listOf(event))
+                
                 // Act
                 val result = undoRedoManager.undo(sessionId)
                 
                 // Assert
                 result shouldHaveSize 0
+                undoRedoManager.canUndo() shouldBe false  // No more events to undo
+                undoRedoManager.canRedo() shouldBe true   // Event is in redo stack
             }
         }
     }
