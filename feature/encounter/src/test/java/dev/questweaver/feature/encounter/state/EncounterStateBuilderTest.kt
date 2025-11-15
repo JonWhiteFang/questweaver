@@ -412,15 +412,15 @@ class EncounterStateBuilderTest : FunSpec({
                     initiativeOrder = listOf(InitiativeEntryData(1L, 15, 2, 17)),
                     surprisedCreatures = emptySet()
                 ),
-                RoundStarted(sessionId, timestamp + 1, sessionId, 1),
-                RoundStarted(sessionId, timestamp + 2, sessionId, 2)
+                RoundStarted(sessionId, timestamp + 1, sessionId, 2),
+                RoundStarted(sessionId, timestamp + 2, sessionId, 3)
             )
             
             // Act
             val state = stateBuilder.buildState(events)
             
             // Assert
-            state.roundState.roundNumber shouldBe 2
+            state.roundState.roundNumber shouldBe 3
         }
         
         test("TurnStarted sets active creature") {

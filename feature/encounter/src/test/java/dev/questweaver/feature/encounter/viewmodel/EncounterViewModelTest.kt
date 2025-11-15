@@ -147,7 +147,7 @@ class EncounterViewModelTest : FunSpec({
                 // Assert
                 val state = viewModel.state.first()
                 state.error.shouldNotBeNull()
-                state.error shouldBe "Cannot start encounter with no creatures"
+                state.error shouldBe "Failed to start encounter: Cannot start encounter with no creatures"
                 state.isLoading shouldBe false
             }
         }
@@ -549,7 +549,7 @@ class EncounterViewModelTest : FunSpec({
                 // Assert
                 val state = viewModel.state.first()
                 state.error.shouldNotBeNull()
-                state.error shouldBe "No active creature"
+                state.error shouldBe "Action failed: No active creature"
             }
         }
     }

@@ -75,7 +75,7 @@ class AdditionalTests : FunSpec({
                 // Assert
                 val state = viewModel.state.first()
                 state.error.shouldNotBeNull()
-                state.error shouldBe "Cannot start encounter with no creatures"
+                state.error shouldBe "Failed to start encounter: Cannot start encounter with no creatures"
             }
         }
         
@@ -99,7 +99,7 @@ class AdditionalTests : FunSpec({
                 // Assert
                 val state = viewModel.state.first()
                 state.error.shouldNotBeNull()
-                state.error shouldBe "No active creature"
+                state.error shouldBe "Action failed: No active creature"
             }
         }
         
@@ -266,9 +266,10 @@ class AdditionalTests : FunSpec({
                 val eventRepository = mockk<EventRepository>(relaxed = true)
                 val stateBuilder = mockk<EncounterStateBuilder>()
                 val undoRedoManager = mockk<UndoRedoManager>()
+                val initializeEncounter = mockk<InitializeEncounter>()
                 
                 val viewModel = EncounterViewModel(
-                    initializeEncounter = mockk(),
+                    initializeEncounter = initializeEncounter,
                     processPlayerAction = mockk(),
                     advanceTurn = mockk(),
                     eventRepository = eventRepository,
@@ -281,6 +282,7 @@ class AdditionalTests : FunSpec({
                     every { this@mockk.sessionId } returns sessionId
                 }
                 
+                coEvery { initializeEncounter(any(), any(), any(), any()) } returns encounterStartedEvent
                 coEvery { eventRepository.forSession(any()) } returns listOf(encounterStartedEvent)
                 
                 val encounterState = EncounterState(
@@ -305,6 +307,14 @@ class AdditionalTests : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                
+                // Start encounter to initialize state
+                viewModel.handle(EncounterIntent.StartEncounter(
+                    listOf(Creature(1L, "Fighter", 20, 20, 15, GridPos(0, 0), true)),
+                    emptySet(),
+                    MapGrid(10, 10)
+                ))
+                testDispatcher.scheduler.advanceUntilIdle()
                 
                 // Act - get weapon range overlay
                 val rangeOverlay = viewModel.getWeaponRangeOverlay(30)
