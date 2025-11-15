@@ -83,13 +83,11 @@ class EncounterStateBuilder(
      *
      * @param encounterState Domain encounter state
      * @param creatures Current creature states
-     * @param mapState Current map state (optional, will be built from encounter state if null)
      * @return UI state for rendering
      */
     fun buildUiState(
         encounterState: EncounterState,
-        creatures: Map<Long, Creature>,
-        mapState: MapState? = null
+        creatures: Map<Long, Creature>
     ): EncounterUiState {
         // Build creature states from current HP and conditions
         val creatureStates = creatures.mapValues { (id, creature) ->
@@ -126,8 +124,7 @@ class EncounterStateBuilder(
         // Build map state with synchronized creature positions
         val synchronizedMapState = buildMapState(
             encounterState = encounterState,
-            creatures = creatures,
-            activeCreatureId = encounterState.roundState.activeCreatureId
+            creatures = creatures
         )
         
         return EncounterUiState(
@@ -260,13 +257,11 @@ class EncounterStateBuilder(
      *
      * @param encounterState Current encounter state
      * @param creatures Map of creatures by ID
-     * @param activeCreatureId ID of the active creature (for highlighting)
      * @return MapState with synchronized positions and overlays
      */
     private fun buildMapState(
         encounterState: EncounterState,
-        creatures: Map<Long, Creature>,
-        activeCreatureId: Long?
+        creatures: Map<Long, Creature>
     ): MapState {
         // Build token render data from creatures
         val tokens = creatures.values.map { creature ->
@@ -303,6 +298,7 @@ class EncounterStateBuilder(
      * Converts feature GridPos to domain GridPos.
      * Handles the conversion between feature and domain layer types.
      */
+    @Suppress("unused")
     private fun convertToDomainGridPos(featurePos: GridPos): dev.questweaver.domain.values.GridPos {
         return dev.questweaver.domain.values.GridPos(featurePos.x, featurePos.y)
     }

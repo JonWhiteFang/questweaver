@@ -10,7 +10,11 @@ import dev.questweaver.domain.map.geometry.AoETemplate
  * Helper class for map integration functionality.
  * Provides methods to build map overlays for pathfinding, range, and AoE visualization.
  */
+@Suppress("TooManyFunctions")
 object MapIntegration {
+    
+    private const val FEET_PER_SQUARE = 5
+    private const val MOVEMENT_COST_DIFFICULT_MULTIPLIER = 2
     
     /**
      * Builds range overlay data for movement range visualization.
@@ -27,7 +31,7 @@ object MapIntegration {
     ): RangeOverlayData {
         // Calculate reachable positions within movement range
         // Each grid square is 5 feet in D&D 5e
-        val rangeInSquares = movementRemaining / 5
+        val rangeInSquares = movementRemaining / FEET_PER_SQUARE
         
         val reachablePositions = mutableSetOf<GridPos>()
         
@@ -64,7 +68,7 @@ object MapIntegration {
         rangeInFeet: Int
     ): RangeOverlayData {
         // Calculate positions within weapon range
-        val rangeInSquares = rangeInFeet / 5
+        val rangeInSquares = rangeInFeet / FEET_PER_SQUARE
         
         val positionsInRange = mutableSetOf<GridPos>()
         
@@ -99,7 +103,7 @@ object MapIntegration {
         rangeInFeet: Int
     ): RangeOverlayData {
         // Calculate positions within spell range
-        val rangeInSquares = rangeInFeet / 5
+        val rangeInSquares = rangeInFeet / FEET_PER_SQUARE
         
         val positionsInRange = mutableSetOf<GridPos>()
         
@@ -154,7 +158,7 @@ object MapIntegration {
      * Calculates affected positions for a sphere AoE.
      */
     private fun calculateSphereAoE(origin: GridPos, radiusInFeet: Int): Set<GridPos> {
-        val radiusInSquares = radiusInFeet / 5
+        val radiusInSquares = radiusInFeet / FEET_PER_SQUARE
         val affected = mutableSetOf<GridPos>()
         
         for (dx in -radiusInSquares..radiusInSquares) {
@@ -176,7 +180,7 @@ object MapIntegration {
      * Calculates affected positions for a cube AoE.
      */
     private fun calculateCubeAoE(origin: GridPos, sizeInFeet: Int): Set<GridPos> {
-        val sizeInSquares = sizeInFeet / 5
+        val sizeInSquares = sizeInFeet / FEET_PER_SQUARE
         val affected = mutableSetOf<GridPos>()
         
         for (dx in 0 until sizeInSquares) {
@@ -193,7 +197,7 @@ object MapIntegration {
      * Simplified implementation - actual cone calculation would be more complex.
      */
     private fun calculateConeAoE(origin: GridPos, lengthInFeet: Int): Set<GridPos> {
-        val lengthInSquares = lengthInFeet / 5
+        val lengthInSquares = lengthInFeet / FEET_PER_SQUARE
         val affected = mutableSetOf<GridPos>()
         
         // Simplified cone pointing north
@@ -211,7 +215,7 @@ object MapIntegration {
      * Calculates affected positions for a line AoE.
      */
     private fun calculateLineAoE(origin: GridPos, lengthInFeet: Int): Set<GridPos> {
-        val lengthInSquares = lengthInFeet / 5
+        val lengthInSquares = lengthInFeet / FEET_PER_SQUARE
         val affected = mutableSetOf<GridPos>()
         
         // Simplified line pointing north
@@ -259,18 +263,17 @@ object MapIntegration {
         var cost = 0
         
         for (i in 0 until path.size - 1) {
-            val current = path[i]
             val next = path[i + 1]
             
             // Base cost is 5 feet per square
-            var stepCost = 5
+            var stepCost = FEET_PER_SQUARE
             
             // Diagonal movement costs the same in D&D 5e
             // (simplified rules, not using alternating 5/10 feet)
             
             // Difficult terrain doubles the cost
             if (difficultTerrain.contains(next)) {
-                stepCost *= 2
+                stepCost *= MOVEMENT_COST_DIFFICULT_MULTIPLIER
             }
             
             cost += stepCost

@@ -42,6 +42,28 @@ class EncounterViewModel(
         private const val ERROR_NO_ACTIVE_CREATURE = "No active creature"
         private const val ERROR_NO_ACTIVE_SESSION = "No active session"
         private const val ERROR_NO_PENDING_CHOICE = "No pending choice"
+        private const val ERROR_INVALID_STATE = "Invalid state"
+        private const val ERROR_INVALID_ACTION = "Invalid action"
+        private const val ERROR_INVALID_DATA = "Invalid data"
+        private const val ERROR_UNKNOWN_STATE = "Unknown state error"
+        private const val ERROR_INVALID_CONFIG = "Invalid configuration"
+        private const val ERROR_INVALID_TURN_STATE = "Invalid turn state"
+        private const val ERROR_FAILED_TO_UNDO = "Failed to undo"
+        private const val ERROR_CANNOT_UNDO = "Cannot undo"
+        private const val ERROR_FAILED_TO_REDO = "Failed to redo"
+        private const val ERROR_CANNOT_REDO = "Cannot redo"
+        private const val ERROR_FAILED_TO_RESOLVE = "Failed to resolve choice"
+        private const val ERROR_INVALID_CHOICE = "Invalid choice"
+        private const val ERROR_FAILED_TO_REBUILD = "Failed to rebuild state"
+        private const val DEFAULT_MOVEMENT_FEET = 30
+        private const val CONTEXT_LOAD_ENCOUNTER = "loadEncounter"
+        private const val CONTEXT_START_ENCOUNTER = "handleStartEncounter"
+        private const val CONTEXT_COMBAT_ACTION = "handleCombatAction"
+        private const val CONTEXT_END_TURN = "handleEndTurn"
+        private const val CONTEXT_UNDO = "handleUndo"
+        private const val CONTEXT_REDO = "handleRedo"
+        private const val CONTEXT_RESOLVE_CHOICE = "handleResolveChoice"
+        private const val CONTEXT_REBUILD_STATE = "rebuildStateFromEvents"
     }
     
     // Private mutable state
@@ -88,13 +110,14 @@ class EncounterViewModel(
      *
      * @return RangeOverlayData for movement range, or null if no active creature
      */
+    @Suppress("ReturnCount")
     fun getMovementRangeOverlay(): RangeOverlayData? {
         val currentState = _state.value
         val activeCreatureId = currentState.activeCreatureId ?: return null
         val activeCreature = currentState.creatures[activeCreatureId] ?: return null
         
         // Calculate remaining movement (simplified - would come from turn state)
-        val movementRemaining = 30 // Default 30 feet movement
+        val movementRemaining = DEFAULT_MOVEMENT_FEET
         
         // Get blocked positions from map state
         val blockedPositions = currentState.mapState?.blocked ?: emptySet()
@@ -113,6 +136,7 @@ class EncounterViewModel(
      * @param weaponRangeInFeet The weapon's range in feet
      * @return RangeOverlayData for weapon range, or null if no active creature
      */
+    @Suppress("ReturnCount")
     fun getWeaponRangeOverlay(weaponRangeInFeet: Int): RangeOverlayData? {
         val currentState = _state.value
         val activeCreatureId = currentState.activeCreatureId ?: return null
@@ -131,6 +155,7 @@ class EncounterViewModel(
      * @param spellRangeInFeet The spell's range in feet
      * @return RangeOverlayData for spell range, or null if no active creature
      */
+    @Suppress("ReturnCount")
     fun getSpellRangeOverlay(spellRangeInFeet: Int): RangeOverlayData? {
         val currentState = _state.value
         val activeCreatureId = currentState.activeCreatureId ?: return null
@@ -232,7 +257,7 @@ class EncounterViewModel(
             if (events.isEmpty()) {
                 handleError(
                     EncounterError.LoadFailed(sessionId, "No events found for session"),
-                    "loadEncounter"
+                    CONTEXT_LOAD_ENCOUNTER
                 )
                 return
             }
@@ -247,8 +272,7 @@ class EncounterViewModel(
             // Build UI state
             val uiState = stateBuilder.buildUiState(
                 encounterState = encounterState,
-                creatures = creatures,
-                mapState = null
+                creatures = creatures
             ).copy(
                 isLoading = false,
                 canUndo = undoRedoManager.canUndo(),
@@ -259,20 +283,14 @@ class EncounterViewModel(
             Log.i(TAG, "Successfully loaded encounter for session $sessionId")
         } catch (e: IllegalStateException) {
             handleError(
-                EncounterError.LoadFailed(sessionId, e.message ?: "Unknown state error"),
-                "loadEncounter",
+                EncounterError.LoadFailed(sessionId, e.message ?: ERROR_UNKNOWN_STATE),
+                CONTEXT_LOAD_ENCOUNTER,
                 e
             )
         } catch (e: IllegalArgumentException) {
             handleError(
-                EncounterError.LoadFailed(sessionId, e.message ?: "Invalid data"),
-                "loadEncounter",
-                e
-            )
-        } catch (e: Exception) {
-            handleError(
-                EncounterError.LoadFailed(sessionId, "Unexpected error: ${e.message}"),
-                "loadEncounter",
+                EncounterError.LoadFailed(sessionId, e.message ?: ERROR_INVALID_DATA),
+                CONTEXT_LOAD_ENCOUNTER,
                 e
             )
         }
@@ -292,7 +310,7 @@ class EncounterViewModel(
             if (intent.creatures.isEmpty()) {
                 handleError(
                     EncounterError.InitializationFailed("Cannot start encounter with no creatures"),
-                    "handleStartEncounter"
+                    CONTEXT_START_ENCOUNTER
                 )
                 return
             }
@@ -321,8 +339,7 @@ class EncounterViewModel(
             // Build and update UI state
             val uiState = stateBuilder.buildUiState(
                 encounterState = encounterState,
-                creatures = creatures,
-                mapState = null
+                creatures = creatures
             ).copy(
                 isLoading = false,
                 canUndo = undoRedoManager.canUndo(),
@@ -333,20 +350,14 @@ class EncounterViewModel(
             Log.i(TAG, "Successfully started encounter with session $sessionId")
         } catch (e: IllegalStateException) {
             handleError(
-                EncounterError.InitializationFailed(e.message ?: "Unknown state error"),
-                "handleStartEncounter",
+                EncounterError.InitializationFailed(e.message ?: ERROR_UNKNOWN_STATE),
+                CONTEXT_START_ENCOUNTER,
                 e
             )
         } catch (e: IllegalArgumentException) {
             handleError(
-                EncounterError.InitializationFailed(e.message ?: "Invalid configuration"),
-                "handleStartEncounter",
-                e
-            )
-        } catch (e: Exception) {
-            handleError(
-                EncounterError.InitializationFailed("Unexpected error: ${e.message}"),
-                "handleStartEncounter",
+                EncounterError.InitializationFailed(e.message ?: ERROR_INVALID_CONFIG),
+                CONTEXT_START_ENCOUNTER,
                 e
             )
         }
@@ -378,9 +389,6 @@ class EncounterViewModel(
             )
             return
         }
-        
-        // Calculate movement cost
-        val movementCost = calculateMovementCost(intent.path)
         
         // Set the movement path in UI state for visualization
         _state.value = _state.value.copy(
@@ -475,76 +483,95 @@ class EncounterViewModel(
             val activeCreatureId = currentState.activeCreatureId
                 ?: return handleError(
                     EncounterError.ActionFailed(ERROR_NO_ACTIVE_CREATURE),
-                    "handleCombatAction"
+                    CONTEXT_COMBAT_ACTION
                 )
             
             val sessionId = currentState.sessionId
                 ?: return handleError(
                     EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
-                    "handleCombatAction"
+                    CONTEXT_COMBAT_ACTION
                 )
             
-            // Build action context
+            // Build action context and process
             val context = ActionContext(
                 sessionId = sessionId,
                 activeCreatureId = activeCreatureId,
                 roundNumber = currentState.roundNumber
             )
-            
-            // Process action
             val result = processPlayerAction(action, context)
             
             // Handle result
-            when (result) {
-                is ActionResult.Success -> {
-                    // Action succeeded - state already updated via events
-                    rebuildStateFromEvents(sessionId)
-                    _state.value = _state.value.copy(
-                        lastActionResult = result,
-                        pendingChoice = null,
-                        error = null
-                    )
-                    Log.i(TAG, "Combat action succeeded: ${action.type}")
-                }
-                is ActionResult.Failure -> {
-                    // Action failed - update error state but don't corrupt state
-                    handleError(
-                        EncounterError.ActionFailed(result.reason),
-                        "handleCombatAction"
-                    )
-                    _state.value = _state.value.copy(
-                        lastActionResult = result
-                    )
-                }
-                is ActionResult.RequiresChoice -> {
-                    // Action requires user choice
-                    _state.value = _state.value.copy(
-                        pendingChoice = result.choice,
-                        lastActionResult = result,
-                        error = null
-                    )
-                    Log.i(TAG, "Combat action requires choice: ${result.choice.prompt}")
-                }
-            }
+            handleActionResult(result, sessionId, action)
         } catch (e: IllegalStateException) {
             handleError(
-                EncounterError.ActionFailed(e.message ?: "Invalid state"),
-                "handleCombatAction",
+                EncounterError.ActionFailed(e.message ?: ERROR_INVALID_STATE),
+                CONTEXT_COMBAT_ACTION,
                 e
             )
         } catch (e: IllegalArgumentException) {
             handleError(
-                EncounterError.ActionFailed(e.message ?: "Invalid action"),
-                "handleCombatAction",
-                e
-            )
-        } catch (e: Exception) {
-            handleError(
-                EncounterError.ActionFailed("Unexpected error: ${e.message}"),
-                "handleCombatAction",
+                EncounterError.ActionFailed(e.message ?: ERROR_INVALID_ACTION),
+                CONTEXT_COMBAT_ACTION,
                 e
             )
         }
+    }
+    
+    /**
+     * Handles the result of a combat action.
+     */
+    private suspend fun handleActionResult(
+        result: ActionResult,
+        sessionId: Long,
+        action: CombatAction
+    ) {
+        when (result) {
+            is ActionResult.Success -> handleActionSuccess(result, sessionId, action)
+            is ActionResult.Failure -> handleActionFailure(result)
+            is ActionResult.RequiresChoice -> handleActionChoice(result)
+        }
+    }
+    
+    /**
+     * Handles successful action result.
+     */
+    private suspend fun handleActionSuccess(
+        result: ActionResult.Success,
+        sessionId: Long,
+        action: CombatAction
+    ) {
+        rebuildStateFromEvents(sessionId)
+        _state.value = _state.value.copy(
+            lastActionResult = result,
+            pendingChoice = null,
+            error = null
+        )
+        Log.i(TAG, "Combat action succeeded: ${action.type}")
+    }
+    
+    /**
+     * Handles failed action result.
+     */
+    private fun handleActionFailure(result: ActionResult.Failure) {
+        handleError(
+            EncounterError.ActionFailed(result.reason),
+            CONTEXT_COMBAT_ACTION
+        )
+        _state.value = _state.value.copy(
+            lastActionResult = result
+        )
+    }
+    
+    /**
+     * Handles action requiring user choice.
+     */
+    private fun handleActionChoice(result: ActionResult.RequiresChoice) {
+        _state.value = _state.value.copy(
+            pendingChoice = result.choice,
+            lastActionResult = result,
+            error = null
+        )
+        Log.i(TAG, "Combat action requires choice: ${result.choice.prompt}")
     }
     
     /**
@@ -560,7 +587,7 @@ class EncounterViewModel(
             val sessionId = currentState.sessionId
                 ?: return handleError(
                     EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
-                    "handleEndTurn"
+                    CONTEXT_END_TURN
                 )
             
             // Load current encounter state
@@ -611,20 +638,14 @@ class EncounterViewModel(
             }
         } catch (e: IllegalStateException) {
             handleError(
-                EncounterError.StateCorrupted(e.message ?: "Invalid turn state"),
-                "handleEndTurn",
+                EncounterError.StateCorrupted(e.message ?: ERROR_INVALID_TURN_STATE),
+                CONTEXT_END_TURN,
                 e
             )
         } catch (e: IllegalArgumentException) {
             handleError(
-                EncounterError.ActionFailed(e.message ?: "Invalid turn state"),
-                "handleEndTurn",
-                e
-            )
-        } catch (e: Exception) {
-            handleError(
-                EncounterError.ActionFailed("Failed to end turn: ${e.message}"),
-                "handleEndTurn",
+                EncounterError.ActionFailed(e.message ?: ERROR_INVALID_TURN_STATE),
+                CONTEXT_END_TURN,
                 e
             )
         }
@@ -639,13 +660,13 @@ class EncounterViewModel(
             val sessionId = _state.value.sessionId
                 ?: return handleError(
                     EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
-                    "handleUndo"
+                    CONTEXT_UNDO
                 )
             
             if (!undoRedoManager.canUndo()) {
                 handleError(
                     EncounterError.ActionFailed("No actions to undo"),
-                    "handleUndo"
+                    CONTEXT_UNDO
                 )
                 return
             }
@@ -662,8 +683,7 @@ class EncounterViewModel(
             // Update UI state
             val uiState = stateBuilder.buildUiState(
                 encounterState = encounterState,
-                creatures = creatures,
-                mapState = _state.value.mapState
+                creatures = creatures
             ).copy(
                 canUndo = undoRedoManager.canUndo(),
                 canRedo = undoRedoManager.canRedo(),
@@ -674,20 +694,14 @@ class EncounterViewModel(
             Log.i(TAG, "Undo successful")
         } catch (e: IllegalStateException) {
             handleError(
-                EncounterError.StateCorrupted(e.message ?: "Failed to undo"),
-                "handleUndo",
+                EncounterError.StateCorrupted(e.message ?: ERROR_FAILED_TO_UNDO),
+                CONTEXT_UNDO,
                 e
             )
         } catch (e: IllegalArgumentException) {
             handleError(
-                EncounterError.ActionFailed(e.message ?: "Cannot undo"),
-                "handleUndo",
-                e
-            )
-        } catch (e: Exception) {
-            handleError(
-                EncounterError.ActionFailed("Failed to undo: ${e.message}"),
-                "handleUndo",
+                EncounterError.ActionFailed(e.message ?: ERROR_CANNOT_UNDO),
+                CONTEXT_UNDO,
                 e
             )
         }
@@ -702,13 +716,13 @@ class EncounterViewModel(
             val sessionId = _state.value.sessionId
                 ?: return handleError(
                     EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
-                    "handleRedo"
+                    CONTEXT_REDO
                 )
             
             if (!undoRedoManager.canRedo()) {
                 handleError(
                     EncounterError.ActionFailed("No actions to redo"),
-                    "handleRedo"
+                    CONTEXT_REDO
                 )
                 return
             }
@@ -737,20 +751,14 @@ class EncounterViewModel(
             Log.i(TAG, "Redo successful")
         } catch (e: IllegalStateException) {
             handleError(
-                EncounterError.StateCorrupted(e.message ?: "Failed to redo"),
-                "handleRedo",
+                EncounterError.StateCorrupted(e.message ?: ERROR_FAILED_TO_REDO),
+                CONTEXT_REDO,
                 e
             )
         } catch (e: IllegalArgumentException) {
             handleError(
-                EncounterError.ActionFailed(e.message ?: "Cannot redo"),
-                "handleRedo",
-                e
-            )
-        } catch (e: Exception) {
-            handleError(
-                EncounterError.ActionFailed("Failed to redo: ${e.message}"),
-                "handleRedo",
+                EncounterError.ActionFailed(e.message ?: ERROR_CANNOT_REDO),
+                CONTEXT_REDO,
                 e
             )
         }
@@ -767,7 +775,7 @@ class EncounterViewModel(
             if (pendingChoice == null) {
                 handleError(
                     EncounterError.ActionFailed(ERROR_NO_PENDING_CHOICE),
-                    "handleResolveChoice"
+                    CONTEXT_RESOLVE_CHOICE
                 )
                 return
             }
@@ -776,7 +784,7 @@ class EncounterViewModel(
             if (!pendingChoice.options.contains(intent.selectedOption)) {
                 handleError(
                     EncounterError.ActionFailed("Invalid choice: option not available"),
-                    "handleResolveChoice"
+                    CONTEXT_RESOLVE_CHOICE
                 )
                 return
             }
@@ -795,20 +803,14 @@ class EncounterViewModel(
             Log.i(TAG, "Choice resolved: ${intent.selectedOption.name}")
         } catch (e: IllegalStateException) {
             handleError(
-                EncounterError.ActionFailed(e.message ?: "Failed to resolve choice"),
-                "handleResolveChoice",
+                EncounterError.ActionFailed(e.message ?: ERROR_FAILED_TO_RESOLVE),
+                CONTEXT_RESOLVE_CHOICE,
                 e
             )
         } catch (e: IllegalArgumentException) {
             handleError(
-                EncounterError.ActionFailed(e.message ?: "Invalid choice"),
-                "handleResolveChoice",
-                e
-            )
-        } catch (e: Exception) {
-            handleError(
-                EncounterError.ActionFailed("Failed to resolve choice: ${e.message}"),
-                "handleResolveChoice",
+                EncounterError.ActionFailed(e.message ?: ERROR_INVALID_CHOICE),
+                CONTEXT_RESOLVE_CHOICE,
                 e
             )
         }
@@ -830,19 +832,24 @@ class EncounterViewModel(
             
             val uiState = stateBuilder.buildUiState(
                 encounterState = encounterState,
-                creatures = creatures,
-                mapState = _state.value.mapState
+                creatures = creatures
             ).copy(
                 canUndo = undoRedoManager.canUndo(),
                 canRedo = undoRedoManager.canRedo()
             )
             
             _state.value = uiState
-        } catch (e: Exception) {
+        } catch (e: IllegalStateException) {
             // If rebuild fails, state is corrupted
             handleError(
-                EncounterError.StateCorrupted("Failed to rebuild state: ${e.message}"),
-                "rebuildStateFromEvents",
+                EncounterError.StateCorrupted(e.message ?: ERROR_FAILED_TO_REBUILD),
+                CONTEXT_REBUILD_STATE,
+                e
+            )
+        } catch (e: IllegalArgumentException) {
+            handleError(
+                EncounterError.StateCorrupted(e.message ?: ERROR_FAILED_TO_REBUILD),
+                CONTEXT_REBUILD_STATE,
                 e
             )
         }
