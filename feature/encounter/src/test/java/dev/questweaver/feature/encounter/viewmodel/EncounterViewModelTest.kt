@@ -500,7 +500,7 @@ class EncounterViewModelTest : FunSpec({
                     roundNumber = 1
                 )
                 every { undoRedoManager.canUndo() } returns true  // After redo, back to 2 events
-                every { undoRedoManager.canRedo() } returns true andThen false  // Before redo can redo, after redo cannot
+                every { undoRedoManager.canRedo() } returnsMany listOf(true, true, false, false)  // Multiple calls during state updates
                 every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(

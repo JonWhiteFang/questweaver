@@ -85,8 +85,8 @@ class UndoRedoManager(
      * @return True if undo is available
      */
     fun canUndo(): Boolean {
-        // Can undo if there are events beyond the initial EncounterStarted event
-        return lastEventCount > 1
+        // Can undo if there are any events (including the initial EncounterStarted event)
+        return lastEventCount > 0
     }
     
     /**
