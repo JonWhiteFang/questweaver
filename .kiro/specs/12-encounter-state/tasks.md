@@ -60,8 +60,8 @@
   - Define fields: id, name, quantity
   - _Requirements: 5.5_
 
-- [ ] 5. Implement CompletionDetector
-  - [ ] 5.1 Create CompletionDetector class
+- [x] 5. Implement CompletionDetector
+  - [x] 5.1 Create CompletionDetector class
   - Implement checkCompletion() method accepting creatures map
   - Separate creatures into player-controlled and enemies
   - Return Victory if all enemies defeated or fled
@@ -69,18 +69,18 @@
   - Return null if encounter continues
   - _Requirements: 5.1, 5.2, 5.3_
 
-  - [ ] 5.2 Implement calculateRewards() method
+  - [x] 5.2 Implement calculateRewards() method
   - Calculate XP based on defeated creature challenge ratings
   - Generate loot based on creature loot tables
   - Return EncounterRewards with XP and loot
   - _Requirements: 5.5_
 
-- [ ] 6. Implement UndoRedoManager
-  - [ ] 6.1 Create UndoRedoManager class with EventRepository dependency
+- [x] 6. Implement UndoRedoManager
+  - [x] 6.1 Create UndoRedoManager class with EventRepository dependency
   - Initialize undoStack and redoStack as mutable lists
   - _Requirements: 9.1, 9.2_
 
-  - [ ] 6.2 Implement undo() method
+  - [x] 6.2 Implement undo() method
   - Load current events from repository
   - Remove most recent event from event log
   - Push removed event to undo stack
@@ -88,24 +88,24 @@
   - Return updated event list
   - _Requirements: 9.1, 9.2_
 
-  - [ ] 6.3 Implement redo() method
+  - [x] 6.3 Implement redo() method
   - Pop event from undo stack
   - Append event back to event log in repository
   - Return updated event list
   - _Requirements: 9.3, 9.4_
 
-  - [ ] 6.4 Implement helper methods
+  - [x] 6.4 Implement helper methods
   - Implement canUndo() returning true if undo stack not empty
   - Implement canRedo() returning true if redo stack not empty
   - Implement clearRedo() clearing the redo stack
   - Limit undo stack to maximum 10 actions
   - _Requirements: 9.5_
 
-- [ ] 7. Implement EncounterStateBuilder
-  - [ ] 7.1 Create EncounterStateBuilder class with InitiativeStateBuilder dependency
+- [x] 7. Implement EncounterStateBuilder
+  - [x] 7.1 Create EncounterStateBuilder class with InitiativeStateBuilder dependency
   - _Requirements: 6.3_
 
-  - [ ] 7.2 Implement buildState() method
+  - [x] 7.2 Implement buildState() method
   - Initialize empty EncounterState
   - Replay events in sequence using when expression
   - Handle EncounterStarted: set initial creatures and initiative
@@ -120,7 +120,7 @@
   - Return complete EncounterState
   - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ] 7.3 Implement buildUiState() method
+  - [x] 7.3 Implement buildUiState() method
   - Convert EncounterState to EncounterUiState
   - Build CreatureState objects from creatures map
   - Integrate MapState from parameter
@@ -129,8 +129,8 @@
   - Return EncounterUiState
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 8. Implement use cases
-  - [ ] 8.1 Create InitializeEncounter use case
+- [x] 8. Implement use cases
+  - [x] 8.1 Create InitializeEncounter use case
   - Accept sessionId, creatures, surprisedCreatures, mapGrid parameters
   - Use InitiativeRoller to roll initiative for all creatures
   - Use SurpriseHandler to check for surprise round
@@ -138,7 +138,7 @@
   - Return event
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-  - [ ] 8.2 Create ProcessPlayerAction use case
+  - [x] 8.2 Create ProcessPlayerAction use case
   - Accept action and context parameters
   - Build ActionContext from current encounter state
   - Use ActionProcessor to validate and execute action
@@ -146,7 +146,7 @@
   - Return ActionResult with generated events
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ] 8.3 Create AdvanceTurn use case
+  - [x] 8.3 Create AdvanceTurn use case
   - Accept currentState parameter
   - Generate TurnEnded event for current creature
   - Use InitiativeTracker to advance to next creature
@@ -156,25 +156,25 @@
   - Return list of events
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 9. Implement EncounterViewModel
-  - [ ] 9.1 Create EncounterViewModel class with dependencies
+- [x] 9. Implement EncounterViewModel
+  - [x] 9.1 Create EncounterViewModel class with dependencies
   - Accept InitializeEncounter, ProcessPlayerAction, AdvanceTurn use cases
   - Accept EventRepository, EncounterStateBuilder, CompletionDetector, UndoRedoManager
   - Extend ViewModel class
   - _Requirements: 2.1, 11.1_
 
-  - [ ] 9.2 Initialize StateFlow for UI state
+  - [x] 9.2 Initialize StateFlow for UI state
   - Create private MutableStateFlow with initial EncounterUiState
   - Expose public StateFlow as read-only
   - _Requirements: 2.1, 2.2, 2.3_
 
-  - [ ] 9.3 Implement handle() method for intent processing
+  - [x] 9.3 Implement handle() method for intent processing
   - Accept EncounterIntent parameter
   - Use exhaustive when expression for all intent types
   - Launch coroutine in viewModelScope for each intent
   - _Requirements: 2.2, 2.3_
 
-  - [ ] 9.4 Implement StartEncounter intent handler
+  - [x] 9.4 Implement StartEncounter intent handler
   - Call InitializeEncounter use case
   - Persist EncounterStarted event to repository
   - Rebuild state from events
@@ -182,7 +182,7 @@
   - Handle errors and update error state
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-  - [ ] 9.5 Implement combat action intent handlers
+  - [x] 9.5 Implement combat action intent handlers
   - Implement Attack intent handler calling ProcessPlayerAction
   - Implement MoveTo intent handler calling ProcessPlayerAction
   - Implement CastSpell intent handler calling ProcessPlayerAction
@@ -192,7 +192,7 @@
   - Handle ActionResult.RequiresChoice by setting pendingChoice in UI state
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ] 9.6 Implement EndTurn intent handler
+  - [x] 9.6 Implement EndTurn intent handler
   - Call AdvanceTurn use case
   - Persist generated events to repository
   - Check for creature defeat and remove from initiative if needed
@@ -201,28 +201,28 @@
   - Rebuild state and update UI
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [ ] 9.7 Implement Undo/Redo intent handlers
+  - [x] 9.7 Implement Undo/Redo intent handlers
   - Implement Undo intent handler calling UndoRedoManager.undo()
   - Implement Redo intent handler calling UndoRedoManager.redo()
   - Rebuild state from updated event list
   - Update UI state with new state and undo/redo availability
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-  - [ ] 9.8 Implement ResolveChoice intent handler
+  - [x] 9.8 Implement ResolveChoice intent handler
   - Get pending choice from UI state
   - Create action with selected option
   - Call ProcessPlayerAction with resolved action
   - Clear pendingChoice from UI state
   - _Requirements: 3.5_
 
-  - [ ] 9.9 Implement loadEncounter() method
+  - [x] 9.9 Implement loadEncounter() method
   - Load events for sessionId from repository
   - Use EncounterStateBuilder to rebuild state from events
   - Update UI state with loaded state
   - Handle load errors
   - _Requirements: 6.1, 6.2, 6.3, 8.4_
 
-  - [ ] 9.10 Implement encounter cleanup
+  - [x] 9.10 Implement encounter cleanup
   - Override onCleared() to cancel coroutines
   - Mark encounter as inactive when ViewModel cleared
   - Clear any temporary state or cached data
