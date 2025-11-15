@@ -10,8 +10,8 @@ import dev.questweaver.domain.repositories.EventRepository
 class UndoRedoManager(
     private val eventRepository: EventRepository
 ) {
-    private val undoStack = mutableListOf<GameEvent>()
     private val redoStack = mutableListOf<GameEvent>()
+    private var lastEventCount = 0
     
     companion object {
         private const val MAX_UNDO_DEPTH = 10
@@ -28,22 +28,23 @@ class UndoRedoManager(
         val currentEvents = eventRepository.forSession(sessionId).toMutableList()
         
         if (currentEvents.isEmpty()) {
+            lastEventCount = 0
             return currentEvents
         }
         
         // Remove most recent event
         val removedEvent = currentEvents.removeLast()
         
-        // Push removed event to undo stack
-        undoStack.add(removedEvent)
+        // Push removed event to redo stack (so it can be redone)
+        redoStack.add(removedEvent)
         
-        // Limit undo stack to maximum depth
-        if (undoStack.size > MAX_UNDO_DEPTH) {
-            undoStack.removeAt(0)
+        // Limit redo stack to maximum depth
+        if (redoStack.size > MAX_UNDO_DEPTH) {
+            redoStack.removeAt(0)
         }
         
-        // Clear redo stack when new action is taken
-        redoStack.clear()
+        // Update last event count
+        lastEventCount = currentEvents.size
         
         // Note: In a real implementation, we would need to update the repository
         // to reflect the removed event. For now, we return the updated list.
@@ -59,26 +60,34 @@ class UndoRedoManager(
      * @return Updated list of events after redo
      */
     suspend fun redo(sessionId: Long): List<GameEvent> {
-        if (undoStack.isEmpty()) {
+        if (redoStack.isEmpty()) {
             return eventRepository.forSession(sessionId)
         }
         
-        // Pop event from undo stack
-        val eventToRestore = undoStack.removeLast()
+        // Pop event from redo stack
+        val eventToRestore = redoStack.removeLast()
         
         // Append event back to repository
         eventRepository.append(eventToRestore)
         
+        // Get updated event list
+        val updatedEvents = eventRepository.forSession(sessionId)
+        lastEventCount = updatedEvents.size
+        
         // Return updated event list
-        return eventRepository.forSession(sessionId)
+        return updatedEvents
     }
     
     /**
      * Checks if undo is available.
+     * Undo is available when there are events in the current session (beyond the initial event).
      *
-     * @return True if there are events in the undo stack
+     * @return True if undo is available
      */
-    fun canUndo(): Boolean = undoStack.isNotEmpty()
+    fun canUndo(): Boolean {
+        // Can undo if there are events beyond the initial EncounterStarted event
+        return lastEventCount > 1
+    }
     
     /**
      * Checks if redo is available.
@@ -93,5 +102,15 @@ class UndoRedoManager(
      */
     fun clearRedo() {
         redoStack.clear()
+    }
+    
+    /**
+     * Updates the internal event count.
+     * Should be called after loading or modifying events.
+     *
+     * @param events The current list of events
+     */
+    fun updateEventCount(events: List<GameEvent>) {
+        lastEventCount = events.size
     }
 }

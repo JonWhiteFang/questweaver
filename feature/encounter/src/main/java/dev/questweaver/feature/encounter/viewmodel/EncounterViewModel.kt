@@ -266,6 +266,9 @@ class EncounterViewModel(
             // Rebuild state from events
             val encounterState = stateBuilder.buildState(events)
             
+            // Update undo/redo manager event count
+            undoRedoManager.updateEventCount(events)
+            
             // Build creatures map from state
             // TODO: Extract creatures from encounter state properly
             val creatures = emptyMap<Long, Creature>()
@@ -333,6 +336,9 @@ class EncounterViewModel(
             // Rebuild state from events
             val events = eventRepository.forSession(sessionId)
             val encounterState = stateBuilder.buildState(events)
+            
+            // Update undo/redo manager event count
+            undoRedoManager.updateEventCount(events)
             
             // Build creatures map
             val creatures = intent.creatures.associateBy { it.id }
@@ -672,7 +678,7 @@ class EncounterViewModel(
                 return
             }
             
-            // Call UndoRedoManager
+            // Call UndoRedoManager (it updates its own event count)
             val updatedEvents = undoRedoManager.undo(sessionId)
             
             // Rebuild state from updated events
@@ -728,7 +734,7 @@ class EncounterViewModel(
                 return
             }
             
-            // Call UndoRedoManager
+            // Call UndoRedoManager (it updates its own event count)
             val updatedEvents = undoRedoManager.redo(sessionId)
             
             // Rebuild state from updated events
@@ -826,6 +832,9 @@ class EncounterViewModel(
         try {
             val events = eventRepository.forSession(sessionId)
             val encounterState = stateBuilder.buildState(events)
+            
+            // Update undo/redo manager event count
+            undoRedoManager.updateEventCount(events)
             
             // TODO: Extract creatures properly from encounter state
             val creatures = emptyMap<Long, Creature>()

@@ -273,9 +273,13 @@ class IntegrationTest : FunSpec({
                 
                 coEvery { eventRepository.forSession(sessionId) } returns events
                 every { stateBuilder.buildState(events) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any()) } returns mockk(relaxed = true)
+                every { stateBuilder.buildUiState(any(), any()) } returns dev.questweaver.feature.encounter.viewmodel.EncounterUiState(
+                    sessionId = sessionId,
+                    roundNumber = 2
+                )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 // Act
                 viewModel.loadEncounter(sessionId)

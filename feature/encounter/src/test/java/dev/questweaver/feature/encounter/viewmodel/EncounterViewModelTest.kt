@@ -118,6 +118,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 // Act
                 viewModel.handle(intent)
@@ -196,6 +197,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 testDispatcher.scheduler.advanceUntilIdle()
                 
@@ -255,6 +257,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(
                     listOf(Creature(activeCreatureId, "Fighter", 20, 20, 15, GridPos(0, 0), true)),
@@ -316,6 +319,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(
                     listOf(
@@ -383,6 +387,7 @@ class EncounterViewModelTest : FunSpec({
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
                 every { completionDetector.checkCompletion(any()) } returns null
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(
                     listOf(
@@ -439,6 +444,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns true andThen false
                 every { undoRedoManager.canRedo() } returns false andThen true
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(
                     listOf(Creature(1L, "Fighter", 20, 20, 15, GridPos(0, 0), true)),
@@ -495,6 +501,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false andThen true
                 every { undoRedoManager.canRedo() } returns true andThen false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(
                     listOf(Creature(1L, "Fighter", 20, 20, 15, GridPos(0, 0), true)),
@@ -541,6 +548,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 // Act
                 viewModel.handle(EncounterIntent.Attack(2L))
@@ -584,6 +592,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 // Act
                 val initialState = viewModel.state.first()
