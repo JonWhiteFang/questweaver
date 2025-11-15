@@ -1,5 +1,6 @@
 package dev.questweaver.feature.encounter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.questweaver.domain.events.GameEvent
@@ -7,10 +8,13 @@ import dev.questweaver.domain.repositories.EventRepository
 import dev.questweaver.feature.encounter.state.CompletionDetector
 import dev.questweaver.feature.encounter.state.EncounterStateBuilder
 import dev.questweaver.feature.encounter.state.UndoRedoManager
+import dev.questweaver.feature.encounter.state.MapIntegration
 import dev.questweaver.feature.encounter.usecases.AdvanceTurn
 import dev.questweaver.feature.encounter.usecases.InitializeEncounter
 import dev.questweaver.feature.encounter.usecases.ProcessPlayerAction
 import dev.questweaver.feature.encounter.usecases.ActionContext
+import dev.questweaver.feature.map.ui.RangeOverlayData
+import dev.questweaver.feature.map.ui.AoEOverlayData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +38,7 @@ class EncounterViewModel(
 ) : ViewModel() {
     
     companion object {
+        private const val TAG = "EncounterViewModel"
         private const val ERROR_NO_ACTIVE_CREATURE = "No active creature"
         private const val ERROR_NO_ACTIVE_SESSION = "No active session"
         private const val ERROR_NO_PENDING_CHOICE = "No pending choice"
@@ -44,6 +49,147 @@ class EncounterViewModel(
     
     // Public read-only state exposed to UI
     val state: StateFlow<EncounterUiState> = _state.asStateFlow()
+    
+    /**
+     * Sets the range overlay for the current action.
+     * Used by the UI to show valid targets for an action.
+     *
+     * @param rangeOverlay The range overlay data, or null to clear
+     */
+    fun setRangeOverlay(rangeOverlay: RangeOverlayData?) {
+        _state.value = _state.value.copy(rangeOverlay = rangeOverlay)
+    }
+    
+    /**
+     * Sets the AoE overlay for the current spell.
+     * Used by the UI to show affected positions for an AoE spell.
+     *
+     * @param aoeOverlay The AoE overlay data, or null to clear
+     */
+    fun setAoEOverlay(aoeOverlay: AoEOverlayData?) {
+        _state.value = _state.value.copy(aoeOverlay = aoeOverlay)
+    }
+    
+    /**
+     * Clears all map overlays (range, AoE, movement path).
+     * Used when canceling an action or after completing an action.
+     */
+    fun clearMapOverlays() {
+        _state.value = _state.value.copy(
+            rangeOverlay = null,
+            aoeOverlay = null,
+            movementPath = null
+        )
+    }
+    
+    /**
+     * Provides movement range overlay for the active creature.
+     * Used by the map to visualize reachable positions.
+     *
+     * @return RangeOverlayData for movement range, or null if no active creature
+     */
+    fun getMovementRangeOverlay(): RangeOverlayData? {
+        val currentState = _state.value
+        val activeCreatureId = currentState.activeCreatureId ?: return null
+        val activeCreature = currentState.creatures[activeCreatureId] ?: return null
+        
+        // Calculate remaining movement (simplified - would come from turn state)
+        val movementRemaining = 30 // Default 30 feet movement
+        
+        // Get blocked positions from map state
+        val blockedPositions = currentState.mapState?.blocked ?: emptySet()
+        
+        return MapIntegration.buildMovementRangeOverlay(
+            origin = activeCreature.position,
+            movementRemaining = movementRemaining,
+            blockedPositions = blockedPositions
+        )
+    }
+    
+    /**
+     * Provides weapon range overlay for an attack action.
+     * Used by the map to visualize valid attack targets.
+     *
+     * @param weaponRangeInFeet The weapon's range in feet
+     * @return RangeOverlayData for weapon range, or null if no active creature
+     */
+    fun getWeaponRangeOverlay(weaponRangeInFeet: Int): RangeOverlayData? {
+        val currentState = _state.value
+        val activeCreatureId = currentState.activeCreatureId ?: return null
+        val activeCreature = currentState.creatures[activeCreatureId] ?: return null
+        
+        return MapIntegration.buildWeaponRangeOverlay(
+            origin = activeCreature.position,
+            rangeInFeet = weaponRangeInFeet
+        )
+    }
+    
+    /**
+     * Provides spell range overlay for a spell action.
+     * Used by the map to visualize valid spell targets.
+     *
+     * @param spellRangeInFeet The spell's range in feet
+     * @return RangeOverlayData for spell range, or null if no active creature
+     */
+    fun getSpellRangeOverlay(spellRangeInFeet: Int): RangeOverlayData? {
+        val currentState = _state.value
+        val activeCreatureId = currentState.activeCreatureId ?: return null
+        val activeCreature = currentState.creatures[activeCreatureId] ?: return null
+        
+        return MapIntegration.buildSpellRangeOverlay(
+            origin = activeCreature.position,
+            rangeInFeet = spellRangeInFeet
+        )
+    }
+    
+    /**
+     * Provides AoE overlay for an area-of-effect spell.
+     * Used by the map to visualize affected positions.
+     *
+     * @param template The AoE template (sphere, cube, cone, etc.)
+     * @param origin The origin position of the AoE
+     * @param radiusInFeet The radius or size of the AoE in feet
+     * @return AoEOverlayData for AoE visualization
+     */
+    fun getAoEOverlay(
+        template: dev.questweaver.domain.map.geometry.AoETemplate,
+        origin: dev.questweaver.feature.map.ui.GridPos,
+        radiusInFeet: Int
+    ): AoEOverlayData {
+        return MapIntegration.buildAoEOverlay(
+            template = template,
+            origin = origin,
+            radiusInFeet = radiusInFeet
+        )
+    }
+    
+    /**
+     * Validates a movement path before committing.
+     * Used by the map to check if a proposed path is valid.
+     *
+     * @param path The proposed movement path
+     * @return true if the path is valid, false otherwise
+     */
+    fun validateMovementPath(path: List<dev.questweaver.feature.map.ui.GridPos>): Boolean {
+        val currentState = _state.value
+        val blockedPositions = currentState.mapState?.blocked ?: emptySet()
+        
+        return MapIntegration.validateMovementPath(path, blockedPositions)
+    }
+    
+    /**
+     * Calculates the movement cost for a path.
+     * Used by the map to show remaining movement after a proposed path.
+     *
+     * @param path The movement path
+     * @return Movement cost in feet
+     */
+    fun calculateMovementCost(path: List<dev.questweaver.feature.map.ui.GridPos>): Int {
+        val currentState = _state.value
+        val difficultTerrain = currentState.mapState?.difficult ?: emptySet()
+        
+        return MapIntegration.calculateMovementCost(path, difficultTerrain)
+    }
     
     /**
      * Handles user intents using exhaustive when expression.
@@ -83,6 +229,14 @@ class EncounterViewModel(
             // Load events from repository
             val events = eventRepository.forSession(sessionId)
             
+            if (events.isEmpty()) {
+                handleError(
+                    EncounterError.LoadFailed(sessionId, "No events found for session"),
+                    "loadEncounter"
+                )
+                return
+            }
+            
             // Rebuild state from events
             val encounterState = stateBuilder.buildState(events)
             
@@ -102,15 +256,24 @@ class EncounterViewModel(
             )
             
             _state.value = uiState
+            Log.i(TAG, "Successfully loaded encounter for session $sessionId")
         } catch (e: IllegalStateException) {
-            _state.value = _state.value.copy(
-                isLoading = false,
-                error = "Failed to load encounter: ${e.message}"
+            handleError(
+                EncounterError.LoadFailed(sessionId, e.message ?: "Unknown state error"),
+                "loadEncounter",
+                e
             )
         } catch (e: IllegalArgumentException) {
-            _state.value = _state.value.copy(
-                isLoading = false,
-                error = "Invalid encounter data: ${e.message}"
+            handleError(
+                EncounterError.LoadFailed(sessionId, e.message ?: "Invalid data"),
+                "loadEncounter",
+                e
+            )
+        } catch (e: Exception) {
+            handleError(
+                EncounterError.LoadFailed(sessionId, "Unexpected error: ${e.message}"),
+                "loadEncounter",
+                e
             )
         }
     }
@@ -124,6 +287,15 @@ class EncounterViewModel(
     private suspend fun handleStartEncounter(intent: EncounterIntent.StartEncounter) {
         try {
             _state.value = _state.value.copy(isLoading = true, error = null)
+            
+            // Validate input
+            if (intent.creatures.isEmpty()) {
+                handleError(
+                    EncounterError.InitializationFailed("Cannot start encounter with no creatures"),
+                    "handleStartEncounter"
+                )
+                return
+            }
             
             // Generate session ID (in real implementation, this would come from a session manager)
             val sessionId = System.currentTimeMillis()
@@ -158,15 +330,24 @@ class EncounterViewModel(
             )
             
             _state.value = uiState
+            Log.i(TAG, "Successfully started encounter with session $sessionId")
         } catch (e: IllegalStateException) {
-            _state.value = _state.value.copy(
-                isLoading = false,
-                error = "Failed to start encounter: ${e.message}"
+            handleError(
+                EncounterError.InitializationFailed(e.message ?: "Unknown state error"),
+                "handleStartEncounter",
+                e
             )
         } catch (e: IllegalArgumentException) {
-            _state.value = _state.value.copy(
-                isLoading = false,
-                error = "Invalid encounter configuration: ${e.message}"
+            handleError(
+                EncounterError.InitializationFailed(e.message ?: "Invalid configuration"),
+                "handleStartEncounter",
+                e
+            )
+        } catch (e: Exception) {
+            handleError(
+                EncounterError.InitializationFailed("Unexpected error: ${e.message}"),
+                "handleStartEncounter",
+                e
             )
         }
     }
@@ -186,16 +367,37 @@ class EncounterViewModel(
     
     /**
      * Handles MoveTo intent.
-     * Processes movement action and updates state.
+     * Processes movement action and updates state with path visualization.
      */
-    @Suppress("UnusedParameter")
     private suspend fun handleMoveTo(intent: EncounterIntent.MoveTo) {
-        // TODO: Use intent.path for actual movement validation
+        // Validate the path first
+        if (!validateMovementPath(intent.path)) {
+            handleError(
+                EncounterError.ActionFailed("Invalid movement path: blocked positions"),
+                "handleMoveTo"
+            )
+            return
+        }
+        
+        // Calculate movement cost
+        val movementCost = calculateMovementCost(intent.path)
+        
+        // Set the movement path in UI state for visualization
+        _state.value = _state.value.copy(
+            movementPath = intent.path
+        )
+        
+        // Process the movement action
         handleCombatAction(
             CombatAction(
                 type = "move",
                 targetId = null
             )
+        )
+        
+        // Clear the movement path after processing
+        _state.value = _state.value.copy(
+            movementPath = null
         )
     }
     
@@ -271,10 +473,16 @@ class EncounterViewModel(
             
             // Ensure we have an active creature
             val activeCreatureId = currentState.activeCreatureId
-                ?: return updateError(ERROR_NO_ACTIVE_CREATURE)
+                ?: return handleError(
+                    EncounterError.ActionFailed(ERROR_NO_ACTIVE_CREATURE),
+                    "handleCombatAction"
+                )
             
             val sessionId = currentState.sessionId
-                ?: return updateError(ERROR_NO_ACTIVE_SESSION)
+                ?: return handleError(
+                    EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
+                    "handleCombatAction"
+                )
             
             // Build action context
             val context = ActionContext(
@@ -293,13 +501,18 @@ class EncounterViewModel(
                     rebuildStateFromEvents(sessionId)
                     _state.value = _state.value.copy(
                         lastActionResult = result,
-                        pendingChoice = null
+                        pendingChoice = null,
+                        error = null
                     )
+                    Log.i(TAG, "Combat action succeeded: ${action.type}")
                 }
                 is ActionResult.Failure -> {
-                    // Action failed - update error state
+                    // Action failed - update error state but don't corrupt state
+                    handleError(
+                        EncounterError.ActionFailed(result.reason),
+                        "handleCombatAction"
+                    )
                     _state.value = _state.value.copy(
-                        error = result.reason,
                         lastActionResult = result
                     )
                 }
@@ -307,14 +520,30 @@ class EncounterViewModel(
                     // Action requires user choice
                     _state.value = _state.value.copy(
                         pendingChoice = result.choice,
-                        lastActionResult = result
+                        lastActionResult = result,
+                        error = null
                     )
+                    Log.i(TAG, "Combat action requires choice: ${result.choice.prompt}")
                 }
             }
         } catch (e: IllegalStateException) {
-            updateError("Action failed: ${e.message}")
+            handleError(
+                EncounterError.ActionFailed(e.message ?: "Invalid state"),
+                "handleCombatAction",
+                e
+            )
         } catch (e: IllegalArgumentException) {
-            updateError("Invalid action: ${e.message}")
+            handleError(
+                EncounterError.ActionFailed(e.message ?: "Invalid action"),
+                "handleCombatAction",
+                e
+            )
+        } catch (e: Exception) {
+            handleError(
+                EncounterError.ActionFailed("Unexpected error: ${e.message}"),
+                "handleCombatAction",
+                e
+            )
         }
     }
     
@@ -324,9 +553,15 @@ class EncounterViewModel(
      */
     private suspend fun handleEndTurn() {
         try {
+            // Clear any active overlays when ending turn
+            clearMapOverlays()
+            
             val currentState = _state.value
             val sessionId = currentState.sessionId
-                ?: return updateError(ERROR_NO_ACTIVE_SESSION)
+                ?: return handleError(
+                    EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
+                    "handleEndTurn"
+                )
             
             // Load current encounter state
             val events = eventRepository.forSession(sessionId)
@@ -367,13 +602,31 @@ class EncounterViewModel(
                 // For now, just update UI state
                 _state.value = _state.value.copy(
                     isCompleted = true,
-                    completionStatus = completionStatus
+                    completionStatus = completionStatus,
+                    error = null
                 )
+                Log.i(TAG, "Encounter completed with status: $completionStatus")
+            } else {
+                Log.i(TAG, "Turn ended successfully")
             }
         } catch (e: IllegalStateException) {
-            updateError("Failed to end turn: ${e.message}")
+            handleError(
+                EncounterError.StateCorrupted(e.message ?: "Invalid turn state"),
+                "handleEndTurn",
+                e
+            )
         } catch (e: IllegalArgumentException) {
-            updateError("Invalid turn state: ${e.message}")
+            handleError(
+                EncounterError.ActionFailed(e.message ?: "Invalid turn state"),
+                "handleEndTurn",
+                e
+            )
+        } catch (e: Exception) {
+            handleError(
+                EncounterError.ActionFailed("Failed to end turn: ${e.message}"),
+                "handleEndTurn",
+                e
+            )
         }
     }
     
@@ -384,7 +637,18 @@ class EncounterViewModel(
     private suspend fun handleUndo() {
         try {
             val sessionId = _state.value.sessionId
-                ?: return updateError(ERROR_NO_ACTIVE_SESSION)
+                ?: return handleError(
+                    EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
+                    "handleUndo"
+                )
+            
+            if (!undoRedoManager.canUndo()) {
+                handleError(
+                    EncounterError.ActionFailed("No actions to undo"),
+                    "handleUndo"
+                )
+                return
+            }
             
             // Call UndoRedoManager
             val updatedEvents = undoRedoManager.undo(sessionId)
@@ -402,14 +666,30 @@ class EncounterViewModel(
                 mapState = _state.value.mapState
             ).copy(
                 canUndo = undoRedoManager.canUndo(),
-                canRedo = undoRedoManager.canRedo()
+                canRedo = undoRedoManager.canRedo(),
+                error = null
             )
             
             _state.value = uiState
+            Log.i(TAG, "Undo successful")
         } catch (e: IllegalStateException) {
-            updateError("Failed to undo: ${e.message}")
+            handleError(
+                EncounterError.StateCorrupted(e.message ?: "Failed to undo"),
+                "handleUndo",
+                e
+            )
         } catch (e: IllegalArgumentException) {
-            updateError("Cannot undo: ${e.message}")
+            handleError(
+                EncounterError.ActionFailed(e.message ?: "Cannot undo"),
+                "handleUndo",
+                e
+            )
+        } catch (e: Exception) {
+            handleError(
+                EncounterError.ActionFailed("Failed to undo: ${e.message}"),
+                "handleUndo",
+                e
+            )
         }
     }
     
@@ -420,7 +700,18 @@ class EncounterViewModel(
     private suspend fun handleRedo() {
         try {
             val sessionId = _state.value.sessionId
-                ?: return updateError("No active session")
+                ?: return handleError(
+                    EncounterError.ActionFailed(ERROR_NO_ACTIVE_SESSION),
+                    "handleRedo"
+                )
+            
+            if (!undoRedoManager.canRedo()) {
+                handleError(
+                    EncounterError.ActionFailed("No actions to redo"),
+                    "handleRedo"
+                )
+                return
+            }
             
             // Call UndoRedoManager
             val updatedEvents = undoRedoManager.redo(sessionId)
@@ -438,14 +729,30 @@ class EncounterViewModel(
                 mapState = _state.value.mapState
             ).copy(
                 canUndo = undoRedoManager.canUndo(),
-                canRedo = undoRedoManager.canRedo()
+                canRedo = undoRedoManager.canRedo(),
+                error = null
             )
             
             _state.value = uiState
+            Log.i(TAG, "Redo successful")
         } catch (e: IllegalStateException) {
-            updateError("Failed to redo: ${e.message}")
+            handleError(
+                EncounterError.StateCorrupted(e.message ?: "Failed to redo"),
+                "handleRedo",
+                e
+            )
         } catch (e: IllegalArgumentException) {
-            updateError("Cannot redo: ${e.message}")
+            handleError(
+                EncounterError.ActionFailed(e.message ?: "Cannot redo"),
+                "handleRedo",
+                e
+            )
+        } catch (e: Exception) {
+            handleError(
+                EncounterError.ActionFailed("Failed to redo: ${e.message}"),
+                "handleRedo",
+                e
+            )
         }
     }
     
@@ -456,8 +763,23 @@ class EncounterViewModel(
     private suspend fun handleResolveChoice(intent: EncounterIntent.ResolveChoice) {
         try {
             // Get pending choice from UI state
-            _state.value.pendingChoice
-                ?: return updateError(ERROR_NO_PENDING_CHOICE)
+            val pendingChoice = _state.value.pendingChoice
+            if (pendingChoice == null) {
+                handleError(
+                    EncounterError.ActionFailed(ERROR_NO_PENDING_CHOICE),
+                    "handleResolveChoice"
+                )
+                return
+            }
+            
+            // Validate selected option is in the available options
+            if (!pendingChoice.options.contains(intent.selectedOption)) {
+                handleError(
+                    EncounterError.ActionFailed("Invalid choice: option not available"),
+                    "handleResolveChoice"
+                )
+                return
+            }
             
             // Create action with selected option
             val action = CombatAction(
@@ -470,10 +792,25 @@ class EncounterViewModel(
             
             // Process the resolved action
             handleCombatAction(action)
+            Log.i(TAG, "Choice resolved: ${intent.selectedOption.name}")
         } catch (e: IllegalStateException) {
-            updateError("Failed to resolve choice: ${e.message}")
+            handleError(
+                EncounterError.ActionFailed(e.message ?: "Failed to resolve choice"),
+                "handleResolveChoice",
+                e
+            )
         } catch (e: IllegalArgumentException) {
-            updateError("Invalid choice: ${e.message}")
+            handleError(
+                EncounterError.ActionFailed(e.message ?: "Invalid choice"),
+                "handleResolveChoice",
+                e
+            )
+        } catch (e: Exception) {
+            handleError(
+                EncounterError.ActionFailed("Failed to resolve choice: ${e.message}"),
+                "handleResolveChoice",
+                e
+            )
         }
     }
     
@@ -481,31 +818,66 @@ class EncounterViewModel(
     
     /**
      * Rebuilds state from events for the given session.
+     * Does not persist any events - only reads and rebuilds.
      */
     private suspend fun rebuildStateFromEvents(sessionId: Long) {
-        val events = eventRepository.forSession(sessionId)
-        val encounterState = stateBuilder.buildState(events)
-        
-        // TODO: Extract creatures properly from encounter state
-        val creatures = emptyMap<Long, Creature>()
-        
-        val uiState = stateBuilder.buildUiState(
-            encounterState = encounterState,
-            creatures = creatures,
-            mapState = _state.value.mapState
-        ).copy(
-            canUndo = undoRedoManager.canUndo(),
-            canRedo = undoRedoManager.canRedo()
-        )
-        
-        _state.value = uiState
+        try {
+            val events = eventRepository.forSession(sessionId)
+            val encounterState = stateBuilder.buildState(events)
+            
+            // TODO: Extract creatures properly from encounter state
+            val creatures = emptyMap<Long, Creature>()
+            
+            val uiState = stateBuilder.buildUiState(
+                encounterState = encounterState,
+                creatures = creatures,
+                mapState = _state.value.mapState
+            ).copy(
+                canUndo = undoRedoManager.canUndo(),
+                canRedo = undoRedoManager.canRedo()
+            )
+            
+            _state.value = uiState
+        } catch (e: Exception) {
+            // If rebuild fails, state is corrupted
+            handleError(
+                EncounterError.StateCorrupted("Failed to rebuild state: ${e.message}"),
+                "rebuildStateFromEvents",
+                e
+            )
+        }
     }
     
     /**
-     * Updates error state.
+     * Handles errors by converting to user-friendly messages and logging.
+     * Prevents state corruption by not persisting events on error.
+     *
+     * @param error The EncounterError to handle
+     * @param context The context where the error occurred (method name)
+     * @param exception Optional exception for detailed logging
      */
-    private fun updateError(message: String) {
-        _state.value = _state.value.copy(error = message)
+    private fun handleError(
+        error: EncounterError,
+        context: String,
+        exception: Throwable? = null
+    ) {
+        // Convert to user-friendly message
+        val userMessage = error.toUserMessage()
+        
+        // Log detailed error for debugging
+        if (exception != null) {
+            Log.e(TAG, "Error in $context: $userMessage", exception)
+        } else {
+            Log.w(TAG, "Error in $context: $userMessage")
+        }
+        
+        // Update UI state with error message
+        // Note: We do NOT persist any events when an error occurs
+        // This prevents state corruption
+        _state.value = _state.value.copy(
+            error = userMessage,
+            isLoading = false
+        )
     }
     
     /**

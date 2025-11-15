@@ -47,8 +47,8 @@ enum class TurnPhaseState {
 data class MapGridState(
     val width: Int,
     val height: Int,
-    val blockedPositions: Set<dev.questweaver.feature.map.ui.GridPos>,
-    val difficultTerrain: Set<dev.questweaver.feature.map.ui.GridPos>
+    val blockedPositions: Set<dev.questweaver.domain.values.GridPos>,
+    val difficultTerrainPositions: Set<dev.questweaver.domain.values.GridPos>
 )
 
 /**

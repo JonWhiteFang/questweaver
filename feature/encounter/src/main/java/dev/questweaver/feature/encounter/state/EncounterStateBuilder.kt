@@ -19,6 +19,13 @@ import dev.questweaver.feature.encounter.viewmodel.ActionOption
 import dev.questweaver.feature.encounter.viewmodel.Condition
 import dev.questweaver.feature.map.ui.GridPos
 import dev.questweaver.feature.map.ui.MapState
+import dev.questweaver.feature.map.ui.MapRenderState
+import dev.questweaver.feature.map.ui.TokenRenderData
+import dev.questweaver.feature.map.ui.Allegiance
+import dev.questweaver.feature.map.ui.RangeOverlayData
+import dev.questweaver.feature.map.ui.RangeType
+import dev.questweaver.feature.map.ui.AoEOverlayData
+import dev.questweaver.domain.map.geometry.MapGrid as DomainMapGrid
 
 /**
  * Derives encounter state from event sequence for event sourcing.
@@ -76,13 +83,13 @@ class EncounterStateBuilder(
      *
      * @param encounterState Domain encounter state
      * @param creatures Current creature states
-     * @param mapState Current map state
+     * @param mapState Current map state (optional, will be built from encounter state if null)
      * @return UI state for rendering
      */
     fun buildUiState(
         encounterState: EncounterState,
         creatures: Map<Long, Creature>,
-        mapState: MapState?
+        mapState: MapState? = null
     ): EncounterUiState {
         // Build creature states from current HP and conditions
         val creatureStates = creatures.mapValues { (id, creature) ->
@@ -116,6 +123,13 @@ class EncounterStateBuilder(
             emptyList()
         }
         
+        // Build map state with synchronized creature positions
+        val synchronizedMapState = buildMapState(
+            encounterState = encounterState,
+            creatures = creatures,
+            activeCreatureId = encounterState.roundState.activeCreatureId
+        )
+        
         return EncounterUiState(
             sessionId = encounterState.sessionId,
             isLoading = false,
@@ -128,7 +142,7 @@ class EncounterStateBuilder(
             activeCreatureId = encounterState.roundState.activeCreatureId,
             turnPhase = mapTurnPhase(encounterState.roundState.turnPhase),
             creatures = creatureStates,
-            mapState = mapState,
+            mapState = synchronizedMapState,
             availableActions = availableActions,
             canUndo = false, // Set by ViewModel
             canRedo = false, // Set by ViewModel
@@ -176,10 +190,18 @@ class EncounterStateBuilder(
         return state
     }
     
-    @Suppress("UnusedParameter")
     private fun handleMoveCommitted(state: EncounterState, event: MoveCommitted): EncounterState {
-        // TODO: Update creature position
-        return state
+        // Update creature position based on the final position in the path
+        val finalPosition = event.path.lastOrNull() ?: return state
+        
+        val updatedCreatures = state.creatures.toMutableMap()
+        updatedCreatures[event.creatureId]?.let { creature ->
+            updatedCreatures[event.creatureId] = creature.copy(
+                position = convertToFeatureGridPos(finalPosition)
+            )
+        }
+        
+        return state.copy(creatures = updatedCreatures)
     }
     
     @Suppress("UnusedParameter")
@@ -230,5 +252,58 @@ class EncounterStateBuilder(
             TurnPhaseState.Reaction -> TurnPhase.Reaction
             TurnPhaseState.End -> TurnPhase.End
         }
+    }
+    
+    /**
+     * Builds map state with synchronized creature positions and overlays.
+     * Integrates with the tactical map for rendering.
+     *
+     * @param encounterState Current encounter state
+     * @param creatures Map of creatures by ID
+     * @param activeCreatureId ID of the active creature (for highlighting)
+     * @return MapState with synchronized positions and overlays
+     */
+    private fun buildMapState(
+        encounterState: EncounterState,
+        creatures: Map<Long, Creature>,
+        activeCreatureId: Long?
+    ): MapState {
+        // Build token render data from creatures
+        val tokens = creatures.values.map { creature ->
+            dev.questweaver.feature.map.ui.Token(
+                id = creature.id.toString(),
+                pos = creature.position,
+                isEnemy = !creature.isPlayerControlled,
+                hpPct = creature.hpCurrent.toFloat() / creature.hpMax.toFloat()
+            )
+        }
+        
+        // Extract map grid dimensions from encounter state
+        val mapGrid = encounterState.mapGrid
+        
+        return MapState(
+            w = mapGrid.width,
+            h = mapGrid.height,
+            tileSize = 50f, // Default tile size
+            blocked = mapGrid.blockedPositions.map { convertToFeatureGridPos(it) }.toSet(),
+            difficult = mapGrid.difficultTerrainPositions.map { convertToFeatureGridPos(it) }.toSet(),
+            tokens = tokens
+        )
+    }
+    
+    /**
+     * Converts domain GridPos to feature GridPos.
+     * Handles the conversion between domain and feature layer types.
+     */
+    private fun convertToFeatureGridPos(domainPos: dev.questweaver.domain.values.GridPos): GridPos {
+        return GridPos(domainPos.x, domainPos.y)
+    }
+    
+    /**
+     * Converts feature GridPos to domain GridPos.
+     * Handles the conversion between feature and domain layer types.
+     */
+    private fun convertToDomainGridPos(featurePos: GridPos): dev.questweaver.domain.values.GridPos {
+        return dev.questweaver.domain.values.GridPos(featurePos.x, featurePos.y)
     }
 }

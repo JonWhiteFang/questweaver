@@ -30,6 +30,15 @@ data class EncounterUiState(
     // Map integration
     val mapState: MapState? = null,
     
+    // Movement path visualization (for pathfinding)
+    val movementPath: List<GridPos>? = null,
+    
+    // Range overlay for current action
+    val rangeOverlay: dev.questweaver.feature.map.ui.RangeOverlayData? = null,
+    
+    // AoE overlay for current spell
+    val aoeOverlay: dev.questweaver.feature.map.ui.AoEOverlayData? = null,
+    
     // Available actions for active creature
     val availableActions: List<ActionOption> = emptyList(),
     

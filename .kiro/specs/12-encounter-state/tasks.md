@@ -228,15 +228,15 @@
   - Clear any temporary state or cached data
   - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 10. Implement error handling
-  - [ ] 10.1 Create EncounterError sealed interface
+- [x] 10. Implement error handling
+  - [x] 10.1 Create EncounterError sealed interface
   - Define InitializationFailed with reason
   - Define ActionFailed with reason
   - Define StateCorrupted with reason
   - Define LoadFailed with sessionId and reason
   - _Requirements: 3.5_
 
-  - [ ] 10.2 Add error handling to ViewModel
+  - [x] 10.2 Add error handling to ViewModel
   - Wrap use case calls in try-catch blocks
   - Convert exceptions to EncounterError instances
   - Update UI state error field with user-friendly message
@@ -244,8 +244,8 @@
   - Prevent state corruption by not persisting events on error
   - _Requirements: 3.5_
 
-- [ ] 11. Implement map integration
-  - [ ] 11.1 Add map state synchronization
+- [x] 11. Implement map integration
+  - [x] 11.1 Add map state synchronization
   - Update creature positions in UI state when MoveCommitted events occur
   - Provide pathfinding information to map for path visualization
   - Provide affected grid positions for AoE spell highlighting
@@ -253,7 +253,7 @@
   - Highlight active creature on map
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 12. Add Koin dependency injection module
+- [x] 12. Add Koin dependency injection module
   - Create EncounterModule.kt in di/ package
   - Define viewModel binding for EncounterViewModel with all dependencies
   - Define factory bindings for InitializeEncounter, ProcessPlayerAction, AdvanceTurn use cases
@@ -262,8 +262,8 @@
   - Define factory binding for UndoRedoManager
   - _Requirements: 11.1, 11.2_
 
-- [ ] 13. Write comprehensive unit tests
-  - [ ] 13.1 Write ViewModel intent handling tests
+- [x] 13. Write comprehensive unit tests
+  - [x] 13.1 Write ViewModel intent handling tests
   - Test StartEncounter intent initializes encounter correctly
   - Test Attack intent processes attack and updates state
   - Test MoveTo intent processes movement and updates state
@@ -275,7 +275,7 @@
   - Test state flow emits updated state after each intent
   - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 4.1, 9.1, 9.2_
 
-  - [ ] 13.2 Write state building tests
+  - [x] 13.2 Write state building tests
   - Test state derived from events matches original
   - Test event replay produces identical state
   - Test all event types handled exhaustively
@@ -284,7 +284,7 @@
   - Test available actions determined correctly for active creature
   - _Requirements: 6.1, 6.2, 6.3, 7.1, 7.2, 7.3_
 
-  - [ ] 13.3 Write completion detection tests
+  - [x] 13.3 Write completion detection tests
   - Test victory detected when all enemies defeated
   - Test defeat detected when all PCs defeated
   - Test encounter continues when neither condition met
@@ -292,7 +292,7 @@
   - Test XP calculation uses creature challenge ratings
   - _Requirements: 5.1, 5.2, 5.3, 5.5_
 
-  - [ ] 13.4 Write undo/redo tests
+  - [x] 13.4 Write undo/redo tests
   - Test undo removes last event and rebuilds state
   - Test redo restores undone event
   - Test undo stack limited to 10 actions
@@ -301,7 +301,7 @@
   - Test canRedo returns true when redo available
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 13.5 Write use case tests
+  - [x] 13.5 Write use case tests
   - Test InitializeEncounter rolls initiative correctly
   - Test InitializeEncounter creates surprise round when needed
   - Test ProcessPlayerAction validates actions before execution
@@ -311,7 +311,7 @@
   - Test AdvanceTurn wraps to first creature and increments round
   - _Requirements: 1.1, 1.2, 1.3, 3.1, 3.4, 3.5, 4.1, 4.2_
 
-  - [ ] 13.6 Write integration tests
+  - [x] 13.6 Write integration tests
   - Test complete encounter flow from start to victory
   - Test complete encounter flow from start to defeat
   - Test player actions generate events and update state
@@ -321,7 +321,7 @@
   - Test load encounter restores exact state
   - _Requirements: 1.1, 3.1, 4.1, 5.1, 5.2, 5.5, 6.1, 8.4_
 
-  - [ ] 13.7 Write error handling tests
+  - [x] 13.7 Write error handling tests
   - Test initialization failure updates error state
   - Test action failure updates error state
   - Test load failure updates error state
@@ -329,7 +329,7 @@
   - Test errors logged for debugging
   - _Requirements: 3.5_
 
-  - [ ] 13.8 Write map integration tests
+  - [x] 13.8 Write map integration tests
   - Test creature positions updated on movement
   - Test pathfinding information provided to map
   - Test AoE spell areas provided to map
@@ -337,14 +337,14 @@
   - Test active creature highlighted on map
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-  - [ ] 13.9 Write ViewModel lifecycle tests
+  - [x] 13.9 Write ViewModel lifecycle tests
   - Test coroutines cancelled on ViewModel clear
   - Test encounter marked inactive on cleanup
   - Test temporary state cleared on cleanup
   - Test encounter can be resumed after abandonment
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-  - [ ] 13.10 Write testability verification tests
+  - [x] 13.10 Write testability verification tests
   - Test ViewModel accepts dependencies through constructor
   - Test all dependencies are interfaces
   - Test state exposed through StateFlow
