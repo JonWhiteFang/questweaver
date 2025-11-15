@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.feature.map.ui.MapState
 import dev.questweaver.feature.map.ui.TacticalMap
 import dev.questweaver.feature.map.ui.Token

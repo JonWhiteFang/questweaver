@@ -12,7 +12,7 @@ import dev.questweaver.feature.encounter.state.UndoRedoManager
 import dev.questweaver.feature.encounter.usecases.AdvanceTurn
 import dev.questweaver.feature.encounter.usecases.InitializeEncounter
 import dev.questweaver.feature.encounter.usecases.ProcessPlayerAction
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -111,7 +111,7 @@ class EncounterViewModelTest : FunSpec({
                 coEvery { initializeEncounter(any(), any(), any(), any()) } returns encounterStartedEvent
                 coEvery { eventRepository.forSession(any()) } returns listOf(encounterStartedEvent)
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     roundNumber = 1,
                     isLoading = false
@@ -189,7 +189,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     activeCreatureId = activeCreatureId,
                     roundNumber = 1
@@ -244,7 +244,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     activeCreatureId = activeCreatureId,
                     roundNumber = 1,
@@ -309,7 +309,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     activeCreatureId = activeCreatureId,
                     roundNumber = 1
@@ -371,7 +371,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     activeCreatureId = activeCreatureId,
                     roundNumber = 1,
@@ -433,7 +433,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     roundNumber = 1
                 )
@@ -489,7 +489,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     roundNumber = 1
                 )
@@ -535,7 +535,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = 1L,
                     activeCreatureId = null
                 )
@@ -577,7 +577,7 @@ class EncounterViewModelTest : FunSpec({
                 )
                 
                 every { stateBuilder.buildState(any()) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns EncounterUiState(
+                every { stateBuilder.buildUiState(any(), any()) } returns EncounterUiState(
                     sessionId = sessionId,
                     roundNumber = 1,
                     isLoading = false
@@ -605,3 +605,4 @@ class EncounterViewModelTest : FunSpec({
         }
     }
 })
+

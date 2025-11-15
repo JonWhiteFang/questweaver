@@ -15,6 +15,7 @@ import dev.questweaver.feature.encounter.usecases.ProcessPlayerAction
 import dev.questweaver.feature.encounter.usecases.ActionContext
 import dev.questweaver.feature.map.ui.RangeOverlayData
 import dev.questweaver.feature.map.ui.AoEOverlayData
+import dev.questweaver.domain.map.geometry.GridPos
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -178,7 +179,7 @@ class EncounterViewModel(
      */
     fun getAoEOverlay(
         template: dev.questweaver.domain.map.geometry.AoETemplate,
-        origin: dev.questweaver.feature.map.ui.GridPos,
+        origin: GridPos,
         radiusInFeet: Int
     ): AoEOverlayData {
         return MapIntegration.buildAoEOverlay(
@@ -195,7 +196,7 @@ class EncounterViewModel(
      * @param path The proposed movement path
      * @return true if the path is valid, false otherwise
      */
-    fun validateMovementPath(path: List<dev.questweaver.feature.map.ui.GridPos>): Boolean {
+    fun validateMovementPath(path: List<GridPos>): Boolean {
         val currentState = _state.value
         val blockedPositions = currentState.mapState?.blocked ?: emptySet()
         
@@ -209,7 +210,7 @@ class EncounterViewModel(
      * @param path The movement path
      * @return Movement cost in feet
      */
-    fun calculateMovementCost(path: List<dev.questweaver.feature.map.ui.GridPos>): Int {
+    fun calculateMovementCost(path: List<GridPos>): Int {
         val currentState = _state.value
         val difficultTerrain = currentState.mapState?.difficult ?: emptySet()
         
@@ -739,8 +740,7 @@ class EncounterViewModel(
             // Update UI state
             val uiState = stateBuilder.buildUiState(
                 encounterState = encounterState,
-                creatures = creatures,
-                mapState = _state.value.mapState
+                creatures = creatures
             ).copy(
                 canUndo = undoRedoManager.canUndo(),
                 canRedo = undoRedoManager.canRedo(),

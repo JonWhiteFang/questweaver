@@ -10,11 +10,13 @@ import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.events.MoveCommitted
 import dev.questweaver.domain.events.RoundStarted
 import dev.questweaver.domain.events.SpellCast
+import dev.questweaver.domain.events.SpellOutcome
 import dev.questweaver.domain.events.TurnStarted
+import dev.questweaver.domain.values.DiceRoll
 import dev.questweaver.domain.values.EncounterStatus
 import dev.questweaver.feature.encounter.viewmodel.Creature
 import dev.questweaver.feature.encounter.viewmodel.CompletionStatus
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
@@ -60,7 +62,9 @@ class EncounterStateBuilderTest : FunSpec({
                 TurnStarted(
                     sessionId = sessionId,
                     timestamp = timestamp + 1,
-                    creatureId = 1L
+                    encounterId = sessionId,
+                    creatureId = 1L,
+                    roundNumber = 1
                 )
             )
             
@@ -93,6 +97,7 @@ class EncounterStateBuilderTest : FunSpec({
                 RoundStarted(
                     sessionId = sessionId,
                     timestamp = timestamp + 1,
+                    encounterId = sessionId,
                     roundNumber = 2
                 )
             )
@@ -124,17 +129,17 @@ class EncounterStateBuilderTest : FunSpec({
                     ),
                     surprisedCreatures = emptySet()
                 ),
-                RoundStarted(sessionId, timestamp + 1, 1),
-                TurnStarted(sessionId, timestamp + 2, 1L),
+                RoundStarted(sessionId, timestamp + 1, sessionId, 1),
+                TurnStarted(sessionId, timestamp + 2, sessionId, 1L, 1),
                 AttackResolved(
                     sessionId = sessionId,
                     timestamp = timestamp + 3,
                     attackerId = 1L,
                     targetId = 2L,
-                    attackRoll = 15,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
                     hit = true,
-                    damage = 8,
-                    isCritical = false
+                    critical = false
                 ),
                 MoveCommitted(
                     sessionId = sessionId,
@@ -144,16 +149,27 @@ class EncounterStateBuilderTest : FunSpec({
                         dev.questweaver.domain.values.GridPos(0, 0),
                         dev.questweaver.domain.values.GridPos(1, 0)
                     ),
-                    movementCost = 5
+                    movementUsed = 5,
+                    movementRemaining = 25
                 ),
                 SpellCast(
                     sessionId = sessionId,
                     timestamp = timestamp + 5,
                     casterId = 1L,
                     spellId = 100L,
-                    targets = listOf(2L),
                     spellLevel = 1,
-                    success = true
+                    slotConsumed = 1,
+                    targets = listOf(2L),
+                    outcomes = listOf(
+                        SpellOutcome(
+                            targetId = 2L,
+                            attackRoll = null,
+                            saveRoll = null,
+                            success = true,
+                            damage = 8,
+                            damageType = "fire"
+                        )
+                    )
                 ),
                 CreatureDefeated(
                     sessionId = sessionId,
@@ -164,6 +180,7 @@ class EncounterStateBuilderTest : FunSpec({
                 EncounterEnded(
                     sessionId = sessionId,
                     timestamp = timestamp + 7,
+                    encounterId = sessionId,
                     status = EncounterStatus.VICTORY
                 )
             )
@@ -204,14 +221,14 @@ class EncounterStateBuilderTest : FunSpec({
             )
             
             // Act
-            val uiState = stateBuilder.buildUiState(encounterState, creatures, null)
+            val uiState = stateBuilder.buildUiState(encounterState, creatures)
             
             // Assert
             uiState.sessionId shouldBe sessionId
             uiState.roundNumber shouldBe 2
             uiState.activeCreatureId shouldBe 1L
             uiState.isCompleted shouldBe false
-            uiState.creatures shouldHaveSize 2
+            uiState.creatures.size shouldBe 2
         }
         
         test("creature states include all required fields") {
@@ -232,7 +249,7 @@ class EncounterStateBuilderTest : FunSpec({
             )
             
             // Act
-            val uiState = stateBuilder.buildUiState(encounterState, creatures, null)
+            val uiState = stateBuilder.buildUiState(encounterState, creatures)
             
             // Assert
             val creatureState = uiState.creatures[1L]
@@ -273,7 +290,7 @@ class EncounterStateBuilderTest : FunSpec({
             )
             
             // Act
-            val uiState = stateBuilder.buildUiState(encounterState, creatures, null)
+            val uiState = stateBuilder.buildUiState(encounterState, creatures)
             
             // Assert
             // Available actions should be determined based on turn phase
@@ -302,11 +319,11 @@ class EncounterStateBuilderTest : FunSpec({
             )
             
             // Act
-            val uiState = stateBuilder.buildUiState(encounterState, creatures, null)
+            val uiState = stateBuilder.buildUiState(encounterState, creatures)
             
             // Assert
             uiState.mapState shouldNotBe null
-            uiState.mapState!!.tokens shouldHaveSize 2
+            uiState.mapState!!.tokens.size shouldBe 2
             
             val fighterToken = uiState.mapState!!.tokens.find { it.id == "1" }
             fighterToken shouldNotBe null
@@ -333,7 +350,7 @@ class EncounterStateBuilderTest : FunSpec({
             val creatures = emptyMap<Long, Creature>()
             
             // Act
-            val uiState = stateBuilder.buildUiState(encounterState, creatures, null)
+            val uiState = stateBuilder.buildUiState(encounterState, creatures)
             
             // Assert
             uiState.mapState shouldNotBe null
@@ -367,7 +384,8 @@ class EncounterStateBuilderTest : FunSpec({
                         dev.questweaver.domain.values.GridPos(1, 0),
                         dev.questweaver.domain.values.GridPos(2, 0)
                     ),
-                    movementCost = 10
+                    movementUsed = 10,
+                    movementRemaining = 20
                 )
             )
             
@@ -394,8 +412,8 @@ class EncounterStateBuilderTest : FunSpec({
                     initiativeOrder = listOf(InitiativeEntryData(1L, 15, 2, 17)),
                     surprisedCreatures = emptySet()
                 ),
-                RoundStarted(sessionId, timestamp + 1, 1),
-                RoundStarted(sessionId, timestamp + 2, 2)
+                RoundStarted(sessionId, timestamp + 1, sessionId, 1),
+                RoundStarted(sessionId, timestamp + 2, sessionId, 2)
             )
             
             // Act
@@ -423,7 +441,7 @@ class EncounterStateBuilderTest : FunSpec({
                     ),
                     surprisedCreatures = emptySet()
                 ),
-                TurnStarted(sessionId, timestamp + 1, creatureId)
+                TurnStarted(sessionId, timestamp + 1, sessionId, creatureId, 1)
             )
             
             // Act
@@ -451,6 +469,7 @@ class EncounterStateBuilderTest : FunSpec({
                 EncounterEnded(
                     sessionId = sessionId,
                     timestamp = timestamp + 1,
+                    encounterId = sessionId,
                     status = EncounterStatus.DEFEAT
                 )
             )

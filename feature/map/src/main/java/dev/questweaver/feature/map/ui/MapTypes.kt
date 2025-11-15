@@ -1,5 +1,7 @@
 package dev.questweaver.feature.map.ui
-data class GridPos(val x: Int, val y: Int)
+
+import dev.questweaver.domain.map.geometry.GridPos
+
 data class Token(val id: String, val pos: GridPos, val isEnemy: Boolean, val hpPct: Float)
 data class MapState(
     val w: Int, val h: Int, val tileSize: Float,

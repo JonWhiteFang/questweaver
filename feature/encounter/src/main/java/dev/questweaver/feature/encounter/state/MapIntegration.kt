@@ -1,10 +1,13 @@
 package dev.questweaver.feature.encounter.state
 
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.feature.map.ui.RangeOverlayData
 import dev.questweaver.feature.map.ui.RangeType
 import dev.questweaver.feature.map.ui.AoEOverlayData
 import dev.questweaver.domain.map.geometry.AoETemplate
+import dev.questweaver.domain.map.geometry.SphereTemplate
+import dev.questweaver.domain.map.geometry.CubeTemplate
+import dev.questweaver.domain.map.geometry.ConeTemplate
 
 /**
  * Helper class for map integration functionality.
@@ -140,11 +143,9 @@ object MapIntegration {
         radiusInFeet: Int
     ): AoEOverlayData {
         val affectedPositions = when (template) {
-            AoETemplate.SPHERE -> calculateSphereAoE(origin, radiusInFeet)
-            AoETemplate.CUBE -> calculateCubeAoE(origin, radiusInFeet)
-            AoETemplate.CONE -> calculateConeAoE(origin, radiusInFeet)
-            AoETemplate.LINE -> calculateLineAoE(origin, radiusInFeet)
-            AoETemplate.CYLINDER -> calculateCylinderAoE(origin, radiusInFeet)
+            is SphereTemplate -> calculateSphereAoE(origin, radiusInFeet)
+            is CubeTemplate -> calculateCubeAoE(origin, radiusInFeet)
+            is ConeTemplate -> calculateConeAoE(origin, radiusInFeet)
         }
         
         return AoEOverlayData(
@@ -209,29 +210,6 @@ object MapIntegration {
         }
         
         return affected
-    }
-    
-    /**
-     * Calculates affected positions for a line AoE.
-     */
-    private fun calculateLineAoE(origin: GridPos, lengthInFeet: Int): Set<GridPos> {
-        val lengthInSquares = lengthInFeet / FEET_PER_SQUARE
-        val affected = mutableSetOf<GridPos>()
-        
-        // Simplified line pointing north
-        for (dy in 0 until lengthInSquares) {
-            affected.add(GridPos(origin.x, origin.y + dy))
-        }
-        
-        return affected
-    }
-    
-    /**
-     * Calculates affected positions for a cylinder AoE.
-     */
-    private fun calculateCylinderAoE(origin: GridPos, radiusInFeet: Int): Set<GridPos> {
-        // Cylinder is similar to sphere for 2D grid
-        return calculateSphereAoE(origin, radiusInFeet)
     }
     
     /**

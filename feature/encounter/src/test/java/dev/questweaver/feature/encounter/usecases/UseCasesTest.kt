@@ -9,7 +9,7 @@ import dev.questweaver.feature.encounter.viewmodel.ActionResult
 import dev.questweaver.feature.encounter.viewmodel.CombatAction
 import dev.questweaver.feature.encounter.viewmodel.Creature
 import dev.questweaver.feature.encounter.viewmodel.MapGrid
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -43,8 +43,8 @@ class UseCasesTest : FunSpec({
                 )
                 
                 val initiativeEntries = listOf(
-                    dev.questweaver.core.rules.initiative.InitiativeEntry(1L, 15, 2, 17),
-                    dev.questweaver.core.rules.initiative.InitiativeEntry(2L, 10, 1, 11)
+                    dev.questweaver.core.rules.initiative.models.InitiativeEntry(1L, 15, 2, 17),
+                    dev.questweaver.core.rules.initiative.models.InitiativeEntry(2L, 10, 1, 11)
                 )
                 
                 every { initiativeRoller.rollInitiativeForAll(any()) } returns initiativeEntries
@@ -82,8 +82,8 @@ class UseCasesTest : FunSpec({
                 val surprisedCreatures = setOf(2L)
                 
                 val initiativeEntries = listOf(
-                    dev.questweaver.core.rules.initiative.InitiativeEntry(1L, 15, 2, 17),
-                    dev.questweaver.core.rules.initiative.InitiativeEntry(2L, 10, 1, 11)
+                    dev.questweaver.core.rules.initiative.models.InitiativeEntry(1L, 15, 2, 17),
+                    dev.questweaver.core.rules.initiative.models.InitiativeEntry(2L, 10, 1, 11)
                 )
                 
                 every { initiativeRoller.rollInitiativeForAll(any()) } returns initiativeEntries

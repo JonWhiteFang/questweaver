@@ -2,7 +2,7 @@ package dev.questweaver.feature.encounter.state
 
 import dev.questweaver.feature.encounter.viewmodel.CompletionStatus
 import dev.questweaver.feature.encounter.viewmodel.Creature
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull

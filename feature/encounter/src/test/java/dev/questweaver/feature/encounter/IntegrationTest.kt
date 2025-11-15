@@ -21,7 +21,7 @@ import dev.questweaver.feature.encounter.viewmodel.Creature
 import dev.questweaver.feature.encounter.viewmodel.EncounterIntent
 import dev.questweaver.feature.encounter.viewmodel.EncounterViewModel
 import dev.questweaver.feature.encounter.viewmodel.MapGrid
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -90,8 +90,8 @@ class IntegrationTest : FunSpec({
                 )
                 
                 val initiativeEntries = listOf(
-                    dev.questweaver.core.rules.initiative.InitiativeEntry(1L, 15, 2, 17),
-                    dev.questweaver.core.rules.initiative.InitiativeEntry(2L, 10, 1, 11)
+                    dev.questweaver.core.rules.initiative.models.InitiativeEntry(1L, 15, 2, 17),
+                    dev.questweaver.core.rules.initiative.models.InitiativeEntry(2L, 10, 1, 11)
                 )
                 
                 every { initiativeRoller.rollInitiativeForAll(any()) } returns initiativeEntries
@@ -273,7 +273,7 @@ class IntegrationTest : FunSpec({
                 
                 coEvery { eventRepository.forSession(sessionId) } returns events
                 every { stateBuilder.buildState(events) } returns encounterState
-                every { stateBuilder.buildUiState(any(), any(), any()) } returns mockk(relaxed = true)
+                every { stateBuilder.buildUiState(any(), any()) } returns mockk(relaxed = true)
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
                 

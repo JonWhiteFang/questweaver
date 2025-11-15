@@ -5,6 +5,7 @@ import dev.questweaver.domain.events.EncounterStarted
 import dev.questweaver.domain.events.GameEvent
 import dev.questweaver.domain.events.InitiativeEntryData
 import dev.questweaver.domain.repositories.EventRepository
+import dev.questweaver.domain.values.DiceRoll
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -53,10 +54,10 @@ class UndoRedoManagerTest : FunSpec({
                     timestamp = timestamp + 1,
                     attackerId = 1L,
                     targetId = 2L,
-                    attackRoll = 15,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
                     hit = true,
-                    damage = 8,
-                    isCritical = false
+                    critical = false
                 )
                 
                 val events = listOf(event1, event2)
@@ -141,10 +142,10 @@ class UndoRedoManagerTest : FunSpec({
                     timestamp = timestamp + 1,
                     attackerId = 1L,
                     targetId = 2L,
-                    attackRoll = 15,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
                     hit = true,
-                    damage = 8,
-                    isCritical = false
+                    critical = false
                 )
                 
                 coEvery { eventRepository.forSession(sessionId) } returns listOf(event1, event2) andThen listOf(event1, event2)
@@ -210,10 +211,10 @@ class UndoRedoManagerTest : FunSpec({
                         timestamp = timestamp + i,
                         attackerId = 1L,
                         targetId = 2L,
-                        attackRoll = 15,
+                        attackRoll = DiceRoll(20, 1, 2, 15),
+                        targetAC = 13,
                         hit = true,
-                        damage = 8,
-                        isCritical = false
+                        critical = false
                     )
                 }
                 
@@ -241,10 +242,10 @@ class UndoRedoManagerTest : FunSpec({
                     timestamp = timestamp,
                     attackerId = 1L,
                     targetId = 2L,
-                    attackRoll = 15,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
                     hit = true,
-                    damage = 8,
-                    isCritical = false
+                    critical = false
                 )
                 
                 val event2 = AttackResolved(
@@ -252,10 +253,10 @@ class UndoRedoManagerTest : FunSpec({
                     timestamp = timestamp + 1,
                     attackerId = 2L,
                     targetId = 1L,
-                    attackRoll = 12,
+                    attackRoll = DiceRoll(20, 1, 0, 12),
+                    targetAC = 15,
                     hit = false,
-                    damage = null,
-                    isCritical = false
+                    critical = false
                 )
                 
                 coEvery { eventRepository.forSession(sessionId) } returns listOf(event1, event2) andThen listOf(event1)
@@ -322,10 +323,10 @@ class UndoRedoManagerTest : FunSpec({
                     timestamp = timestamp + 1,
                     attackerId = 1L,
                     targetId = 2L,
-                    attackRoll = 15,
+                    attackRoll = DiceRoll(20, 1, 2, 15),
+                    targetAC = 13,
                     hit = true,
-                    damage = 8,
-                    isCritical = false
+                    critical = false
                 )
                 
                 coEvery { eventRepository.forSession(sessionId) } returns listOf(event1, event2)
@@ -352,10 +353,10 @@ class UndoRedoManagerTest : FunSpec({
                         timestamp = timestamp + i,
                         attackerId = 1L,
                         targetId = 2L,
-                        attackRoll = 15,
+                        attackRoll = DiceRoll(20, 1, 2, 15),
+                        targetAC = 13,
                         hit = true,
-                        damage = 8,
-                        isCritical = false
+                        critical = false
                     )
                 }
                 

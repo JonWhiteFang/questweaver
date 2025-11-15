@@ -17,7 +17,7 @@ import dev.questweaver.feature.encounter.viewmodel.InitiativeEntry
 import dev.questweaver.feature.encounter.viewmodel.TurnPhase
 import dev.questweaver.feature.encounter.viewmodel.ActionOption
 import dev.questweaver.feature.encounter.viewmodel.Condition
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.feature.map.ui.MapState
 import dev.questweaver.feature.map.ui.MapRenderState
 import dev.questweaver.feature.map.ui.TokenRenderData

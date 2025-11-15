@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import dev.questweaver.domain.map.geometry.GridPos
 
 @Composable
 fun TacticalMap(state: MapState, onTap: (GridPos) -> Unit, modifier: Modifier = Modifier) {

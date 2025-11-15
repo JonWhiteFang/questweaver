@@ -1,6 +1,6 @@
 package dev.questweaver.feature.encounter.viewmodel
 
-import dev.questweaver.feature.map.ui.GridPos
+import dev.questweaver.domain.map.geometry.GridPos
 import dev.questweaver.feature.map.ui.MapState
 
 /**
