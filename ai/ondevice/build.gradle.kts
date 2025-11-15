@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.lib)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -40,12 +41,14 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines)
+    implementation(libs.serialization.json)
     
     implementation(libs.onnx.runtime)
     implementation(libs.bundles.koin)
     
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 tasks.withType<Test> {

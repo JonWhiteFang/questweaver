@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Set up ai/ondevice module structure and dependencies
+- [x] 1. Set up ai/ondevice module structure and dependencies
   - Create `ai/ondevice` module directory with Gradle build file
   - Add ONNX Runtime 1.16.3 dependency
   - Add kotlinx-serialization for JSON parsing
@@ -8,40 +8,40 @@
   - Add to root `settings.gradle.kts`
   - _Requirements: 1.1, 4.1_
 
-- [ ] 2. Implement domain models for intent classification
-  - [ ] 2.1 Create IntentType enum in core:domain
+- [x] 2. Implement domain models for intent classification
+  - [x] 2.1 Create IntentType enum in core:domain
     - Define 12 intent types (ATTACK, MOVE, CAST_SPELL, USE_ITEM, DASH, DODGE, HELP, HIDE, DISENGAGE, READY, SEARCH, UNKNOWN)
     - _Requirements: 1.3, 1.5_
   
-  - [ ] 2.2 Create NLAction data class in core:domain
+  - [x] 2.2 Create NLAction data class in core:domain
     - Include intent, originalText, targetCreatureId, targetLocation, spellName, itemName, confidence fields
     - Make all fields except intent and originalText nullable
     - _Requirements: 6.1, 6.2_
   
-  - [ ] 2.3 Create IntentResult data class in ai:ondevice
+  - [x] 2.3 Create IntentResult data class in ai:ondevice
     - Include intent, confidence, usedFallback fields
     - _Requirements: 1.5_
   
-  - [ ] 2.4 Create EntityExtractionResult and related data classes
+  - [x] 2.4 Create EntityExtractionResult and related data classes
     - Define ExtractedCreature with creatureId, name, matchedText, startIndex, endIndex
     - Define EntityExtractionResult with creatures, locations, spells, items lists
     - Define EncounterContext with creatures, playerSpells, playerInventory
     - _Requirements: 2.2, 2.5_
 
-- [ ] 3. Implement Tokenizer component
-  - [ ] 3.1 Create Tokenizer interface and SimpleTokenizer implementation
+- [x] 3. Implement Tokenizer component
+  - [x] 3.1 Create Tokenizer interface and SimpleTokenizer implementation
     - Implement text lowercasing and splitting on whitespace/punctuation
     - Implement vocabulary mapping with unknown token handling
     - Implement padding/truncation to 128 tokens
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
   
-  - [ ] 3.2 Create vocabulary loader from JSON assets
+  - [x] 3.2 Create vocabulary loader from JSON assets
     - Implement AssetLoader class to read vocabulary.json
     - Parse JSON into Map<String, Int>
     - Handle missing or corrupted vocabulary file
     - _Requirements: 5.3, 7.3_
   
-  - [ ] 3.3 Write unit tests for Tokenizer
+  - [x] 3.3 Write unit tests for Tokenizer
     - Test tokenization of simple text
     - Test padding of short sequences
     - Test truncation of long sequences
@@ -49,15 +49,15 @@
     - Test special characters and punctuation
     - _Requirements: 8.2_
 
-- [ ] 4. Implement KeywordFallback system
-  - [ ] 4.1 Create KeywordFallback class with regex patterns
+- [x] 4. Implement KeywordFallback system
+  - [x] 4.1 Create KeywordFallback class with regex patterns
     - Define regex patterns for each intent type (5-10 patterns per intent)
     - Implement pattern matching with case-insensitive comparison
     - Return IntentResult with confidence 0.5 for matches
     - Return UNKNOWN intent with confidence 0.0 for no matches
     - _Requirements: 3.2, 3.3, 3.4_
   
-  - [ ] 4.2 Write unit tests for KeywordFallback
+  - [x] 4.2 Write unit tests for KeywordFallback
     - Test pattern matching for each intent type
     - Test case-insensitive matching
     - Test word boundary handling

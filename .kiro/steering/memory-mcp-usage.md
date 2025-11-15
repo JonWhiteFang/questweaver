@@ -50,10 +50,10 @@ Store information ONLY when ALL three conditions are met:
 
 **At every session start:**
 
-1. `search_nodes("QuestWeaver")` → Load project context silently
-2. `search_nodes("User")` → Load user preferences silently
+1. `search_nodes("QuestWeaver")` → Load project context and briefly acknowledge what was loaded
+2. `search_nodes("User")` → Load user preferences and briefly acknowledge what was loaded
 3. Use loaded context naturally in responses
-4. **Do NOT display raw memory** unless explicitly requested
+4. **Always acknowledge memory operations** with brief, natural confirmations
 
 ## Tool Usage Patterns
 
@@ -96,12 +96,13 @@ search_nodes("ProjectName") → If not found → create_entities
 ## User Interaction Style
 
 **When storing:**
-- Brief, natural confirmation: "Got it, I'll remember QuestWeaver uses Koin for DI."
+- Always provide brief, natural confirmation: "Got it, I'll remember QuestWeaver uses Koin for DI."
 - Avoid showing raw JSON, entity IDs, or technical details
+- Acknowledge what was stored in human-readable terms
 
 **When retrieving:**
+- Briefly mention when loading from memory: "Loading your QuestWeaver project context..."
 - Use context naturally: "Based on your QuestWeaver project, which uses MVI and Event Sourcing..."
-- Don't over-explain where information came from
 - Provide human-readable summaries when asked
 
 **When user asks "What do you know about my projects?":**
@@ -136,7 +137,7 @@ Before storing, verify:
 
 ## Quick Reference
 
-**Session start**: `search_nodes` for project + user → Load silently → Use naturally  
+**Session start**: `search_nodes` for project + user → Acknowledge loading → Use naturally  
 **New project**: Search first → `create_entities` → `create_relations` (user works_on project)  
 **Decision made**: `add_observations` to project entity  
 **Preference stated**: `add_observations` to user entity  
