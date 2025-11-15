@@ -65,37 +65,37 @@
     - Test with comprehensive phrase dataset
     - _Requirements: 8.4_
 
-- [ ] 5. Implement OnnxSessionManager
-  - [ ] 5.1 Create OnnxSessionManager class with initialization logic
+- [x] 5. Implement OnnxSessionManager
+  - [x] 5.1 Create OnnxSessionManager class with initialization logic
     - Implement background thread initialization using IO dispatcher
     - Load ONNX model from assets
     - Create InferenceSession with model bytes
     - Implement request queuing during initialization
     - _Requirements: 4.1, 4.2, 4.4, 4.5_
   
-  - [ ] 5.2 Implement model warmup and inference methods
+  - [x] 5.2 Implement model warmup and inference methods
     - Run dummy inference on initialization to warm up model
     - Implement infer() method that takes IntArray tokens and returns FloatArray probabilities
     - Add thread safety with Mutex for session access
     - Implement isReady() check and close() cleanup
     - _Requirements: 4.3_
   
-  - [ ] 5.3 Add error handling for model loading failures
+  - [x] 5.3 Add error handling for model loading failures
     - Handle missing model file gracefully
     - Handle corrupted model file
     - Handle insufficient memory errors
     - Log errors and signal fallback mode activation
     - _Requirements: 7.1_
   
-  - [ ] 5.4 Write unit tests for OnnxSessionManager
+  - [x] 5.4 Write unit tests for OnnxSessionManager
     - Test initialization with mock ONNX session
     - Test request queuing during initialization
     - Test inference with valid input
     - Test error handling for missing model
     - _Requirements: 8.1_
 
-- [ ] 6. Implement IntentClassifier
-  - [ ] 6.1 Create IntentClassifier interface and OnnxIntentClassifier implementation
+- [x] 6. Implement IntentClassifier
+  - [x] 6.1 Create IntentClassifier interface and OnnxIntentClassifier implementation
     - Implement classify() method that tokenizes input
     - Call OnnxSessionManager.infer() with tokens
     - Find highest confidence intent from probabilities
@@ -103,46 +103,46 @@
     - Fall back to KeywordFallback if confidence too low
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
   
-  - [ ] 6.2 Add error handling and fallback logic
+  - [x] 6.2 Add error handling and fallback logic
     - Catch ONNX Runtime exceptions and fall back to keywords
     - Handle timeout scenarios (>300ms)
     - Log warnings when using fallback
     - _Requirements: 3.5, 7.2_
   
-  - [ ] 6.3 Write unit tests for IntentClassifier
+  - [x] 6.3 Write unit tests for IntentClassifier
     - Test ONNX classification with high confidence
     - Test fallback to keywords when confidence low
     - Test fallback on ONNX exception
     - Test with mock OnnxSessionManager
     - _Requirements: 8.1_
 
-- [ ] 7. Implement EntityExtractor
-  - [ ] 7.1 Create EntityExtractor class with creature matching
+- [x] 7. Implement EntityExtractor
+  - [x] 7.1 Create EntityExtractor class with creature matching
     - Build case-insensitive name map from EncounterContext
     - Scan text for creature names using longest-match-first strategy
     - Handle partial name matches
     - Return ExtractedCreature with position information
     - _Requirements: 2.1, 2.2_
   
-  - [ ] 7.2 Implement location parsing
+  - [x] 7.2 Implement location parsing
     - Add regex patterns for grid notation (e.g., "E5")
     - Add regex patterns for coordinate notation (e.g., "(5,5)")
     - Convert matches to GridPos objects
     - Validate coordinates are within map bounds
     - _Requirements: 2.3_
   
-  - [ ] 7.3 Implement spell and item matching
+  - [x] 7.3 Implement spell and item matching
     - Match spell names against playerSpells list (case-insensitive)
     - Match item names against playerInventory list (case-insensitive)
     - Handle partial matches and common misspellings
     - _Requirements: 2.4_
   
-  - [ ] 7.4 Add error handling for entity extraction
+  - [x] 7.4 Add error handling for entity extraction
     - Return empty EntityExtractionResult on failure instead of throwing
     - Log warnings for ambiguous references
     - _Requirements: 7.4_
   
-  - [ ] 7.5 Write unit tests for EntityExtractor
+  - [x] 7.5 Write unit tests for EntityExtractor
     - Test creature extraction by exact name
     - Test creature extraction by partial name
     - Test location parsing from grid notation
@@ -152,8 +152,8 @@
     - Test ambiguous reference handling
     - _Requirements: 8.3_
 
-- [ ] 8. Implement IntentClassificationUseCase
-  - [ ] 8.1 Create IntentClassificationUseCase orchestration logic
+- [x] 8. Implement IntentClassificationUseCase
+  - [x] 8.1 Create IntentClassificationUseCase orchestration logic
     - Validate input text (non-empty, reasonable length)
     - Call IntentClassifier.classify()
     - Call EntityExtractor.extract() with EncounterContext
@@ -161,20 +161,20 @@
     - Return ActionResult.Success with NLAction
     - _Requirements: 6.1, 6.2, 6.3_
   
-  - [ ] 8.2 Add disambiguation logic for missing entities
+  - [x] 8.2 Add disambiguation logic for missing entities
     - Check if required entities are present for intent type
     - Generate ActionOption list for disambiguation
     - Return ActionResult.RequiresChoice when entities missing or ambiguous
     - _Requirements: 6.4, 6.5_
   
-  - [ ] 8.3 Add input validation and error handling
+  - [x] 8.3 Add input validation and error handling
     - Validate input is not empty
     - Truncate input if too long (>500 chars)
     - Sanitize invalid characters
     - Return ActionResult.Failure for invalid input
     - _Requirements: 7.3_
   
-  - [ ] 8.4 Write unit tests for IntentClassificationUseCase
+  - [x] 8.4 Write unit tests for IntentClassificationUseCase
     - Test successful classification with all entities
     - Test disambiguation when entities missing
     - Test error handling for empty input
