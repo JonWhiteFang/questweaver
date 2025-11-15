@@ -29,14 +29,10 @@ class CompletionDetector {
         val playerCreatures = creatures.values.filter { it.isPlayerControlled && it.hpCurrent > 0 }
         val enemyCreatures = creatures.values.filter { !it.isPlayerControlled && it.hpCurrent > 0 }
         
-        // Check if all creatures are dead (both sides at 0 HP)
-        if (playerCreatures.isEmpty() && enemyCreatures.isEmpty()) {
-            return CompletionStatus.Defeat
-        }
-        
+        // Determine completion status based on alive creatures
         return when {
-            enemyCreatures.isEmpty() -> CompletionStatus.Victory
             playerCreatures.isEmpty() -> CompletionStatus.Defeat
+            enemyCreatures.isEmpty() -> CompletionStatus.Victory
             else -> null
         }
     }

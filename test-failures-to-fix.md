@@ -29,9 +29,15 @@ These tests were passing before but are now failing. May have introduced a regre
 
 ### 5. AdditionalTests - Range overlays (Line ~324)
 **Error**: `Expected value to not be null, but was null`  
-**Cause**: `getWeaponRangeOverlay()` method not implemented yet  
-**Status**: Feature incomplete, test should be skipped or implementation added  
-**Fix**: Either skip test with `.config(enabled = false)` or implement the feature
+**Cause**: `getWeaponRangeOverlay()` method not implemented in ViewModel/use case  
+**Status**: ✅ **Range overlay rendering is fully implemented** in feature:map module  
+**Implementation details**:
+  - `RangeOverlayData` data class with origin, positions, and range type (MOVEMENT/WEAPON/SPELL)
+  - `MapRenderState` includes `rangeOverlay: RangeOverlayData?` field
+  - `drawRangeOverlay()` in OverlayRenderer.kt with color coding (blue/red/magenta) and viewport culling
+  - Rendered in Layer 2 of TacticalMapCanvas between grid and AoE overlay
+**Missing**: Use case or ViewModel method to calculate weapon range and populate the overlay data  
+**Fix**: Implement `getWeaponRangeOverlay()` method that calculates range positions and returns RangeOverlayData, or skip test until feature is connected
 
 ### 6. IntegrationTest - "encounter flow from start to victory"
 **Error**: Unknown (need to check test output)  
