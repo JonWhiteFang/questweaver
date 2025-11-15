@@ -33,6 +33,14 @@ android {
         jvmTarget = "17"
     }
     
+    // Mock Android framework classes for unit tests
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            isIncludeAndroidResources = false
+        }
+    }
+    
     buildFeatures {
         compose = true
     }

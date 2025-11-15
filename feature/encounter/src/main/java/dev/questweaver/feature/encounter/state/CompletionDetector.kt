@@ -20,9 +20,19 @@ class CompletionDetector {
      * @return CompletionStatus if encounter is complete, null if ongoing
      */
     fun checkCompletion(creatures: Map<Long, Creature>): CompletionStatus? {
+        // Handle empty creature map - no creatures means defeat
+        if (creatures.isEmpty()) {
+            return CompletionStatus.Defeat
+        }
+        
         // Separate creatures into player-controlled and enemies
         val playerCreatures = creatures.values.filter { it.isPlayerControlled && it.hpCurrent > 0 }
         val enemyCreatures = creatures.values.filter { !it.isPlayerControlled && it.hpCurrent > 0 }
+        
+        // Check if all creatures are dead (both sides at 0 HP)
+        if (playerCreatures.isEmpty() && enemyCreatures.isEmpty()) {
+            return CompletionStatus.Defeat
+        }
         
         return when {
             enemyCreatures.isEmpty() -> CompletionStatus.Victory

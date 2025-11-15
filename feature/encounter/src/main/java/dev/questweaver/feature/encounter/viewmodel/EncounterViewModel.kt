@@ -1,6 +1,6 @@
 package dev.questweaver.feature.encounter.viewmodel
 
-import android.util.Log
+// Removed android.util.Log - using println for unit testability
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.questweaver.domain.events.GameEvent
@@ -281,7 +281,7 @@ class EncounterViewModel(
             )
             
             _state.value = uiState
-            Log.i(TAG, "Successfully loaded encounter for session $sessionId")
+            println("$TAG: Successfully loaded encounter for session $sessionId")
         } catch (e: IllegalStateException) {
             handleError(
                 EncounterError.LoadFailed(sessionId, e.message ?: ERROR_UNKNOWN_STATE),
@@ -348,7 +348,7 @@ class EncounterViewModel(
             )
             
             _state.value = uiState
-            Log.i(TAG, "Successfully started encounter with session $sessionId")
+            println("$TAG: Successfully started encounter with session $sessionId")
         } catch (e: IllegalStateException) {
             handleError(
                 EncounterError.InitializationFailed(e.message ?: ERROR_UNKNOWN_STATE),
@@ -547,7 +547,7 @@ class EncounterViewModel(
             pendingChoice = null,
             error = null
         )
-        Log.i(TAG, "Combat action succeeded: ${action.type}")
+        println("$TAG: Combat action succeeded: ${action.type}")
     }
     
     /**
@@ -572,7 +572,7 @@ class EncounterViewModel(
             lastActionResult = result,
             error = null
         )
-        Log.i(TAG, "Combat action requires choice: ${result.choice.prompt}")
+        println("$TAG: Combat action requires choice: ${result.choice.prompt}")
     }
     
     /**
@@ -633,9 +633,9 @@ class EncounterViewModel(
                     completionStatus = completionStatus,
                     error = null
                 )
-                Log.i(TAG, "Encounter completed with status: $completionStatus")
+                println("$TAG: Encounter completed with status: $completionStatus")
             } else {
-                Log.i(TAG, "Turn ended successfully")
+                println("$TAG: Turn ended successfully")
             }
         } catch (e: IllegalStateException) {
             handleError(
@@ -692,7 +692,7 @@ class EncounterViewModel(
             )
             
             _state.value = uiState
-            Log.i(TAG, "Undo successful")
+            println("$TAG: Undo successful")
         } catch (e: IllegalStateException) {
             handleError(
                 EncounterError.StateCorrupted(e.message ?: ERROR_FAILED_TO_UNDO),
@@ -748,7 +748,7 @@ class EncounterViewModel(
             )
             
             _state.value = uiState
-            Log.i(TAG, "Redo successful")
+            println("$TAG: Redo successful")
         } catch (e: IllegalStateException) {
             handleError(
                 EncounterError.StateCorrupted(e.message ?: ERROR_FAILED_TO_REDO),
@@ -800,7 +800,7 @@ class EncounterViewModel(
             
             // Process the resolved action
             handleCombatAction(action)
-            Log.i(TAG, "Choice resolved: ${intent.selectedOption.name}")
+            println("$TAG: Choice resolved: ${intent.selectedOption.name}")
         } catch (e: IllegalStateException) {
             handleError(
                 EncounterError.ActionFailed(e.message ?: ERROR_FAILED_TO_RESOLVE),
@@ -873,9 +873,10 @@ class EncounterViewModel(
         
         // Log detailed error for debugging
         if (exception != null) {
-            Log.e(TAG, "Error in $context: $userMessage", exception)
+            System.err.println("$TAG: Error in $context: $userMessage")
+            exception.printStackTrace()
         } else {
-            Log.w(TAG, "Error in $context: $userMessage")
+            System.err.println("$TAG: Error in $context: $userMessage")
         }
         
         // Update UI state with error message
