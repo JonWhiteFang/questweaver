@@ -170,6 +170,7 @@ class AdditionalTests : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 // Act - cause an error
                 viewModel.handle(EncounterIntent.Attack(2L))
@@ -448,6 +449,7 @@ class AdditionalTests : FunSpec({
                 )
                 every { undoRedoManager.canUndo() } returns false
                 every { undoRedoManager.canRedo() } returns false
+                every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 // Act - load encounter (simulating resume)
                 viewModel.loadEncounter(sessionId)

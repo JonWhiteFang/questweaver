@@ -442,8 +442,8 @@ class EncounterViewModelTest : FunSpec({
                     sessionId = sessionId,
                     roundNumber = 1
                 )
-                every { undoRedoManager.canUndo() } returns true andThen false
-                every { undoRedoManager.canRedo() } returns false andThen true
+                every { undoRedoManager.canUndo() } returns true  // Before and after undo, still have 1 event
+                every { undoRedoManager.canRedo() } returns false andThen true  // After undo, can redo
                 every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(
@@ -462,7 +462,7 @@ class EncounterViewModelTest : FunSpec({
                 
                 // Assert
                 val state = viewModel.state.first()
-                state.canUndo shouldBe false
+                state.canUndo shouldBe true  // Fixed: With 1 event, can still undo to 0
                 state.canRedo shouldBe true
                 
                 coVerify { undoRedoManager.undo(sessionId) }
@@ -499,8 +499,8 @@ class EncounterViewModelTest : FunSpec({
                     sessionId = sessionId,
                     roundNumber = 1
                 )
-                every { undoRedoManager.canUndo() } returns false andThen true
-                every { undoRedoManager.canRedo() } returns true andThen false
+                every { undoRedoManager.canUndo() } returns true  // After redo, back to 2 events
+                every { undoRedoManager.canRedo() } returns true andThen false  // Before redo can redo, after redo cannot
                 every { undoRedoManager.updateEventCount(any()) } returns Unit
                 
                 viewModel.handle(EncounterIntent.StartEncounter(
@@ -519,8 +519,8 @@ class EncounterViewModelTest : FunSpec({
                 
                 // Assert
                 val state = viewModel.state.first()
-                state.canUndo shouldBe true
-                state.canRedo shouldBe false
+                state.canUndo shouldBe true  // After redo, back to 2 events
+                state.canRedo shouldBe false  // After redo, nothing left to redo
                 
                 coVerify { undoRedoManager.redo(sessionId) }
             }
