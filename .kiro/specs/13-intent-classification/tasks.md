@@ -194,7 +194,7 @@
     - Use config values for confidence threshold, max sequence length, etc.
     - _Requirements: 4.2_
 
-- [ ] 10. Add Koin dependency injection module
+- [x] 10. Add Koin dependency injection module
   - Create `ai/ondevice/di/OnDeviceModule.kt`
   - Register OnnxSessionManager as singleton
   - Register Tokenizer as singleton
