@@ -1,0 +1,79 @@
+plugins {
+    alias(libs.plugins.android.lib)
+    alias(libs.plugins.kotlin.android)
+}
+
+android {
+    namespace = "dev.questweaver.ai.tactical"
+    compileSdk = 34
+    
+    defaultConfig {
+        minSdk = 26
+        
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
+    }
+    
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+dependencies {
+    // Module dependencies
+    implementation(project(":core:domain"))
+    implementation(project(":core:rules"))
+    implementation(project(":feature:map"))
+    
+    // Kotlin
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines)
+    
+    // DI
+    implementation(libs.bundles.koin)
+    
+    // Logging
+    implementation(libs.kotlin.logging)
+    implementation(libs.slf4j.api)
+    
+    // Testing
+    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    
+    // Enable parallel test execution
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+    
+    // Configure test reports
+    reports {
+        html.required.set(true)
+        junitXml.required.set(true)
+    }
+    
+    // Configure test logging
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+    }
+}

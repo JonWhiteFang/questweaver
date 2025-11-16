@@ -8,7 +8,7 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
 
 ## Tasks
 
-- [ ] 1. Set up ai:tactical module structure
+- [x] 1. Set up ai:tactical module structure
   - Create `ai/tactical/` module directory with Gradle build configuration
   - Add dependencies: core:domain, core:rules, feature:map, kotlinx-coroutines, kotlin-logging
   - Create package structure: `agent/`, `behavior/`, `scoring/`, `targeting/`, `positioning/`, `resources/`, `di/`
@@ -16,66 +16,66 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
   - Create Koin DI module for tactical AI components
   - _Requirements: All requirements (module foundation)_
 
-- [ ] 2. Implement core data models
-  - [ ] 2.1 Create TacticalContext data class
+- [x] 2. Implement core data models
+  - [x] 2.1 Create TacticalContext data class
     - Include encounterId, round, creatures, allies, enemies, mapState, activeConditions, concentrationSpells, recentDamage, seed
     - Add helper methods: `getAllies(creature)`, `getEnemies(creature)`, `isAlly(creature1, creature2)`
     - _Requirements: 1.1, 6.1, 6.2_
   
-  - [ ] 2.2 Create TacticalDecision data class
+  - [x] 2.2 Create TacticalDecision data class
     - Include action, target, position, path, reasoning
     - Create DecisionReasoning with behaviorPath, topScores, selectedScore, opportunities, resourcesUsed
     - _Requirements: 1.1, 6.4_
   
-  - [ ] 2.3 Create ActionCandidate and ScoredAction data classes
+  - [x] 2.3 Create ActionCandidate and ScoredAction data classes
     - ActionCandidate: action, targets, positions, resourceCost
     - ScoredAction: candidate, score, breakdown
     - ScoreBreakdown: damageScore, hitProbabilityScore, targetPriorityScore, resourceCostScore, tacticalValueScore, positioningScore
     - ResourceCost: spellSlot, abilityUse, consumableItem
     - _Requirements: 2.1, 2.2, 2.3_
   
-  - [ ] 2.4 Create Difficulty enum and Resource sealed interface
+  - [x] 2.4 Create Difficulty enum and Resource sealed interface
     - Difficulty: EASY, NORMAL, HARD with variance percentages
     - Resource: SpellSlot, LimitedAbility, ConsumableItem
     - _Requirements: 5.1, 9.1, 9.2_
   
-  - [ ] 2.5 Create TacticalOpportunity sealed interface
+  - [x] 2.5 Create TacticalOpportunity sealed interface
     - Flanking, ProneTarget, IncapacitatedTarget, ConcentrationBreak, MultiTargetAoE, ForcedMovement
     - Each with bonusScore property
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
 
-- [ ] 3. Implement BehaviorTree framework
-  - [ ] 3.1 Create BehaviorNode sealed interface
+- [x] 3. Implement BehaviorTree framework
+  - [x] 3.1 Create BehaviorNode sealed interface
     - Define `evaluate(creature, context): BehaviorResult` method
     - Create BehaviorResult sealed interface: Success, Failure, ActionCandidates
     - _Requirements: 1.1, 1.2_
   
-  - [ ] 3.2 Implement SelectorNode
+  - [x] 3.2 Implement SelectorNode
     - Tries children in order until one succeeds
     - Returns first successful result or Failure if all fail
     - _Requirements: 1.2, 1.3_
   
-  - [ ] 3.3 Implement SequenceNode
+  - [x] 3.3 Implement SequenceNode
     - Executes children in order until one fails
     - Returns Success only if all children succeed
     - _Requirements: 1.2_
   
-  - [ ] 3.4 Implement ConditionNode
+  - [x] 3.4 Implement ConditionNode
     - Evaluates predicate function
     - Returns Success or Failure based on result
     - _Requirements: 1.2_
   
-  - [ ] 3.5 Implement ActionNode
+  - [x] 3.5 Implement ActionNode
     - Returns ActionCandidates with specified actionType and priority
     - _Requirements: 1.1, 1.4_
   
-  - [ ] 3.6 Create BehaviorTreeFactory
+  - [x] 3.6 Create BehaviorTreeFactory
     - Factory methods for common trees: aggressiveMelee(), rangedAttacker(), spellcaster(), defensive()
     - Support for custom creature-specific trees
     - _Requirements: 1.5_
 
-- [ ] 4. Implement ActionCandidateGenerator
-  - [ ] 4.1 Create ActionCandidateGenerator class
+- [-] 4. Implement ActionCandidateGenerator
+  - [x] 4.1 Create ActionCandidateGenerator class
     - Constructor: RulesEngine dependency
     - Method: `generate(creature, context, actionTypes): List<ActionCandidate>`
     - _Requirements: 2.1, 8.1_
