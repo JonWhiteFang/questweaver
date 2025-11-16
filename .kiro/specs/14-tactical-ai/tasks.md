@@ -154,7 +154,7 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Calculate forced movement bonus
     - _Requirements: 11.6_
 
-- [ ] 7. Implement ActionScorer
+- [x] 7. Implement ActionScorer
   - [ ] 7.1 Create ActionScorer class
     - Constructor: ThreatAssessor, OpportunityEvaluator, DiceRoller dependencies
     - Method: `scoreAll(candidates, context, difficulty): List<ScoredAction>`
