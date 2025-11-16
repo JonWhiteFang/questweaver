@@ -74,13 +74,13 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Support for custom creature-specific trees
     - _Requirements: 1.5_
 
-- [-] 4. Implement ActionCandidateGenerator
+- [x] 4. Implement ActionCandidateGenerator
   - [x] 4.1 Create ActionCandidateGenerator class
     - Constructor: RulesEngine dependency
     - Method: `generate(creature, context, actionTypes): List<ActionCandidate>`
     - _Requirements: 2.1, 8.1_
   
-  - [ ] 4.2 Implement action generation logic
+  - [x] 4.2 Implement action generation logic
     - Generate attack actions for all weapons
     - Generate spell actions for available spell slots
     - Generate movement actions (Move, Dash, Disengage)
@@ -88,68 +88,68 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Generate ability actions (Second Wind, Action Surge, etc.)
     - _Requirements: 2.1, 5.1, 8.3_
   
-  - [ ] 4.3 Implement resource filtering
+  - [x] 4.3 Implement resource filtering
     - Check spell slot availability
     - Check limited ability uses remaining
     - Check consumable item availability
     - _Requirements: 5.1, 5.2, 5.4_
   
-  - [ ] 4.4 Implement search space limiting
+  - [x] 4.4 Implement search space limiting
     - Limit to top 20 action candidates
     - Limit to top 10 positions per action
     - Early pruning of obviously invalid actions
     - _Requirements: 7.2, 7.3_
 
-- [ ] 5. Implement ThreatAssessor
-  - [ ] 5.1 Create ThreatAssessor class
+- [x] 5. Implement ThreatAssessor
+  - [x] 5.1 Create ThreatAssessor class
     - Method: `assessThreat(creature, context): Float`
     - Calculate threat score based on damage, healing, control, HP, concentration, role
     - _Requirements: 10.1, 10.2_
   
-  - [ ] 5.2 Implement damage output calculation
+  - [x] 5.2 Implement damage output calculation
     - Estimate average damage per round
     - Consider multi-attack, spell damage, abilities
     - _Requirements: 10.2_
   
-  - [ ] 5.3 Implement healing capability calculation
+  - [x] 5.3 Implement healing capability calculation
     - Identify healing spells and abilities
     - Estimate average healing per round
     - _Requirements: 10.5_
   
-  - [ ] 5.4 Implement control potential calculation
+  - [x] 5.4 Implement control potential calculation
     - Identify control spells (Hold Person, Slow, etc.)
     - Weight by save DC and target save bonuses
     - _Requirements: 10.2_
   
-  - [ ] 5.5 Implement concentration and role bonuses
+  - [x] 5.5 Implement concentration and role bonuses
     - Add bonus for active concentration spells
     - Add role-based bonuses (healer, spellcaster, striker, tank)
     - _Requirements: 10.4, 10.5_
 
-- [ ] 6. Implement OpportunityEvaluator
-  - [ ] 6.1 Create OpportunityEvaluator class
+- [x] 6. Implement OpportunityEvaluator
+  - [x] 6.1 Create OpportunityEvaluator class
     - Constructor: GeometryCalculator dependency
     - Method: `evaluateOpportunities(action, context): List<TacticalOpportunity>`
     - _Requirements: 11.1_
   
-  - [ ] 6.2 Implement flanking detection
+  - [x] 6.2 Implement flanking detection
     - Check if action enables flanking position
     - Calculate flanking bonus
     - _Requirements: 11.1, 11.2_
   
-  - [ ] 6.3 Implement condition-based opportunities
+  - [x] 6.3 Implement condition-based opportunities
     - Detect prone targets (advantage on melee)
     - Detect incapacitated targets (auto-crit)
     - Detect concentration targets (break concentration)
     - _Requirements: 11.3, 11.4_
   
-  - [ ] 6.4 Implement AoE opportunity detection
+  - [x] 6.4 Implement AoE opportunity detection
     - Count targets in AoE radius
     - Calculate multi-target bonus
     - Check for friendly fire
     - _Requirements: 11.5_
   
-  - [ ] 6.5 Implement forced movement opportunities
+  - [x] 6.5 Implement forced movement opportunities
     - Detect hazards near targets (fire, cliffs)
     - Calculate forced movement bonus
     - _Requirements: 11.6_

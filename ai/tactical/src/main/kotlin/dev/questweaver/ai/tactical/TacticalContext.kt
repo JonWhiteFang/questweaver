@@ -17,6 +17,9 @@ import dev.questweaver.domain.values.GridPos
  * @property activeConditions Map of creature IDs to their active conditions
  * @property concentrationSpells Map of creature IDs to spell names they're concentrating on
  * @property recentDamage Map of creature IDs to damage dealt in last 2 rounds
+ * @property availableSpellSlots Map of creature IDs to available spell slots by level
+ * @property availableAbilities Map of creature IDs to available limited abilities
+ * @property availableItems Map of creature IDs to available consumable items
  * @property seed Seed for deterministic randomness
  */
 data class TacticalContext(
@@ -29,6 +32,9 @@ data class TacticalContext(
     val activeConditions: Map<Long, List<Condition>>,
     val concentrationSpells: Map<Long, String>,
     val recentDamage: Map<Long, Int>,
+    val availableSpellSlots: Map<Long, Map<Int, Int>>, // creatureId -> (level -> count)
+    val availableAbilities: Map<Long, Map<String, Int>>, // creatureId -> (abilityName -> usesRemaining)
+    val availableItems: Map<Long, List<String>>, // creatureId -> list of item names
     val seed: Long
 ) {
     /**
@@ -90,5 +96,38 @@ data class TacticalContext(
      */
     fun getCreature(creatureId: Long): Creature? {
         return creatures.firstOrNull { it.id == creatureId }
+    }
+    
+    /**
+     * Checks if a creature has a spell slot of the given level available.
+     *
+     * @param creatureId The creature's ID
+     * @param level The spell slot level
+     * @return True if the creature has at least one spell slot of that level
+     */
+    fun hasSpellSlot(creatureId: Long, level: Int): Boolean {
+        return (availableSpellSlots[creatureId]?.get(level) ?: 0) > 0
+    }
+    
+    /**
+     * Checks if a creature has a limited ability available.
+     *
+     * @param creatureId The creature's ID
+     * @param abilityName The ability name
+     * @return True if the creature has at least one use of the ability remaining
+     */
+    fun hasAbility(creatureId: Long, abilityName: String): Boolean {
+        return (availableAbilities[creatureId]?.get(abilityName) ?: 0) > 0
+    }
+    
+    /**
+     * Checks if a creature has a consumable item available.
+     *
+     * @param creatureId The creature's ID
+     * @param itemName The item name
+     * @return True if the creature has the item
+     */
+    fun hasItem(creatureId: Long, itemName: String): Boolean {
+        return availableItems[creatureId]?.contains(itemName) == true
     }
 }
