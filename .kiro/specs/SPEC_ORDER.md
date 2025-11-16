@@ -4,7 +4,7 @@ This document defines the ordered list of specs that need to be created and comp
 
 ## Phase 1: Foundation (Weeks 1-2)
 
-### 1. Project Setup & Build Configuration
+### ✅ 1. Project Setup & Build Configuration [COMPLETED]
 **Directory:** `.kiro/specs/01-project-setup`  
 **Dependencies:** None  
 **Deliverables:**
@@ -14,7 +14,7 @@ This document defines the ordered list of specs that need to be created and comp
 - CI/CD pipeline setup
 - Code quality tools (lint, detekt)
 
-### 2. Core Domain Models
+### ✅ 2. Core Domain Models [COMPLETED]
 **Directory:** `.kiro/specs/02-core-domain`  
 **Dependencies:** 01-project-setup  
 **Deliverables:**
@@ -24,7 +24,7 @@ This document defines the ordered list of specs that need to be created and comp
 - Use case interfaces
 - Value objects (GridPos, Abilities, DiceRoll)
 
-### 3. Database & Persistence Layer
+### ✅ 3. Database & Persistence Layer [COMPLETED]
 **Directory:** `.kiro/specs/03-database-persistence`  
 **Dependencies:** 02-core-domain  
 **Deliverables:**
@@ -36,7 +36,7 @@ This document defines the ordered list of specs that need to be created and comp
 
 ## Phase 2: Rules Engine (Weeks 3-4)
 
-### 4. Deterministic Dice System
+### ✅ 4. Deterministic Dice System [COMPLETED]
 **Directory:** `.kiro/specs/04-dice-system`  
 **Dependencies:** 02-core-domain  
 **Deliverables:**
@@ -45,7 +45,7 @@ This document defines the ordered list of specs that need to be created and comp
 - DiceRoll value objects
 - Property-based tests for determinism
 
-### 5. Combat Rules Engine
+### ✅ 5. Combat Rules Engine [COMPLETED]
 **Directory:** `.kiro/specs/05-combat-rules`  
 **Dependencies:** 04-dice-system  
 **Deliverables:**
@@ -55,7 +55,7 @@ This document defines the ordered list of specs that need to be created and comp
 - Condition effects (prone, stunned, etc.)
 - SRD-compatible D&D 5e mechanics
 
-### 6. Action Validation System
+### ✅ 6. Action Validation System [COMPLETED]
 **Directory:** `.kiro/specs/06-action-validation`  
 **Dependencies:** 05-combat-rules  
 **Deliverables:**
@@ -66,7 +66,7 @@ This document defines the ordered list of specs that need to be created and comp
 
 ## Phase 3: Map & Geometry (Weeks 5-6)
 
-### 7. Grid System & Geometry
+### ✅ 7. Grid System & Geometry [COMPLETED]
 **Directory:** `.kiro/specs/07-grid-geometry`  
 **Dependencies:** 02-core-domain  
 **Deliverables:**
@@ -76,7 +76,7 @@ This document defines the ordered list of specs that need to be created and comp
 - Range calculations (5ft, 10ft, etc.)
 - Area-of-effect templates (cone, sphere, cube)
 
-### 8. Pathfinding System
+### ✅ 8. Pathfinding System [COMPLETED]
 **Directory:** `.kiro/specs/08-pathfinding`  
 **Dependencies:** 07-grid-geometry  
 **Deliverables:**
@@ -86,7 +86,7 @@ This document defines the ordered list of specs that need to be created and comp
 - Difficult terrain support
 - Path validation
 
-### 9. Tactical Map Rendering
+### ✅ 9. Tactical Map Rendering [COMPLETED]
 **Directory:** `.kiro/specs/09-map-rendering`  
 **Dependencies:** 07-grid-geometry, 08-pathfinding  
 **Deliverables:**
@@ -99,7 +99,7 @@ This document defines the ordered list of specs that need to be created and comp
 
 ## Phase 4: Combat System (Weeks 7-8)
 
-### 10. Initiative & Turn Management
+### ✅ 10. Initiative & Turn Management [COMPLETED]
 **Directory:** `.kiro/specs/10-initiative-turns`  
 **Dependencies:** 02-core-domain, 05-combat-rules  
 **Deliverables:**
@@ -109,7 +109,7 @@ This document defines the ordered list of specs that need to be created and comp
 - Round progression
 - Surprise round handling
 
-### 11. Combat Action Processing
+### ✅ 11. Combat Action Processing [COMPLETED]
 **Directory:** `.kiro/specs/11-combat-actions`  
 **Dependencies:** 05-combat-rules, 06-action-validation, 10-initiative-turns  
 **Deliverables:**
@@ -119,7 +119,7 @@ This document defines the ordered list of specs that need to be created and comp
 - Bonus action handling
 - Reaction system
 
-### 12. Encounter State Management
+### ✅ 12. Encounter State Management [COMPLETED]
 **Directory:** `.kiro/specs/12-encounter-state`  
 **Dependencies:** 10-initiative-turns, 11-combat-actions  
 **Deliverables:**
@@ -131,7 +131,7 @@ This document defines the ordered list of specs that need to be created and comp
 
 ## Phase 5: AI Systems (Weeks 9-10)
 
-### 13. Intent Classification (On-Device)
+### 🔄 13. Intent Classification (On-Device) [IN PROGRESS - Tasks 1-11/13 Complete]
 **Directory:** `.kiro/specs/13-intent-classification`  
 **Dependencies:** 02-core-domain  
 **Deliverables:**
