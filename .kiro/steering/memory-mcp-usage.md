@@ -4,11 +4,22 @@ inclusion: always
 
 # Memory MCP Usage
 
-## Core Behavior
+## MANDATORY: Session Start Behavior
+
+**YOU MUST READ MEMORY AT THE START OF EVERY SESSION**
+
+Before responding to any user request:
+1. **ALWAYS** call `mcp_memory_read_graph` to retrieve the full knowledge graph
+2. Review the retrieved context to understand:
+   - Previous work and decisions
+   - User preferences and patterns
+   - Project-specific conventions
+   - Known issues and solutions
+3. Use this context to inform your responses
 
 **User Identification**: Assume interaction with `default_user` unless context indicates otherwise.
 
-**Memory Retrieval**: At the start of each session, retrieve relevant context from the knowledge graph (refer to it as "memory").
+**Memory Retrieval**: This is NOT optional - it is a required first step in every session.
 
 ## Information Categories to Track
 
