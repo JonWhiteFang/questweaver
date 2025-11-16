@@ -1,0 +1,18 @@
+PLACEHOLDER_ONNX_MODEL
+
+This is a placeholder file for the intent classification ONNX model.
+
+To use the actual model:
+1. Train or obtain a quantized INT8 ONNX model for intent classification
+2. Model should accept input shape [1, 128] (batch_size=1, sequence_length=128) as Int32
+3. Model should output shape [1, 12] (batch_size=1, num_classes=12) as Float32
+4. Replace this file with the actual .onnx model file
+
+Expected model specifications:
+- Format: ONNX opset 13
+- Input: Int32 tensor [1, 128] (tokenized text)
+- Output: Float32 tensor [1, 12] (intent probabilities)
+- Size: ~80MB (quantized INT8)
+- Intents: ATTACK, MOVE, CAST_SPELL, USE_ITEM, DASH, DODGE, HELP, HIDE, DISENGAGE, READY, SEARCH, UNKNOWN
+
+Until a real model is provided, the system will use keyword-based fallback classification.

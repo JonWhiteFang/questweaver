@@ -181,15 +181,15 @@
     - Test error handling for invalid input
     - _Requirements: 8.1_
 
-- [ ] 9. Create model asset files and configuration
-  - [ ] 9.1 Add placeholder ONNX model to assets
+- [x] 9. Create model asset files and configuration
+  - [x] 9.1 Add placeholder ONNX model to assets
     - Create `app/src/main/assets/models/` directory
     - Add placeholder `intent_classifier.onnx` file (or real model if available)
     - Add `vocabulary.json` with common D&D terms
     - Add `model_config.json` with model metadata
     - _Requirements: 4.2_
   
-  - [ ] 9.2 Implement model config loader
+  - [x] 9.2 Implement model config loader
     - Parse model_config.json to get model parameters
     - Use config values for confidence threshold, max sequence length, etc.
     - _Requirements: 4.2_

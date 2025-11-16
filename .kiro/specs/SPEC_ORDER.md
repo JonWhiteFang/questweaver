@@ -141,6 +141,58 @@ This document defines the ordered list of specs that need to be created and comp
 - Entity extraction
 - Keyword fallback system
 
+**Note:** Initial implementation uses keyword fallback only. ONNX model creation is deferred to post-MVP.
+
+#### ONNX Model Creation (Post-MVP Enhancement)
+**Status:** Not required for MVP - keyword fallback is sufficient  
+**When to implement:** After v1.0 release, based on user feedback  
+**Estimated effort:** 1-2 weeks
+
+**Steps to create ONNX model:**
+1. **Data Collection** (3-5 days)
+   - Collect 1000+ labeled player commands from real usage
+   - Or generate synthetic training data using templates
+   - Balance classes (equal examples per intent type)
+   - Split: 70% train, 15% validation, 15% test
+
+2. **Model Selection** (1 day)
+   - Option A: Custom LSTM (5-10MB, fastest inference)
+   - Option B: Fine-tuned DistilBERT (80MB quantized, better accuracy)
+   - Recommendation: Start with LSTM for speed
+
+3. **Training** (2-3 days)
+   - Set up Python environment (PyTorch/TensorFlow)
+   - Train model on collected data
+   - Validate accuracy (target: 85%+ on test set)
+   - Tune hyperparameters
+
+4. **Export to ONNX** (1 day)
+   - Export trained model to ONNX format (opset 13)
+   - Quantize to INT8 for size reduction
+   - Validate inference works with ONNX Runtime
+   - Test on Android device
+
+5. **Integration** (2-3 days)
+   - Replace placeholder model file
+   - Update vocabulary.json if needed
+   - Test end-to-end classification
+   - Benchmark performance (target: <300ms)
+   - Compare accuracy vs keyword fallback
+
+**Resources needed:**
+- Python ML environment (PyTorch/TensorFlow + ONNX)
+- Training data (real or synthetic)
+- GPU for training (optional but recommended)
+- Android device for testing
+
+**Success criteria:**
+- 85%+ accuracy on test dataset
+- <300ms inference time on mid-tier Android device
+- <100MB model size (preferably <80MB)
+- Better than keyword fallback in user testing
+
+**Alternative:** If model training is too complex, consider using a pre-trained intent classifier from Hugging Face and fine-tuning on D&D-specific commands.
+
 ### 14. Tactical AI Agent
 **Directory:** `.kiro/specs/14-tactical-ai`  
 **Dependencies:** 05-combat-rules, 06-action-validation, 12-encounter-state  

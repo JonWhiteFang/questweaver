@@ -1,0 +1,36 @@
+{
+  "model_version": "1.0.0",
+  "input_shape": [1, 128],
+  "output_shape": [1, 12],
+  "max_sequence_length": 128,
+  "num_classes": 12,
+  "confidence_threshold": 0.6,
+  "intent_labels": [
+    "ATTACK",
+    "MOVE",
+    "CAST_SPELL",
+    "USE_ITEM",
+    "DASH",
+    "DODGE",
+    "HELP",
+    "HIDE",
+    "DISENGAGE",
+    "READY",
+    "SEARCH",
+    "UNKNOWN"
+  ],
+  "special_tokens": {
+    "unknown": 0,
+    "padding": 1,
+    "cls": 2,
+    "sep": 3
+  },
+  "model_metadata": {
+    "format": "ONNX",
+    "opset_version": 13,
+    "quantization": "INT8",
+    "estimated_size_mb": 80,
+    "target_inference_time_ms": 100,
+    "warmup_required": true
+  }
+}
