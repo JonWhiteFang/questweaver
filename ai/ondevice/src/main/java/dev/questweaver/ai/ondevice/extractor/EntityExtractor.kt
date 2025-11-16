@@ -3,7 +3,7 @@ package dev.questweaver.ai.ondevice.extractor
 import dev.questweaver.ai.ondevice.model.EncounterContext
 import dev.questweaver.ai.ondevice.model.EntityExtractionResult
 import dev.questweaver.ai.ondevice.model.ExtractedCreature
-import dev.questweaver.core.domain.map.GridPos
+import dev.questweaver.core.domain.intent.GridPos
 import org.slf4j.LoggerFactory
 
 /**

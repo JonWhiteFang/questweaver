@@ -5,7 +5,7 @@ import dev.questweaver.ai.ondevice.extractor.EntityExtractor
 import dev.questweaver.ai.ondevice.model.EncounterContext
 import dev.questweaver.core.domain.action.ActionOption
 import dev.questweaver.core.domain.action.ActionResult
-import dev.questweaver.core.domain.action.NLAction
+import dev.questweaver.core.domain.intent.NLAction
 import dev.questweaver.core.domain.intent.IntentType
 import org.slf4j.LoggerFactory
 

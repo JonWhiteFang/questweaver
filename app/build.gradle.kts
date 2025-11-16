@@ -98,6 +98,9 @@ dependencies {
 
   implementation(libs.work.runtime)
 
+  // Logging implementation
+  implementation(libs.slf4j.simple)
+
   implementation(project(":core:domain"))
   implementation(project(":core:data"))
   implementation(project(":core:rules"))

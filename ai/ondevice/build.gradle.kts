@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines)
     implementation(libs.serialization.json)
+    implementation(libs.kotlin.logging)
     
     implementation(libs.onnx.runtime)
     implementation(libs.bundles.koin)
