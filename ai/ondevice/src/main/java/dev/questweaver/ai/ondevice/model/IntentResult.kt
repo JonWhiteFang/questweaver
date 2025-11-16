@@ -4,7 +4,7 @@ import dev.questweaver.core.domain.intent.IntentType
 
 /**
  * Result of intent classification.
- * 
+ *
  * @property intent The classified intent type
  * @property confidence The confidence score of the classification (0.0-1.0)
  * @property usedFallback Whether keyword fallback was used instead of ML model
