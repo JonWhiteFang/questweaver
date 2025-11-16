@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory
  * @param intentClassifier Intent classification component
  * @param entityExtractor Entity extraction component
  */
+@Suppress("TooManyFunctions") // Use case requires multiple helper functions for clarity
 class IntentClassificationUseCase(
     private val intentClassifier: IntentClassifier,
     private val entityExtractor: EntityExtractor
@@ -52,43 +53,58 @@ class IntentClassificationUseCase(
         // Sanitize and truncate input if needed
         val sanitizedInput = sanitizeInput(input)
         
-        try {
-            // Classify intent
-            val intentResult = intentClassifier.classify(sanitizedInput)
-            logger.info { "Classified intent: ${intentResult.intent} (confidence=${intentResult.confidence})" }
-            
-            // Extract entities
-            val entities = entityExtractor.extract(sanitizedInput, context)
-            logger.debug { 
-                "Extracted entities: ${entities.creatures.size} creatures, " +
-                "${entities.locations.size} locations, ${entities.spells.size} spells, " +
-                "${entities.items.size} items" 
-            }
-            
-            // Check if required entities are present
-            val disambiguationResult = checkRequiredEntities(intentResult.intent, entities, context)
-            if (disambiguationResult != null) {
-                return disambiguationResult
-            }
-            
-            // Construct NLAction
-            val action = NLAction(
-                intent = intentResult.intent,
-                originalText = sanitizedInput,
-                targetCreatureId = entities.creatures.firstOrNull()?.creatureId,
-                targetLocation = entities.locations.firstOrNull(),
-                spellName = entities.spells.firstOrNull(),
-                itemName = entities.items.firstOrNull(),
-                confidence = intentResult.confidence
-            )
-            
-            logger.info { "Successfully created NLAction: $action" }
-            return ActionResult.Success(action)
-            
-        } catch (e: Exception) {
-            logger.error(e) { "Intent classification failed" }
-            return ActionResult.Failure("Failed to classify intent: ${e.message}")
+        return classifyAndExtract(sanitizedInput, context)
+    }
+    
+    /**
+     * Performs classification and entity extraction.
+     */
+    private suspend fun classifyAndExtract(
+        sanitizedInput: String,
+        context: EncounterContext
+    ): ActionResult {
+        // Classify intent
+        val intentResult = intentClassifier.classify(sanitizedInput)
+        logger.info { "Classified intent: ${intentResult.intent} (confidence=${intentResult.confidence})" }
+        
+        // Extract entities
+        val entities = entityExtractor.extract(sanitizedInput, context)
+        logger.debug { 
+            "Extracted entities: ${entities.creatures.size} creatures, " +
+            "${entities.locations.size} locations, ${entities.spells.size} spells, " +
+            "${entities.items.size} items" 
         }
+        
+        // Check if required entities are present
+        val disambiguationResult = checkRequiredEntities(intentResult.intent, entities, context)
+        if (disambiguationResult != null) {
+            return disambiguationResult
+        }
+        
+        // Construct and return NLAction
+        return createSuccessResult(sanitizedInput, intentResult, entities)
+    }
+    
+    /**
+     * Creates a successful ActionResult with NLAction.
+     */
+    private fun createSuccessResult(
+        sanitizedInput: String,
+        intentResult: dev.questweaver.ai.ondevice.model.IntentResult,
+        entities: dev.questweaver.ai.ondevice.model.EntityExtractionResult
+    ): ActionResult.Success {
+        val action = NLAction(
+            intent = intentResult.intent,
+            originalText = sanitizedInput,
+            targetCreatureId = entities.creatures.firstOrNull()?.creatureId,
+            targetLocation = entities.locations.firstOrNull(),
+            spellName = entities.spells.firstOrNull(),
+            itemName = entities.items.firstOrNull(),
+            confidence = intentResult.confidence
+        )
+        
+        logger.info { "Successfully created NLAction: $action" }
+        return ActionResult.Success(action)
     }
     
     /**

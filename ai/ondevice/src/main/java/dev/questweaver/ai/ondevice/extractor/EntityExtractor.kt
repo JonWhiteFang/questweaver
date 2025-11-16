@@ -18,6 +18,10 @@ import org.slf4j.LoggerFactory
 class EntityExtractor {
     private val logger = LoggerFactory.getLogger(EntityExtractor::class.java)
     
+    companion object {
+        private const val MIN_PARTIAL_MATCH_LENGTH = 3
+    }
+    
     /**
      * Extracts entities from text using the provided encounter context.
      *
@@ -45,8 +49,16 @@ class EntityExtractor {
                 spells = spells,
                 items = items
             )
-        } catch (e: Exception) {
-            logger.warn(e) { "Entity extraction failed, returning empty result" }
+        } catch (e: IllegalArgumentException) {
+            logger.warn(e) { "Entity extraction failed due to invalid argument, returning empty result" }
+            EntityExtractionResult(
+                creatures = emptyList(),
+                locations = emptyList(),
+                spells = emptyList(),
+                items = emptyList()
+            )
+        } catch (e: IllegalStateException) {
+            logger.warn(e) { "Entity extraction failed due to invalid state, returning empty result" }
             EntityExtractionResult(
                 creatures = emptyList(),
                 locations = emptyList(),
@@ -87,6 +99,7 @@ class EntityExtractor {
     /**
      * Finds all matches for a specific creature name in the text.
      */
+    @Suppress("LongParameterList") // Required for efficient matching algorithm
     private fun findCreatureMatches(
         lowerText: String,
         originalText: String,
@@ -218,7 +231,7 @@ class EntityExtractor {
             
             // Try partial match (first word of item name)
             val firstWord = lowerItem.split(" ").firstOrNull()
-            if (firstWord != null && firstWord.length > 3) {
+            if (firstWord != null && firstWord.length > MIN_PARTIAL_MATCH_LENGTH) {
                 val pattern = Regex("""\b${Regex.escape(firstWord)}\b""")
                 if (pattern.containsMatchIn(lowerText)) {
                     items.add(item)

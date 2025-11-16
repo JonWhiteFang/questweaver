@@ -33,6 +33,22 @@ class OnnxIntentClassifier(
     
     private val logger = LoggerFactory.getLogger(OnnxIntentClassifier::class.java)
     
+    companion object {
+        private const val EXPECTED_PROBABILITY_COUNT = 12
+        private const val INTENT_INDEX_ATTACK = 0
+        private const val INTENT_INDEX_MOVE = 1
+        private const val INTENT_INDEX_CAST_SPELL = 2
+        private const val INTENT_INDEX_USE_ITEM = 3
+        private const val INTENT_INDEX_DASH = 4
+        private const val INTENT_INDEX_DODGE = 5
+        private const val INTENT_INDEX_HELP = 6
+        private const val INTENT_INDEX_HIDE = 7
+        private const val INTENT_INDEX_DISENGAGE = 8
+        private const val INTENT_INDEX_READY = 9
+        private const val INTENT_INDEX_SEARCH = 10
+        private const val INTENT_INDEX_UNKNOWN = 11
+    }
+    
     /**
      * Classifies player text input into an intent type.
      *
@@ -51,8 +67,11 @@ class OnnxIntentClassifier(
             withTimeout(timeoutMs) {
                 classifyWithOnnx(text)
             }
-        } catch (e: Exception) {
-            logger.warn(e) { "ONNX classification failed, using keyword fallback" }
+        } catch (e: IllegalStateException) {
+            logger.warn(e) { "ONNX classification failed due to invalid state, using keyword fallback" }
+            keywordFallback.classify(text)
+        } catch (e: IllegalArgumentException) {
+            logger.warn(e) { "ONNX classification failed due to invalid argument, using keyword fallback" }
             keywordFallback.classify(text)
         }
     }
@@ -93,8 +112,8 @@ class OnnxIntentClassifier(
      * @return Pair of (IntentType, confidence)
      */
     private fun findBestIntent(probabilities: FloatArray): Pair<IntentType, Float> {
-        require(probabilities.size == 12) { 
-            "Expected 12 probabilities, got ${probabilities.size}" 
+        require(probabilities.size == EXPECTED_PROBABILITY_COUNT) { 
+            "Expected $EXPECTED_PROBABILITY_COUNT probabilities, got ${probabilities.size}" 
         }
         
         // Find index of maximum probability
@@ -125,18 +144,18 @@ class OnnxIntentClassifier(
      * 11 = UNKNOWN
      */
     private fun indexToIntent(index: Int): IntentType = when (index) {
-        0 -> IntentType.ATTACK
-        1 -> IntentType.MOVE
-        2 -> IntentType.CAST_SPELL
-        3 -> IntentType.USE_ITEM
-        4 -> IntentType.DASH
-        5 -> IntentType.DODGE
-        6 -> IntentType.HELP
-        7 -> IntentType.HIDE
-        8 -> IntentType.DISENGAGE
-        9 -> IntentType.READY
-        10 -> IntentType.SEARCH
-        11 -> IntentType.UNKNOWN
+        INTENT_INDEX_ATTACK -> IntentType.ATTACK
+        INTENT_INDEX_MOVE -> IntentType.MOVE
+        INTENT_INDEX_CAST_SPELL -> IntentType.CAST_SPELL
+        INTENT_INDEX_USE_ITEM -> IntentType.USE_ITEM
+        INTENT_INDEX_DASH -> IntentType.DASH
+        INTENT_INDEX_DODGE -> IntentType.DODGE
+        INTENT_INDEX_HELP -> IntentType.HELP
+        INTENT_INDEX_HIDE -> IntentType.HIDE
+        INTENT_INDEX_DISENGAGE -> IntentType.DISENGAGE
+        INTENT_INDEX_READY -> IntentType.READY
+        INTENT_INDEX_SEARCH -> IntentType.SEARCH
+        INTENT_INDEX_UNKNOWN -> IntentType.UNKNOWN
         else -> {
             logger.warn { "Invalid intent index: $index, defaulting to UNKNOWN" }
             IntentType.UNKNOWN

@@ -30,6 +30,11 @@ class OnnxSessionManager(
 ) {
     private val logger = LoggerFactory.getLogger(OnnxSessionManager::class.java)
     
+    companion object {
+        private const val EXPECTED_TOKEN_COUNT = 128
+        private const val TENSOR_BATCH_SIZE = 1L
+    }
+    
     private var ortEnvironment: OrtEnvironment? = null
     private var ortSession: OrtSession? = null
     private val sessionMutex = Mutex()
@@ -81,8 +86,20 @@ class OnnxSessionManager(
                 // Process pending requests
                 processPendingRequests()
                 
-            } catch (e: Exception) {
-                logger.error(e) { "Failed to initialize ONNX Runtime from $modelPath" }
+            } catch (e: java.io.IOException) {
+                logger.error(e) { "Failed to load ONNX model from $modelPath" }
+                initializationFailed = true
+                
+                // Clear pending requests on failure
+                pendingRequests.clear()
+            } catch (e: IllegalArgumentException) {
+                logger.error(e) { "Invalid ONNX model format in $modelPath" }
+                initializationFailed = true
+                
+                // Clear pending requests on failure
+                pendingRequests.clear()
+            } catch (e: IllegalStateException) {
+                logger.error(e) { "ONNX Runtime in invalid state during initialization" }
                 initializationFailed = true
                 
                 // Clear pending requests on failure
@@ -100,7 +117,9 @@ class OnnxSessionManager(
      * @throws IllegalArgumentException if tokens array is not length 128
      */
     suspend fun infer(tokens: IntArray): FloatArray = withContext(Dispatchers.IO) {
-        require(tokens.size == 128) { "Token array must be length 128, got ${tokens.size}" }
+        require(tokens.size == EXPECTED_TOKEN_COUNT) { 
+            "Token array must be length $EXPECTED_TOKEN_COUNT, got ${tokens.size}" 
+        }
         
         check(!initializationFailed) { "ONNX Runtime initialization failed, cannot perform inference" }
         check(initialized) { "ONNX Runtime not initialized, call initialize() first" }
@@ -118,7 +137,7 @@ class OnnxSessionManager(
                 val inputTensor = OnnxTensor.createTensor(
                     env,
                     inputBuffer,
-                    longOf(1, 128)
+                    longOf(TENSOR_BATCH_SIZE, EXPECTED_TOKEN_COUNT.toLong())
                 )
                 
                 // Run inference
@@ -136,8 +155,11 @@ class OnnxSessionManager(
                 
                 return@withLock outputArray
                 
-            } catch (e: Exception) {
-                logger.error(e) { "ONNX inference failed" }
+            } catch (e: IllegalStateException) {
+                logger.error(e) { "ONNX inference failed due to invalid state" }
+                throw e
+            } catch (e: IllegalArgumentException) {
+                logger.error(e) { "ONNX inference failed due to invalid argument" }
                 throw e
             }
         }
@@ -183,15 +205,17 @@ class OnnxSessionManager(
             logger.debug { "Warming up ONNX model" }
             
             // Create dummy input (all zeros)
-            val dummyTokens = IntArray(128) { 0 }
+            val dummyTokens = IntArray(EXPECTED_TOKEN_COUNT) { 0 }
             
             // Run dummy inference (result is discarded)
             infer(dummyTokens)
             
             logger.debug { "Model warmup complete" }
             
-        } catch (e: Exception) {
-            logger.warn(e) { "Model warmup failed, continuing anyway" }
+        } catch (e: IllegalStateException) {
+            logger.warn(e) { "Model warmup failed due to invalid state, continuing anyway" }
+        } catch (e: IllegalArgumentException) {
+            logger.warn(e) { "Model warmup failed due to invalid argument, continuing anyway" }
         }
     }
     
@@ -211,8 +235,10 @@ class OnnxSessionManager(
         requests.forEach { request ->
             try {
                 request()
-            } catch (e: Exception) {
-                logger.error(e) { "Failed to process pending request" }
+            } catch (e: IllegalStateException) {
+                logger.error(e) { "Failed to process pending request due to invalid state" }
+            } catch (e: IllegalArgumentException) {
+                logger.error(e) { "Failed to process pending request due to invalid argument" }
             }
         }
     }

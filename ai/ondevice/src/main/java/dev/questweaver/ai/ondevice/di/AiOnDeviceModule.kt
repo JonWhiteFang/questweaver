@@ -45,8 +45,15 @@ val aiOnDeviceModule = module {
         // Try to load vocabulary from assets, fall back to default if missing
         val vocabulary = try {
             vocabularyLoader.loadVocabulary("models/vocabulary.json")
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             // Log warning and use default vocabulary
+            org.slf4j.LoggerFactory.getLogger("AiOnDeviceModule")
+                .warn("Failed to load vocabulary from assets, using default", e)
+            vocabularyLoader.createDefaultVocabulary()
+        } catch (e: IllegalArgumentException) {
+            // Log warning and use default vocabulary
+            org.slf4j.LoggerFactory.getLogger("AiOnDeviceModule")
+                .warn("Invalid vocabulary format, using default", e)
             vocabularyLoader.createDefaultVocabulary()
         }
         
