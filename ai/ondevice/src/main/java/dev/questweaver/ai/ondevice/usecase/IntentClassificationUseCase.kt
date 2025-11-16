@@ -7,7 +7,7 @@ import dev.questweaver.core.domain.action.ActionOption
 import dev.questweaver.core.domain.action.ActionResult
 import dev.questweaver.core.domain.intent.NLAction
 import dev.questweaver.core.domain.intent.IntentType
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * Use case for classifying player natural language input into structured actions.
@@ -27,7 +27,7 @@ class IntentClassificationUseCase(
     private val intentClassifier: IntentClassifier,
     private val entityExtractor: EntityExtractor
 ) {
-    private val logger = LoggerFactory.getLogger(IntentClassificationUseCase::class.java)
+    private val logger = KotlinLogging.logger {}
     
     companion object {
         private const val MAX_INPUT_LENGTH = 500

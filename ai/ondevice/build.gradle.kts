@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation(libs.serialization.json)
     implementation(libs.kotlin.logging)
+    implementation(libs.slf4j.api)
     
     implementation(libs.onnx.runtime)
     implementation(libs.bundles.koin)

@@ -21,7 +21,7 @@ firebaseBom = "33.1.0"
 detekt = "1.23.6"
 jmh = "1.37"
 slf4j = "2.0.9"
-kotlin-logging = "3.0.5"
+kotlin-logging = "5.1.4"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }

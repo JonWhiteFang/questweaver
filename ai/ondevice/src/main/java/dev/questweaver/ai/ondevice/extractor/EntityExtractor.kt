@@ -4,7 +4,7 @@ import dev.questweaver.ai.ondevice.model.EncounterContext
 import dev.questweaver.ai.ondevice.model.EntityExtractionResult
 import dev.questweaver.ai.ondevice.model.ExtractedCreature
 import dev.questweaver.core.domain.intent.GridPos
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 /**
  * Extracts game entities (creatures, locations, spells, items) from player text input.
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
  * - Item names from player's inventory
  */
 class EntityExtractor {
-    private val logger = LoggerFactory.getLogger(EntityExtractor::class.java)
+    private val logger = KotlinLogging.logger {}
     
     companion object {
         private const val MIN_PARTIAL_MATCH_LENGTH = 3

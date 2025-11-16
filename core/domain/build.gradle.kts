@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.serialization.json)
     implementation(libs.kotlin.logging)
+    implementation(libs.slf4j.api)
     
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)

@@ -5,8 +5,8 @@ import dev.questweaver.ai.ondevice.inference.OnnxSessionManager
 import dev.questweaver.ai.ondevice.model.IntentResult
 import dev.questweaver.ai.ondevice.tokenizer.Tokenizer
 import dev.questweaver.core.domain.intent.IntentType
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.withTimeout
-import org.slf4j.LoggerFactory
 
 /**
  * ONNX-based intent classifier with keyword fallback.
@@ -31,7 +31,7 @@ class OnnxIntentClassifier(
     private val timeoutMs: Long = 300L
 ) : IntentClassifier {
     
-    private val logger = LoggerFactory.getLogger(OnnxIntentClassifier::class.java)
+    private val logger = KotlinLogging.logger {}
     
     companion object {
         private const val EXPECTED_PROBABILITY_COUNT = 12

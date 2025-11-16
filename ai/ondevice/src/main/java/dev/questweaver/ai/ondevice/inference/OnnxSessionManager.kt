@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.LongBuffer
 
 /**
@@ -28,7 +28,7 @@ class OnnxSessionManager(
     private val context: Context,
     private val modelPath: String = "models/intent_classifier.onnx"
 ) {
-    private val logger = LoggerFactory.getLogger(OnnxSessionManager::class.java)
+    private val logger = KotlinLogging.logger {}
     
     companion object {
         private const val EXPECTED_TOKEN_COUNT = 128

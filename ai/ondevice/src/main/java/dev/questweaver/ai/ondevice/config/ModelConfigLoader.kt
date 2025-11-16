@@ -1,8 +1,8 @@
 package dev.questweaver.ai.ondevice.config
 
 import android.content.Context
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.json.Json
-import org.slf4j.LoggerFactory
 import java.io.IOException
 
 /**
@@ -13,7 +13,7 @@ import java.io.IOException
  */
 class ModelConfigLoader(private val context: Context) {
     
-    private val logger = LoggerFactory.getLogger(ModelConfigLoader::class.java)
+    private val logger = KotlinLogging.logger {}
     
     private val json = Json {
         ignoreUnknownKeys = true
