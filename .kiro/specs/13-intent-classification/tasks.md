@@ -205,20 +205,20 @@
   - Wire up dependencies
   - _Requirements: 6.1_
 
-- [ ] 11. Write integration tests
-  - [ ] 11.1 Create end-to-end classification test
+- [x] 11. Write integration tests
+  - [x] 11.1 Create end-to-end classification test
     - Test full pipeline from text input to NLAction
     - Test with real EncounterContext containing creatures and spells
     - Verify intent, entities, and confidence are correct
     - _Requirements: 8.1_
   
-  - [ ] 11.2 Create performance benchmark tests
+  - [x] 11.2 Create performance benchmark tests
     - Test classification completes within 300ms budget
     - Test tokenization completes within 20ms
     - Test entity extraction completes within 100ms
     - _Requirements: 1.2_
   
-  - [ ] 11.3 Create accuracy test with test dataset
+  - [x] 11.3 Create accuracy test with test dataset
     - Create dataset of 500 common player commands
     - Run classification on entire dataset
     - Verify 85%+ accuracy on intent classification
