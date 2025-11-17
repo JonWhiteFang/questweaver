@@ -262,43 +262,43 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Prefer Disengage if multiple attacks provoked
     - _Requirements: 4.6_
 
-- [ ] 10. Implement ResourceManager
-  - [ ] 10.1 Create ResourceManager class
+- [x] 10. Implement ResourceManager
+  - [x] 10.1 Create ResourceManager class
     - Method: `shouldUseResource(resource, action, context): Boolean`
     - _Requirements: 5.1, 5.2_
   
-  - [ ] 10.2 Implement spell slot usage logic
+  - [x] 10.2 Implement spell slot usage logic
     - Reserve high-level slots (7-9) for critical situations
     - Use mid-level slots (4-6) when 3+ enemies remain
     - Use low-level slots (1-3) freely in early combat
     - Prefer cantrips when resources low (<30%)
     - _Requirements: 5.2, 5.4, 5.6_
   
-  - [ ] 10.3 Implement limited ability usage logic
+  - [x] 10.3 Implement limited ability usage logic
     - Use powerful abilities when 4+ enemies remain
     - Reserve defensive abilities for HP < 50%
     - Use utility abilities freely
     - _Requirements: 5.3_
   
-  - [ ] 10.4 Implement consumable item usage logic
+  - [x] 10.4 Implement consumable item usage logic
     - Use healing potions when HP < 30% and no healer
     - Use buff potions before major encounters
     - Avoid consumables in trivial encounters
     - _Requirements: 5.5_
   
-  - [ ] 10.5 Implement encounter difficulty estimation
+  - [x] 10.5 Implement encounter difficulty estimation
     - Estimate remaining encounter duration
     - Count remaining enemies
     - Assess ally HP and resources
     - _Requirements: 5.2, 5.7_
 
-- [ ] 11. Implement TacticalAgent (main orchestrator)
-  - [ ] 11.1 Create TacticalAgent class
+- [x] 11. Implement TacticalAgent (main orchestrator)
+  - [x] 11.1 Create TacticalAgent class
     - Constructor: all component dependencies
     - Method: `decideTurn(creature, context): TacticalDecision`
     - _Requirements: 1.1, 6.1_
   
-  - [ ] 11.2 Implement decision pipeline
+  - [x] 11.2 Implement decision pipeline
     - Evaluate behavior tree to get action types
     - Generate action candidates
     - Score all candidates
@@ -308,19 +308,19 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Validate with RulesEngine
     - _Requirements: 1.1, 8.1, 8.2_
   
-  - [ ] 11.3 Implement performance monitoring
+  - [x] 11.3 Implement performance monitoring
     - Track time for each pipeline stage
     - Log warning if exceeds 300ms budget
     - Return best action found if timeout
     - _Requirements: 7.1, 7.2_
   
-  - [ ] 11.4 Implement fallback logic
+  - [x] 11.4 Implement fallback logic
     - Handle invalid actions by selecting next-best
     - Fall back to Dodge if all actions invalid
     - Fall back to Attack nearest enemy if no valid actions
     - _Requirements: 1.4, 8.2_
   
-  - [ ] 11.5 Implement decision logging
+  - [x] 11.5 Implement decision logging
     - Log behavior tree path taken
     - Log top 3 scored actions
     - Log selected action and reasoning
@@ -328,7 +328,7 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Log resources used
     - _Requirements: 6.4_
   
-  - [ ] 11.6 Implement deterministic behavior
+  - [x] 11.6 Implement deterministic behavior
     - Use seeded DiceRoller for all randomness
     - Ensure same context + seed → same decision
     - _Requirements: 6.1, 6.2, 6.3_
