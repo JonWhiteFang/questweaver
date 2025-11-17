@@ -1,6 +1,12 @@
 package dev.questweaver.ai.tactical.scoring
 
-import dev.questweaver.ai.tactical.*
+import dev.questweaver.ai.tactical.ActionCandidate
+import dev.questweaver.ai.tactical.Difficulty
+import dev.questweaver.ai.tactical.ResourceCost
+import dev.questweaver.ai.tactical.ScoreBreakdown
+import dev.questweaver.ai.tactical.ScoredAction
+import dev.questweaver.ai.tactical.TacticalAction
+import dev.questweaver.ai.tactical.TacticalContext
 import dev.questweaver.ai.tactical.targeting.ThreatAssessor
 import dev.questweaver.domain.dice.DiceRoller
 import dev.questweaver.domain.entities.Creature
@@ -78,6 +84,7 @@ class ActionScorer(
     /**
      * Estimates base damage for an action.
      */
+    @Suppress("MagicNumber") // Spell levels are D&D conventions
     private fun estimateBaseDamage(action: TacticalAction): Float {
         return when (action) {
             is TacticalAction.Attack -> {
@@ -124,6 +131,7 @@ class ActionScorer(
     /**
      * Gets resistance multiplier for damage type.
      */
+    @Suppress("UnusedParameter") // damageType will be used when creature resistance data is available
     private fun getResistanceMultiplier(target: Creature, damageType: String, context: TacticalContext): Float {
         // Simplified: check for common resistances
         // In full implementation, would check creature's resistance/vulnerability/immunity lists
@@ -193,6 +201,7 @@ class ActionScorer(
      * Calculates hit chance for attack roll.
      * D20 + attackBonus >= targetAC
      */
+    @Suppress("MagicNumber") // D20 mechanics constants are self-documenting
     private fun calculateAttackHitChance(attackBonus: Int, targetAC: Int): Float {
         val neededRoll = targetAC - attackBonus
         return when {
@@ -205,6 +214,7 @@ class ActionScorer(
     /**
      * Calculates chance of target failing save.
      */
+    @Suppress("MagicNumber") // D20 mechanics constants are self-documenting
     private fun calculateSaveFailChance(saveDC: Int, saveBonus: Int): Float {
         val neededRoll = saveDC - saveBonus
         return when {
@@ -217,6 +227,7 @@ class ActionScorer(
     /**
      * Estimates attack bonus for weapon attacks.
      */
+    @Suppress("UnusedParameter") // action will be used when weapon-specific bonuses are implemented
     private fun estimateAttackBonus(action: TacticalAction.Attack): Int {
         // Simplified: assume +5 attack bonus (proficiency + ability modifier)
         return TYPICAL_ATTACK_BONUS
@@ -273,6 +284,7 @@ class ActionScorer(
     /**
      * Checks if attacker has disadvantage against target.
      */
+    @Suppress("UnusedParameter", "FunctionOnlyReturningConstant") // Will be implemented with obscurement/prone checks
     private fun hasDisadvantageAgainst(target: Creature, context: TacticalContext): Boolean {
         // Simplified: would check for obscurement, prone (for ranged), etc.
         return false
@@ -282,6 +294,7 @@ class ActionScorer(
      * Task 7.4: Calculate target priority score.
      * Uses ThreatAssessor and applies role/HP multipliers.
      */
+    @Suppress("MagicNumber") // HP thresholds are D&D conventions
     private fun calculateTargetPriority(candidate: ActionCandidate, context: TacticalContext): Float {
         if (candidate.targets.isEmpty()) return 1.0f
         
@@ -312,6 +325,7 @@ class ActionScorer(
     /**
      * Gets role-based priority multiplier.
      */
+    @Suppress("UnusedParameter", "MagicNumber") // context will be used when creature class/role data is available
     private fun getRoleMultiplier(target: Creature, context: TacticalContext): Float {
         // Simplified: would check creature class/role
         // For now, use heuristics based on spellcasting ability
@@ -350,6 +364,9 @@ class ActionScorer(
      * Task 7.7: Calculate positioning score.
      * Considers cover, optimal range, and opportunity attacks.
      */
+    @Suppress("CyclomaticComplexMethod", "CognitiveComplexMethod", "NestedBlockDepth", "ReturnCount", "MagicNumber")
+    // Acceptable: Positioning logic requires checking multiple action types and ranges
+    // Numbers are D&D range conventions
     private fun calculatePositioningScore(candidate: ActionCandidate, context: TacticalContext): Float {
         if (candidate.positions.isEmpty()) return 0f
         
