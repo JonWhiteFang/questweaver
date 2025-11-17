@@ -226,38 +226,38 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Use seeded randomness for equal targets
     - _Requirements: 3.5, 3.7_
 
-- [ ] 9. Implement PositioningStrategy
-  - [ ] 9.1 Create PositioningStrategy class
+- [x] 9. Implement PositioningStrategy
+  - [x] 9.1 Create PositioningStrategy class
     - Constructor: Pathfinder, GeometryCalculator dependencies
     - Method: `selectPosition(creature, action, target, context): PositionDecision`
     - Create PositionDecision data class: position, path, reasoning
     - _Requirements: 4.1_
   
-  - [ ] 9.2 Implement melee positioning logic
+  - [x] 9.2 Implement melee positioning logic
     - Prefer flanking positions
     - Avoid opportunity attacks
     - Stay adjacent to high-value targets
     - _Requirements: 4.3_
   
-  - [ ] 9.3 Implement ranged positioning logic
+  - [x] 9.3 Implement ranged positioning logic
     - Prefer positions with cover
     - Maintain optimal range
     - Maximize distance from melee threats
     - _Requirements: 4.2_
   
-  - [ ] 9.4 Implement spellcaster positioning logic
+  - [x] 9.4 Implement spellcaster positioning logic
     - Maximize AoE coverage
     - Avoid friendly fire
     - Maintain distance from threats
     - _Requirements: 4.5_
   
-  - [ ] 9.5 Implement defensive positioning logic
+  - [x] 9.5 Implement defensive positioning logic
     - Maximize distance from threats when HP < 30%
     - Seek cover or concealment
     - Move toward allies for protection
     - _Requirements: 4.4, 12.1, 12.2_
   
-  - [ ] 9.6 Implement opportunity attack evaluation
+  - [x] 9.6 Implement opportunity attack evaluation
     - Calculate risk vs benefit for movement
     - Prefer Disengage if multiple attacks provoked
     - _Requirements: 4.6_
