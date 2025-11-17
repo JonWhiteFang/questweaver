@@ -154,48 +154,48 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Calculate forced movement bonus
     - _Requirements: 11.6_
 
-- [x] 7. Implement ActionScorer
-  - [ ] 7.1 Create ActionScorer class
+- [ ] 7. Implement ActionScorer
+  - [x] 7.1 Create ActionScorer class
     - Constructor: ThreatAssessor, OpportunityEvaluator, DiceRoller dependencies
     - Method: `scoreAll(candidates, context, difficulty): List<ScoredAction>`
     - _Requirements: 2.1, 2.2_
   
-  - [ ] 7.2 Implement damage score calculation
+  - [x] 7.2 Implement damage score calculation
     - Calculate expected damage (base × hit probability)
     - Apply critical hit multiplier if advantage
     - Apply resistance/vulnerability/immunity multipliers
     - _Requirements: 2.2_
   
-  - [ ] 7.3 Implement hit probability calculation
+  - [x] 7.3 Implement hit probability calculation
     - Calculate from attack bonus vs target AC
     - Adjust for advantage/disadvantage
     - Handle saving throw spells
     - _Requirements: 2.2, 8.4_
   
-  - [ ] 7.4 Implement target priority scoring
+  - [x] 7.4 Implement target priority scoring
     - Use ThreatAssessor for base priority
     - Apply role multipliers (healer, spellcaster, etc.)
     - Apply HP percentage multipliers
     - _Requirements: 2.2, 10.1_
   
-  - [ ] 7.5 Implement resource cost scoring
+  - [x] 7.5 Implement resource cost scoring
     - Penalize spell slot usage by level
     - Penalize limited ability usage
     - Penalize consumable item usage
     - _Requirements: 2.3, 5.2_
   
-  - [ ] 7.6 Implement tactical value scoring
+  - [x] 7.6 Implement tactical value scoring
     - Use OpportunityEvaluator for bonuses
     - Add flanking, AoE, concentration break bonuses
     - _Requirements: 2.3, 11.1_
   
-  - [ ] 7.7 Implement positioning score calculation
+  - [x] 7.7 Implement positioning score calculation
     - Score cover availability
     - Score optimal range
     - Penalize opportunity attacks
     - _Requirements: 2.4, 4.1, 4.2_
   
-  - [ ] 7.8 Implement difficulty-based variance
+  - [x] 7.8 Implement difficulty-based variance
     - Apply random variance based on difficulty level
     - Use seeded DiceRoller for determinism
     - _Requirements: 2.6, 6.1, 9.1, 9.2_
