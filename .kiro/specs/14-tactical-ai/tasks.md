@@ -200,28 +200,28 @@ This implementation plan breaks down the Tactical AI Agent into discrete, manage
     - Use seeded DiceRoller for determinism
     - _Requirements: 2.6, 6.1, 9.1, 9.2_
 
-- [ ] 8. Implement TargetSelector
-  - [ ] 8.1 Create TargetSelector class
+- [x] 8. Implement TargetSelector
+  - [x] 8.1 Create TargetSelector class
     - Constructor: ThreatAssessor dependency
     - Method: `selectTarget(action, candidates, context): Creature`
     - _Requirements: 3.1_
   
-  - [ ] 8.2 Implement threat-based selection
+  - [x] 8.2 Implement threat-based selection
     - Weight threat level at 40%
     - Consider damage output, HP, conditions, healing
     - _Requirements: 3.2_
   
-  - [ ] 8.3 Implement vulnerability-based selection
+  - [x] 8.3 Implement vulnerability-based selection
     - Weight vulnerability at 30%
     - Consider HP percentage, AC, resistances, conditions
     - _Requirements: 3.3_
   
-  - [ ] 8.4 Implement tactical value selection
+  - [x] 8.4 Implement tactical value selection
     - Weight tactical value at 30%
     - Consider role, concentration, position, range
     - _Requirements: 3.4_
   
-  - [ ] 8.5 Implement tie-breaking logic
+  - [x] 8.5 Implement tie-breaking logic
     - Prefer targets within optimal range
     - Use seeded randomness for equal targets
     - _Requirements: 3.5, 3.7_
